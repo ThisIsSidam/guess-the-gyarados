@@ -1,0 +1,1 @@
+const getPokemon = "https://pokeapi.co/api/v2/pokemon/";
