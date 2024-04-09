@@ -69,6 +69,7 @@ flutter:
     - assets/mc_gyarados/homePageIcon.png
     - assets/backgrounds/homepage_bg.png
     - assets/mc_gyarados/gyarados_silhouette.png
+    - assets/other_images/MissingNo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

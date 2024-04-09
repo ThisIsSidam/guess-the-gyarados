@@ -6,7 +6,7 @@ class HiveHelper {
   static final _idBox = Hive.box('caught_pokemon');
 
   static void refreshIdList() {
-    _idList = _idBox.get('CAUGHT_POKEMON');
+    _idList = _idBox.get('CAUGHT_POKEMON') ?? [];
   }
 
   static List<int> get idList {
@@ -17,8 +17,7 @@ class HiveHelper {
   static void updateData(int newId) {
     refreshIdList();
     _idList.add(newId);
-    _idBox.put('CAUGHT_POKEMON', idList);
+    _idBox.put('CAUGHT_POKEMON', _idList);
   }
-
 
 }

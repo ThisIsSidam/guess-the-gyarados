@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
 import 'package:guessthegyarados/provider/provider.dart';
 import 'package:guessthegyarados/theme/theme.dart';
-import 'package:guessthegyarados/utils/home_bottom_nav.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -26,6 +26,19 @@ class HomePage extends ConsumerWidget {
     final pokemonNamesFuture = ref.watch(pokemonNamesProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: ()  {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CaughtPage())
+              );
+            }, 
+            icon: const Icon(Icons.catching_pokemon)
+          )
+        ],
+      ),
       body: pokemonNamesFuture.when(
           data: (pokemonNames) {
             return Center(
@@ -64,7 +77,6 @@ class HomePage extends ConsumerWidget {
             child: CircularProgressIndicator(),
           ),
         ),
-        bottomNavigationBar: const HomeBottomNavBar(),
     );
   }
 }

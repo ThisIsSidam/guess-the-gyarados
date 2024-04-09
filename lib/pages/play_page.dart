@@ -5,6 +5,7 @@ import 'package:guessthegyarados/provider/pokemon_provider.dart';
 import 'package:guessthegyarados/provider/provider.dart';
 import 'package:guessthegyarados/theme/theme.dart';
 import 'package:guessthegyarados/utils/audio_player_widget.dart';
+import 'package:guessthegyarados/utils/catching_widget.dart';
 import 'package:guessthegyarados/utils/get_mon_image.dart';
 import 'package:guessthegyarados/utils/input_utils.dart';
 import 'package:guessthegyarados/utils/question_wrapped_utils.dart';
@@ -90,7 +91,10 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                     ],
                   ),
                 ),
-                listOfQuestionPills(questionWrappedUtils),
+                if (!pokemonGuessedCorrectly)
+                  listOfQuestionPills(questionWrappedUtils),
+                if (pokemonGuessedCorrectly)
+                  CatchingWidget(steps: stepsCount, pokemon: thisPokemon)
               ],
             ),
             bottomNavigationBar: getBottomBar(
@@ -142,7 +146,11 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                 onPressed: () {
                   Navigator.pop(context);
                 }, 
-                child: const Icon(Icons.close)
+                child: Icon(
+                  pokemonGuessedCorrectly
+                  ? Icons.keyboard_return
+                  : Icons.close
+                )
               ),
             ),
           ),
