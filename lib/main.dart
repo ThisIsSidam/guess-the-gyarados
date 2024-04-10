@@ -9,6 +9,7 @@ void main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('caught_pokemon');
+  await Hive.openBox('pokemon_images');
 
   runApp(const ProviderScope(
     child: MyApp())

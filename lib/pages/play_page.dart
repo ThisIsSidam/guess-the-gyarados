@@ -6,7 +6,7 @@ import 'package:guessthegyarados/provider/provider.dart';
 import 'package:guessthegyarados/theme/theme.dart';
 import 'package:guessthegyarados/utils/audio_player_widget.dart';
 import 'package:guessthegyarados/utils/catching_widget.dart';
-import 'package:guessthegyarados/utils/get_mon_image.dart';
+import 'package:guessthegyarados/utils/get_image.dart';
 import 'package:guessthegyarados/utils/input_utils.dart';
 import 'package:guessthegyarados/utils/question_wrapped_utils.dart';
 
@@ -41,7 +41,6 @@ class _PlayPageState extends ConsumerState<PlayPage>{
           );
         }
 
-        final pokemonImage = getPokemonImage(thisPokemon.spriteUrl);
         final gyaradosSilhouette = Image.asset(
           "assets/mc_gyarados/gyarados_silhouette.png",
           fit: BoxFit.cover,
@@ -70,7 +69,20 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                           child: AudioPlayerWidget(
                             audioLink: thisPokemon.cry,
                             child: pokemonGuessedCorrectly
-                            ? pokemonImage
+                            ? FutureBuilder<Widget>(
+                                future: getPokemonImage(thisPokemon.id, thisPokemon.spriteUrl),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    debugPrint("[playPage] ${snapshot.error}");
+                                    return const Center(child: Text('[playPage] Failed to load image'));
+                                  } else {
+                                    return snapshot.data!;
+                                  }
+                                },
+                                
+                            )
                             : gyaradosSilhouette,
                           ),
                         ),

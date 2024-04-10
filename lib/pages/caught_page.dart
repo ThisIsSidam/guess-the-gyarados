@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:guessthegyarados/database/db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/fetch_data.dart';
+import 'package:guessthegyarados/utils/get_image.dart';
 
 class CaughtPage extends StatefulWidget {
   const CaughtPage({super.key});
@@ -79,7 +80,7 @@ class _CaughtPageState extends State<CaughtPage> {
             child: Text(
               "Wait, your pokemons must be rushing here any moment.",
               softWrap: true,
-              style: Theme.of(context).textTheme.titleMedium
+              style: Theme.of(context).textTheme.titleSmall
             ),
           ),
         ],
@@ -129,9 +130,19 @@ class _CaughtPageState extends State<CaughtPage> {
           child: SizedBox(
             width: 150,
             height: 150,
-            child: Image.network(
-              pokemon.spriteUrl,
-              fit: BoxFit.cover,
+            child: FutureBuilder<Widget>(
+                future: getPokemonImage(pokemon.id, pokemon.spriteUrl),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    debugPrint("[playPage] ${snapshot.error}");
+                    return const Center(child: Text('[playPage] Failed to load image'));
+                  } else {
+                    return snapshot.data!;
+                  }
+                },
+                
             ),
           ),
         );
