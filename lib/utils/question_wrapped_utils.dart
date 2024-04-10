@@ -150,5 +150,44 @@ class QuestionWrappedUtils {
       )
     );
   }
+  Widget isBabyWidget() {
+    String ans = pokemon.isBaby ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is Baby Pokemon", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is Baby Pokemon",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
+  Widget isLegendaryWidget() {
+    String ans = pokemon.isMythical ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is a Legendary", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is a Legendary",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
+  Widget isMythiscalWidget() {
+    String ans = pokemon.isMythical ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is a Mythical", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is a Mythical",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
 
 }

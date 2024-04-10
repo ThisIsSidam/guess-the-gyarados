@@ -1,20 +1,41 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:guessthegyarados/consts/api_links.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:http/http.dart' as http;
 
 Future<Pokemon> fetchPokemonData(int pokemonId) async {
-  final url = Uri.parse('$getPokemon$pokemonId');
-  final response = await http.get(url);
+  final speciesUrl = Uri.parse('$pokemonSpeciesDataApiLink$pokemonId');
+  final speciesResponse = await http.get(speciesUrl);
 
-  if (response.statusCode == 200) 
-  {
-    final jsonData = json.decode(response.body);
-    return Pokemon.fromJsonAsync(jsonData);
-  } 
-  else 
-  {
-    throw Exception('Failed to fetch Pokemon data');
+  if (speciesResponse.statusCode == 200) {
+    final speciesData = json.decode(speciesResponse.body);
+    final varieties = speciesData['varieties'] as List<dynamic>;
+
+// Filter out varieties with '-mega', '-gmax', '-totem' in the name
+final filteredVarieties = varieties.where((variety) {
+  final varietyName = variety['pokemon']['name'];
+  return !varietyName.endsWith('-mega') &&
+         !varietyName.endsWith('-gmax') &&
+         !varietyName.contains('-totem-') &&
+         !varietyName.contains('-totem');
+}).toList();
+
+// Randomly select one variety from filtered list.
+final random = Random();
+final selectedVariety = filteredVarieties[random.nextInt(filteredVarieties.length)];
+
+final pokemonUrl = Uri.parse(selectedVariety['pokemon']['url']);
+final pokemonResponse = await http.get(pokemonUrl);
+
+if (pokemonResponse.statusCode == 200) {
+  final jsonData = json.decode(pokemonResponse.body);
+  return Pokemon.fromJsonAsync(jsonData);
+} else {
+  throw Exception('Failed to fetch Pokemon data');
+}
+  } else {
+    throw Exception('Failed to fetch Pokemon species data');
   }
 }
 

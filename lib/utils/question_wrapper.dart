@@ -71,7 +71,12 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(child: widget.child),
-            Flexible(child: Text(" | ${widget.answer}")),
+            Flexible(
+              child: Text(
+                " | ${widget.answer}",
+                style: Theme.of(context).textTheme.titleSmall,
+              )
+            ),
           ],
         ),
       );

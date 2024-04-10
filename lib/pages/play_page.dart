@@ -116,18 +116,23 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            questionWrappedUtils.generationWidget(),
-            questionWrappedUtils.evolutionTreeSizeWidget(),
-            questionWrappedUtils.noOfFormsWidget(),
-            questionWrappedUtils.itemEvolutionWidget(),
-            questionWrappedUtils.hasMegaWidget(),
-            questionWrappedUtils.hasGmaxWidget(),
-            questionWrappedUtils.currentEvoStageWidget()
-          ],
+        child: SingleChildScrollView(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              questionWrappedUtils.generationWidget(),
+              questionWrappedUtils.evolutionTreeSizeWidget(),
+              questionWrappedUtils.noOfFormsWidget(),
+              questionWrappedUtils.itemEvolutionWidget(),
+              questionWrappedUtils.hasMegaWidget(),
+              questionWrappedUtils.hasGmaxWidget(),
+              questionWrappedUtils.currentEvoStageWidget(),
+              questionWrappedUtils.isBabyWidget(),
+              questionWrappedUtils.isLegendaryWidget(),
+              questionWrappedUtils.isMythiscalWidget()
+            ],
+          ),
         ),
       )
     );
@@ -144,6 +149,16 @@ class _PlayPageState extends ConsumerState<PlayPage>{
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
+                  if (!pokemonGuessedCorrectly)
+                  {
+                    final snackBar = SnackBar(
+                      content: Text("$pokemonName ran away!"),
+                      duration: const Duration(seconds: 2),
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+
                   Navigator.pop(context);
                 }, 
                 child: Icon(

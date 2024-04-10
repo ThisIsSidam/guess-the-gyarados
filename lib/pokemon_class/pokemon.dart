@@ -4,8 +4,6 @@ class Pokemon {
   final int id;
   final String name;
   final int generation;
-  final int height;
-  final int weight;
   final Map<int, String> abilities;
   final int noOfForms;
   final List<String> types;
@@ -14,16 +12,17 @@ class Pokemon {
   String? evolutionItem;
   List<String> usableEvolutionItems;
   int stageOfEvolution;
-  String cry; // New attribute
-  bool hasMega; // New attribute
-  bool hasGmax; // New attribute
+  String cry; 
+  bool hasMega; 
+  bool hasGmax; 
+  bool isBaby;
+  bool isLegendary;
+  bool isMythical;
 
   Pokemon({
     required this.id,
     required this.name,
     required this.generation,
-    required this.height,
-    required this.weight,
     Map<int, String>? abilities,
     required this.noOfForms,
     required this.types,
@@ -32,9 +31,12 @@ class Pokemon {
     this.evolutionItem,
     this.usableEvolutionItems = const [],
     this.stageOfEvolution = 1,
-    required this.cry, // New parameter
-    required this.hasMega, // New parameter
-    required this.hasGmax, // New parameter
+    required this.cry, 
+    required this.hasMega, 
+    required this.hasGmax, 
+    required this.isBaby,
+    required this.isLegendary,
+    required this.isMythical
   }) : abilities = abilities ?? {0: '', 1: '', 2: ''};
 
   factory Pokemon.fromJson(Map<String, dynamic> json) {
@@ -49,8 +51,6 @@ class Pokemon {
       id: json['id'],
       name: json['name'],
       generation: generation,
-      height: json['height'],
-      weight: json['weight'],
       abilities: abilities,
       noOfForms: forms,
       types: types,
@@ -59,6 +59,9 @@ class Pokemon {
       cry: cry, 
       hasMega: false, 
       hasGmax: false, 
+      isBaby: false,
+      isLegendary: false,
+      isMythical: false
     );
   }
 
@@ -84,6 +87,10 @@ class Pokemon {
         pokemon.hasGmax = true;
       }
     }
+
+    pokemon.isBaby = speciesData['is_baby'];
+    pokemon.isLegendary = speciesData['is_legendary'];
+    pokemon.isMythical = speciesData['is_mythical'];
 
     return pokemon;
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:guessthegyarados/consts/api_links.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +17,7 @@ final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomI
 });
 
 final pokemonNamesProvider = FutureProvider<Map<int, String>>((ref) async {
-  final response = await http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1302'));
+  final response = await http.get(Uri.parse(pokemonNamesApiLink));
 
   if (response.statusCode == 200) {
     final jsonData = jsonDecode(response.body);
