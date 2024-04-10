@@ -19,6 +19,15 @@ class PlayPage extends ConsumerStatefulWidget {
 
 class _PlayPageState extends ConsumerState<PlayPage>{
   final randomId = Random().nextInt(1000) + 1;
+  bool isShiny = false;
+
+  @override
+  void initState() {
+    final shinyChances = Random().nextInt(1000) + 1;
+    if (shinyChances == 69) isShiny = true; // ¯\_(ツ)_/¯ (¬‿¬)
+
+    super.initState();
+  }
 
   late int stepsCount = ref.read(counterProvider);
   late CounterNotifier stepsCountNotifier = ref.read(counterProvider.notifier); 
@@ -70,7 +79,12 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                             audioLink: thisPokemon.cry,
                             child: pokemonGuessedCorrectly
                             ? FutureBuilder<Widget>(
-                                future: getPokemonImage(thisPokemon.id, thisPokemon.spriteUrl),
+                                future: getPokemonImage(
+                                  thisPokemon.id, 
+                                  isShiny 
+                                  ? thisPokemon.shinySpriteUrl 
+                                  : thisPokemon.spriteUrl
+                                ),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     return const Center(child: CircularProgressIndicator());
@@ -106,7 +120,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                 if (!pokemonGuessedCorrectly)
                   listOfQuestionPills(questionWrappedUtils),
                 if (pokemonGuessedCorrectly)
-                  CatchingWidget(steps: stepsCount, pokemon: thisPokemon)
+                  CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
               ],
             ),
             bottomNavigationBar: getBottomBar(
@@ -164,7 +178,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                   if (!pokemonGuessedCorrectly)
                   {
                     final snackBar = SnackBar(
-                      content: Text("$pokemonName ran away!"),
+                      content: Text("${isShiny ? "Shiny" : ''} $pokemonName ran away!"),
                       duration: const Duration(seconds: 2),
                     );
 

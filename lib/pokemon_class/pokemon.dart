@@ -8,6 +8,7 @@ class Pokemon {
   final int noOfForms;
   final List<String> types;
   final String spriteUrl;
+  final String shinySpriteUrl;
   int evolutionTreeSize;
   String? evolutionItem;
   List<String> usableEvolutionItems;
@@ -27,6 +28,7 @@ class Pokemon {
     required this.noOfForms,
     required this.types,
     required this.spriteUrl,
+    required this.shinySpriteUrl,
     required this.evolutionTreeSize,
     this.evolutionItem,
     this.usableEvolutionItems = const [],
@@ -44,6 +46,7 @@ class Pokemon {
     final forms = json['forms']?.length ?? 0;
     final types = extractTypes(json['types']);
     final spriteUrl = json['sprites']['front_default'];
+    final shinySpriteUrl = json['sprites']['front_shiny'];
     final generation = getGeneration(json['id']);
     final cry = json['cries']['latest'] ?? '';
 
@@ -55,6 +58,7 @@ class Pokemon {
       noOfForms: forms,
       types: types,
       spriteUrl: spriteUrl,
+      shinySpriteUrl: shinySpriteUrl,
       evolutionTreeSize: 0, 
       cry: cry, 
       hasMega: false, 

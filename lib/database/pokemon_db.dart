@@ -4,18 +4,24 @@ class PokemonDB {
 
   static final _idBox = Hive.box('caught_pokemon');
 
-  static List<int> _refreshIdList() {
-    return _idBox.get('CAUGHT_POKEMON') ?? [];
+
+  static Map<int, List<int>> get idList {
+    return _idBox.get('CAUGHT_POKEMON').cast<int,List<int>>() ?? <int, List<int>>{};
   }
 
-  static List<int> get idList {
-    final idList = _refreshIdList();
-    return idList;
-  }
+  static void updateData(int id, bool isShiny) {
 
-  static void updateData(int newId) {
-    final idList = _refreshIdList();
-    idList.add(newId);
+    final idList = _idBox.get('CAUGHT_POKEMON') ?? {};
+
+    if (idList.containsKey(id))
+    {
+      idList[id]!.add(isShiny ? 1 : 0);
+    }
+    else 
+    {
+      idList[id] = [isShiny ? 1 : 0];
+    }
+
     _idBox.put('CAUGHT_POKEMON', idList);
   }
   

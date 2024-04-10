@@ -7,11 +7,12 @@ import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 class CatchingWidget extends StatefulWidget {
   final int steps;
   final Pokemon pokemon;
-
+  final bool isShiny;
   const CatchingWidget({
     super.key,
     required this.steps,
     required this.pokemon,
+    required this.isShiny
   });
 
   @override
@@ -50,7 +51,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   /// Adds caught pokemon id to database
   void successfullyCaught() {
-    PokemonDB.updateData(widget.pokemon.id);
+    PokemonDB.updateData(widget.pokemon.id, widget.isShiny);
   }
 
   @override
@@ -77,8 +78,8 @@ class _CatchingWidgetState extends State<CatchingWidget> {
               ),
               child: Text(
                 caught
-                    ? 'Excellent, you caught ${widget.pokemon.name}!'
-                    : 'Oops, ${widget.pokemon.name} ran away.',
+                    ? 'Excellent, you caught a ${widget.isShiny ? "Shiny" : ''} ${widget.pokemon.name}!'
+                    : 'Oops, ${widget.isShiny ? "Shiny" : ''} ${widget.pokemon.name} ran away.',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,

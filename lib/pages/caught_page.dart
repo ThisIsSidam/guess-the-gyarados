@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/consts/api_links.dart';
+import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
-import 'package:guessthegyarados/pokemon_class/pokemon.dart';
-import 'package:guessthegyarados/utils/fetch_data.dart';
+import 'package:guessthegyarados/theme/theme.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 
 class CaughtPage extends StatefulWidget {
@@ -12,23 +13,11 @@ class CaughtPage extends StatefulWidget {
 }
 
 class _CaughtPageState extends State<CaughtPage> {
-  late List<int> idList;
-  late Future<List<Pokemon>> _pokemonFuture;
+  late Map<int, List<int>> idList = PokemonDB.idList;
 
   @override
   void initState() {
     super.initState();
-    idList = PokemonDB.idList;
-    _pokemonFuture = loadPokemonData();
-  }
-
-  Future<List<Pokemon>> loadPokemonData() async {
-    List<Pokemon> tempPokemonList = [];
-    for (int id in idList) {
-      final pokemon = await fetchPokemonData(id);
-      tempPokemonList.add(pokemon);
-    }
-    return tempPokemonList;
   }
 
   @override
@@ -43,28 +32,12 @@ class _CaughtPageState extends State<CaughtPage> {
           onPressed: () {Navigator.pop(context);},
         ),
       ),
-      body: FutureBuilder<List<Pokemon>>(
-        future: _pokemonFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) 
-          {
-            return loadingPage();
-          } 
-          else if (snapshot.hasError) 
-          {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } 
-          else 
-          {
-            final pokemonList = snapshot.data!;
-            return pokemonList.isEmpty
-            ? emptyPage()
-            : pokemonGridView(pokemonList);
-          }
-        },
-      ),
+      body: idList.isEmpty
+        ? emptyPage()
+        : Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+          child: pokemonGridView(idList),
+        )
     );
   }
 
@@ -115,38 +88,91 @@ class _CaughtPageState extends State<CaughtPage> {
     );
   }
 
-  Widget pokemonGridView(List<Pokemon> pokemonList) {
+  Widget pokemonGridView(Map<int ,List<int>> idMap) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: pokemonList.length,
+      itemCount: idMap.length,
       itemBuilder: (BuildContext context, int index) {
-        final pokemon = pokemonList[index];
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            width: 150,
-            height: 150,
-            child: FutureBuilder<Widget>(
-                future: getPokemonImage(pokemon.id, pokemon.spriteUrl),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    debugPrint("[playPage] ${snapshot.error}");
-                    return const Center(child: Text('[playPage] Failed to load image'));
-                  } else {
-                    return snapshot.data!;
-                  }
-                },
-                
-            ),
-          ),
+        final id = idMap.keys.toList()[index];
+        int numberOfNormal = 0; 
+        int numberOfShiny = 0; 
+        for (var element in idMap[id]!) {
+          if(element == 0) 
+          {
+            numberOfNormal++;
+          } 
+          else if (element == 1) 
+          {
+            numberOfShiny++;
+          }
+        }
+        return imageDisplayTile(
+          id, 
+          ImagesDB.getImage(id), 
+          numberOfNormal, 
+          numberOfShiny
         );
       },
+    );
+  }
+
+  Widget imageDisplayTile(
+    int id, 
+    Widget? image, 
+    int normalCatch, 
+    int shinyCatch
+  ) {
+
+    Widget circledNumber(int num, Color color) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: color
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Text(" $num "),
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        Container(
+          width: 200,
+          height: 200,
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(15)
+          ),
+          child: Center(
+            child: image ?? FutureBuilder(
+              future: getPokemonImage(id, '$pokemonImageLink$id'), 
+              builder: (context, snapshot) {
+                return snapshot.data!;
+              }
+            )
+          ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Row(
+            children: [
+              if (normalCatch > 1)
+                circledNumber(normalCatch, neutralPill),
+              const SizedBox(width: 4,),
+              if (shinyCatch > 0)
+                circledNumber(shinyCatch, completionPill)
+            ],
+          )
+        )
+      ],
     );
   }
 }
