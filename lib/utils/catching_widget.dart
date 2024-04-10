@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/database/db.dart';
+import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 
 class CatchingWidget extends StatefulWidget {
@@ -15,7 +15,7 @@ class CatchingWidget extends StatefulWidget {
   });
 
   @override
-  _CatchingWidgetState createState() => _CatchingWidgetState();
+  State<CatchingWidget> createState() => _CatchingWidgetState();
 }
 
 class _CatchingWidgetState extends State<CatchingWidget> {
@@ -50,7 +50,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   /// Adds caught pokemon id to database
   void successfullyCaught() {
-    HiveHelper.updateData(widget.pokemon.id);
+    PokemonDB.updateData(widget.pokemon.id);
   }
 
   @override

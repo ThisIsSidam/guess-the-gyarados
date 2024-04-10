@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/database/db.dart';
+import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/fetch_data.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
@@ -18,7 +18,7 @@ class _CaughtPageState extends State<CaughtPage> {
   @override
   void initState() {
     super.initState();
-    idList = HiveHelper.idList;
+    idList = PokemonDB.idList;
     _pokemonFuture = loadPokemonData();
   }
 

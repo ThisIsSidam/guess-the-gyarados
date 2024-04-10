@@ -1,28 +1,13 @@
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class HiveHelper {
-
-  static final _idBox = Hive.box('caught_pokemon');
+class ImagesDB {
   static final _imageBox = Hive.box('pokemon_images');
 
-  static List<int> _refreshIdList() {
-    return _idBox.get('CAUGHT_POKEMON') ?? [];
-  }
 
-  static List<int> get idList {
-    final idList = _refreshIdList();
-    return idList;
-  }
-
-  static void updateData(int newId) {
-    final idList = _refreshIdList();
-    idList.add(newId);
-    _idBox.put('CAUGHT_POKEMON', idList);
-  }
-
-  static Future<void> addImage(int pokemonId, Uint8List image) async {
+static Future<void> addImage(int pokemonId, Uint8List image) async {
     try {
       _imageBox.put(pokemonId.toString(), image);
     } catch (e) {
@@ -51,8 +36,4 @@ class HiveHelper {
       return null;
     }
   }
-
-  
-
-  
 }

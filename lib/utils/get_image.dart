@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/database/images_db.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 
-import 'package:guessthegyarados/database/db.dart';
-
 Future<Widget> getPokemonImage(int id, String imageUrl) async {
 
-  final Image? pokemonImage = HiveHelper.getImage(id);
+  final Image? pokemonImage = ImagesDB.getImage(id);
   if (pokemonImage != null)
   {
     return pokemonImage;
@@ -15,7 +14,7 @@ Future<Widget> getPokemonImage(int id, String imageUrl) async {
 
   final Uint8List imageData = await loadImageDataFromUrl(imageUrl); 
 
-  HiveHelper.addImage(id, imageData); 
+  ImagesDB.addImage(id, imageData); 
 
   return Image.memory(
     imageData,
