@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:flutter/material.dart';
 
 Color getColorFromString(String input) {
@@ -102,4 +104,13 @@ String capitalizeString(String input) {
   }
 
   return formattedString;
+}
+
+bool excludePokemon(String name) {
+  if (name.contains("-mega")) return true;
+  if (name.contains("-gmax")) return true;
+  if (name.contains("-totem")) return true;
+  if (name.startsWith("pikachu-")) return true;
+
+  return false;
 }

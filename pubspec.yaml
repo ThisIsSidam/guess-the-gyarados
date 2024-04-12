@@ -70,8 +70,9 @@ flutter:
     - assets/mc_gyarados/gyarados_silhouette.png
     - assets/other_images/MissingNo.png
     - assets/random_pokemon/random_pokemon.png
-    - assets/backgrounds/mainBG.jpeg
     - assets/icons/pokeball-icon-48.png
+
+    - assets/data/pokemon_names.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

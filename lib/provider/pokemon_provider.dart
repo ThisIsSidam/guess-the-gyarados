@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'package:guessthegyarados/consts/api_links.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:guessthegyarados/consts/asset_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/fetch_data.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 
 final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomId) async {
   Pokemon? pokemon;
@@ -17,11 +18,13 @@ final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomI
 });
 
 final pokemonNamesProvider = FutureProvider<Map<int, String>>((ref) async {
-  final response = await http.get(Uri.parse(pokemonNamesApiLink));
+  try {
+    // Load the JSON data from the local file
+    final jsonData = await rootBundle.loadString(pokemonNamesJson);
 
-  if (response.statusCode == 200) {
-    final jsonData = jsonDecode(response.body);
-    final results = jsonData['results'] as List<dynamic>;
+    // Parse the JSON data
+    final decodedData = jsonDecode(jsonData);
+    final results = decodedData['results'] as List<dynamic>;
 
     final pokemonNames = <int, String>{};
 
@@ -29,11 +32,14 @@ final pokemonNamesProvider = FutureProvider<Map<int, String>>((ref) async {
       final pokemonData = results[i];
       final pokemonName = pokemonData['name'];
       final pokemonId = i + 1; // Assuming the IDs start from 1
-      pokemonNames[pokemonId] = pokemonName;
+
+      if (excludePokemon(pokemonName)) continue;
+
+      pokemonNames[pokemonId] = capitalizeString(pokemonName);
     }
 
     return pokemonNames;
-  } else {
-    throw Exception('Failed to fetch Pokemon names');
+  } catch (e) {
+    throw Exception('Failed to load Pokemon names: $e');
   }
 });

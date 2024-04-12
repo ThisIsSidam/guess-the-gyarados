@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:guessthegyarados/consts/api_links.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:http/http.dart' as http;
 
 Future<Pokemon> fetchPokemonData(int pokemonId) async {
@@ -15,10 +16,7 @@ Future<Pokemon> fetchPokemonData(int pokemonId) async {
 // Filter out varieties with '-mega', '-gmax', '-totem' in the name
 final filteredVarieties = varieties.where((variety) {
   final varietyName = variety['pokemon']['name'];
-  return !varietyName.endsWith('-mega') &&
-         !varietyName.endsWith('-gmax') &&
-         !varietyName.contains('-totem-') &&
-         !varietyName.contains('-totem');
+  return !excludePokemon(varietyName);
 }).toList();
 
 // Randomly select one variety from filtered list.

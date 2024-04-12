@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/consts/images.dart';
+import 'package:guessthegyarados/consts/asset_strings.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
