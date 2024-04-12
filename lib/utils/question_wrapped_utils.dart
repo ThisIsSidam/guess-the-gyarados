@@ -26,9 +26,9 @@ class QuestionWrappedUtils {
       "Fire", "Water", "Grass",
       "Rock", "Steel", "Ground",
       "Ghost", "Dark", "Psychic",
-      "Fairy", "Dragon", "Electric", 
-      "Bug", "Flying", "Poison",
-      "Normal", "Fighting", "Ice"
+      "Fairy", "Dragon", "Ice",
+      "Electric", "Bug", "Flying", 
+      "Poison", "Normal", "Fighting", 
     ];
 
     return Row(
@@ -73,7 +73,7 @@ class QuestionWrappedUtils {
     return QuestionWrapper(
       question: "Number of Forms",
       answer: noOfForms.toString(),
-      options: List.generate(10, (index) => (index+1).toString()),
+      options: List.generate(30, (index) => (index+1).toString()),
       child: Text(
         'Forms',
         style: Theme.of(context).textTheme.bodyLarge,

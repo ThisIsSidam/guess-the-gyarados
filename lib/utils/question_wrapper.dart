@@ -51,14 +51,18 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
     return GestureDetector(
       onTap: _showInputDialog,
       child: widget.aliasWidget == null
-      ? Container(
-          decoration: BoxDecoration(
-            color: isGuessedCorrectly ? completionPill : neutralPill,
-            borderRadius: BorderRadius.circular(10),
+      ? Material(
+        elevation: 5,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+            decoration: BoxDecoration(
+              color: isGuessedCorrectly ? completionPill : neutralPill,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: getFinalChild(),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: getFinalChild(),
-        )
+      )
       : getFinalChild(),
     );
   }

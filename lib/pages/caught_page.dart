@@ -25,7 +25,10 @@ class _CaughtPageState extends State<CaughtPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Caught Pokemon'),
+        title: Text(
+          'Caught Pokemon',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.home),

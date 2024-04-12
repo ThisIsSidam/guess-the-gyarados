@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color completionPill = Color.fromARGB(255, 255, 193, 7);
+const Color completionPill = Color.fromARGB(255, 251, 231, 146);
 const Color neutralPill = Color.fromARGB(255, 211, 211, 211);
 
 final myTheme = ThemeData(
@@ -16,10 +16,12 @@ final myTheme = ThemeData(
       backgroundColor: neutralPill,
       foregroundColor: Colors.black,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10))
+        borderRadius: BorderRadius.all(Radius.circular(15))
       ),
     )
   ),
+
+  
 
   textTheme: const TextTheme(
     titleLarge: TextStyle(

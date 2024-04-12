@@ -1,4 +1,5 @@
 import 'package:guessthegyarados/utils/fetch_data.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 
 class Pokemon {
   final int id;
@@ -49,10 +50,11 @@ class Pokemon {
     final shinySpriteUrl = json['sprites']['front_shiny'];
     final generation = getGeneration(json['id']);
     final cry = json['cries']['latest'] ?? '';
+    final String name = json['name'];
 
     return Pokemon(
       id: json['id'],
-      name: json['name'],
+      name: capitalizeString(name),
       generation: generation,
       abilities: abilities,
       noOfForms: forms,

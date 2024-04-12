@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 
 void showTextInputBottomSheet(
   BuildContext context, 
@@ -63,7 +64,7 @@ void showOptionsBottomSheet(
     context: context,
     builder: (context) {
       return FractionallySizedBox(
-        heightFactor: options.length > 5 ? 0.8 : 0.5,
+        heightFactor: 0.5,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -99,8 +100,11 @@ void showOptionsBottomSheet(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Container(
+                                alignment: Alignment.center,
+                                width: option.length < 3 ? 50 : option.length * 20,
+                                height: 50,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey[300],
+                                  color: getColorFromString(option),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -186,8 +190,8 @@ void showTextFieldWithOptionsBottomSheet(
                         spacing: 8,
                         children: filteredOptions
                             .map(
-                              (option) => ElevatedButton(
-                                onPressed: () {
+                              (option) => GestureDetector(
+                                onTap: () {
                                   final answerCorrect = option.toLowerCase() == answer.toLowerCase();
 
                                   isAnswerCorrect(answerCorrect);
@@ -196,10 +200,21 @@ void showTextFieldWithOptionsBottomSheet(
                                     Navigator.pop(context);
                                   }
                                 },
-                                style: Theme.of(context).elevatedButtonTheme.style,
                                 child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(option),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    width: option.length < 6 
+                                    ? option.length * 20 
+                                    : option.length *15,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black12,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    child: Text(option),
+                                  ),
                                 ),
                               ),
                             )

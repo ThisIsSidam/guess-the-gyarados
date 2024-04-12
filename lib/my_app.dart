@@ -14,6 +14,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Guess the Gyarados',
       home: const HomePage(),
       theme: myTheme,

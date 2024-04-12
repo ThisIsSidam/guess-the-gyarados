@@ -51,8 +51,10 @@ class _PlayPageState extends ConsumerState<PlayPage>{
         }
 
         final gyaradosSilhouette = Image.asset(
-          "assets/mc_gyarados/gyarados_silhouette.png",
+          "assets/random_pokemon/random_pokemon.png",
           fit: BoxFit.cover,
+          height: 300,
+          width: 300,
         );
 
         debugPrint(thisPokemon.name);
@@ -65,67 +67,79 @@ class _PlayPageState extends ConsumerState<PlayPage>{
         return Scaffold(
           body: Column(
               children: [
-                const SizedBox(height: 40,),
-                Expanded(
-                  flex: 2,
-                  child: Stack(
-                    alignment: Alignment.center,
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16, right: 16, bottom: 8, top: 40),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Center(
-                        child: SizedBox(
-                          height: 200,
-                          width: 200,
-                          child: AudioPlayerWidget(
-                            audioLink: thisPokemon.cry,
-                            child: pokemonGuessedCorrectly
-                            ? FutureBuilder<Widget>(
-                                future: getPokemonImage(
-                                  thisPokemon.id, 
-                                  isShiny 
-                                  ? thisPokemon.shinySpriteUrl 
-                                  : thisPokemon.spriteUrl
-                                ),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return const Center(child: CircularProgressIndicator());
-                                  } else if (snapshot.hasError) {
-                                    debugPrint("[playPage] ${snapshot.error}");
-                                    return const Center(child: Text('[playPage] Failed to load image'));
-                                  } else {
-                                    return snapshot.data!;
-                                  }
-                                },
-                                
-                            )
-                            : gyaradosSilhouette,
-                          ),
-                        ),
-                      ),
-                      Positioned( 
-                        top: 8,
-                        right: 8,
-                        child: questionWrappedUtils.typesRow(),
-                      ),
-                      Positioned( 
-                        top: 8,
-                        left: 16,
-                        child: ElevatedButton(
+                      ElevatedButton(
                           onPressed: () {},
                           child: Text("Steps: $stepsCount")
-                        ),
                       ),
+                      if (!pokemonGuessedCorrectly)
+                      questionWrappedUtils.typesRow(),
                     ],
                   ),
                 ),
+                const SizedBox(height: 40,),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: pokemonGuessedCorrectly ? Colors.black12 : Colors.transparent
+                      ),
+                      child: Center(
+                            child: SizedBox(
+                              height: 250,
+                              width: 250,
+                              child: AudioPlayerWidget(
+                                audioLink: thisPokemon.cry,
+                                child: pokemonGuessedCorrectly
+                                ? FutureBuilder<Widget>(
+                                    future: getPokemonImage(
+                                      thisPokemon.id, 
+                                      isShiny 
+                                      ? thisPokemon.shinySpriteUrl 
+                                      : thisPokemon.spriteUrl
+                                    ),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const Center(child: CircularProgressIndicator());
+                                      } else if (snapshot.hasError) {
+                                        debugPrint("[playPage] ${snapshot.error}");
+                                        return const Center(child: Text('[playPage] Failed to load image'));
+                                      } else {
+                                        return snapshot.data!;
+                                      }
+                                    },
+                                    
+                                )
+                                : gyaradosSilhouette,
+                              ),
+                            ),
+                          ),
+                    ),
+                  ),
+                ),
                 if (!pokemonGuessedCorrectly)
-                  listOfQuestionPills(questionWrappedUtils),
+                  Expanded(
+                    flex: 2,
+                    child: listOfQuestionPills(questionWrappedUtils)
+                  ),
                 if (pokemonGuessedCorrectly)
-                  CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
+                  Expanded(
+                    flex: 2,
+                    child: CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
+                  ),
+                getBottomBar(
+                  thisPokemon.name,
+                  pokemonsMap!.values.toList()
+                )
               ],
-            ),
-            bottomNavigationBar: getBottomBar(
-              thisPokemon.name,
-              pokemonsMap!.values.toList()
             ),
         );
       },
@@ -139,28 +153,27 @@ class _PlayPageState extends ConsumerState<PlayPage>{
   }
 
   Widget listOfQuestionPills(QuestionWrappedUtils questionWrappedUtils) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              questionWrappedUtils.generationWidget(),
-              questionWrappedUtils.evolutionTreeSizeWidget(),
-              questionWrappedUtils.noOfFormsWidget(),
-              questionWrappedUtils.itemEvolutionWidget(),
-              questionWrappedUtils.hasMegaWidget(),
-              questionWrappedUtils.hasGmaxWidget(),
-              questionWrappedUtils.currentEvoStageWidget(),
-              questionWrappedUtils.isBabyWidget(),
-              questionWrappedUtils.isLegendaryWidget(),
-              questionWrappedUtils.isMythiscalWidget()
-            ],
-          ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            questionWrappedUtils.generationWidget(),
+            questionWrappedUtils.evolutionTreeSizeWidget(),
+            questionWrappedUtils.noOfFormsWidget(),
+            questionWrappedUtils.itemEvolutionWidget(),
+            questionWrappedUtils.hasMegaWidget(),
+            questionWrappedUtils.hasGmaxWidget(),
+            questionWrappedUtils.currentEvoStageWidget(),
+            questionWrappedUtils.isBabyWidget(),
+            questionWrappedUtils.isLegendaryWidget(),
+            questionWrappedUtils.isMythiscalWidget(),
+            const SizedBox(height: 10, width: 200,)
+          ],
         ),
-      )
+      ),
     );
   }
 
@@ -195,8 +208,9 @@ class _PlayPageState extends ConsumerState<PlayPage>{
               ),
             ),
           ),
+          if(!pokemonGuessedCorrectly)
           Expanded(
-            flex: 3,
+            flex: pokemonGuessedCorrectly ? 1 : 3,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Builder(

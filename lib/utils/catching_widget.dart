@@ -36,7 +36,10 @@ class _CatchingWidgetState extends State<CatchingWidget> {
   Future<void> _simulateCatching() async {
     final duration = Duration(seconds: Random().nextInt(3) + 3);
     await Future.delayed(duration);
-    final successRate = 100 - widget.steps;
+
+    double successRate = (100 - widget.steps).toDouble();
+    if (widget.pokemon.isLegendary || widget.pokemon.isMythical) successRate /= 2;
+
     final random = Random().nextInt(100);
     setState(() {
       caught = random < successRate;
@@ -56,38 +59,41 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FutureBuilder<void>(
-        future: _catchingFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16.0),
-                Text('Wait, Catching the ${widget.pokemon.name}'),
-              ],
-            );
-          } else {
-            return Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: caught ? Colors.green : Colors.red,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(
-                caught
-                    ? 'Excellent, you caught a ${widget.isShiny ? "Shiny" : ''} ${widget.pokemon.name}!'
-                    : 'Oops, ${widget.isShiny ? "Shiny" : ''} ${widget.pokemon.name} ran away.',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.0,
-                ),
-              ),
-            );
-          }
-        },
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.black12
+        ),
+        child: Center(
+          child: FutureBuilder<void>(
+            future: _catchingFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16.0),
+                    Text('Wait, Catching the ${widget.pokemon.name}'),
+                  ],
+                );
+              } else {
+                return Text(
+                  caught
+                  ? 'Excellent, you caught a ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name}!'
+                  : 'Oops, ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name} ran away.',
+                  softWrap: true,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                  ),
+                );
+              }
+            },
+          ),
+        ),
       ),
     );
   }
