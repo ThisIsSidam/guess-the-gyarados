@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
 import 'package:guessthegyarados/provider/provider.dart';
 import 'package:guessthegyarados/theme/theme.dart';
@@ -23,7 +24,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   void initState() {
-    final shinyChances = Random().nextInt(1000) + 1;
+    final shinyChances = Random().nextInt(1000);
     if (shinyChances == 69) isShiny = true; // ¯\_(ツ)_/¯ (¬‿¬)
 
     super.initState();
@@ -44,20 +45,21 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     return pokemonAsync.when(
       data: (thisPokemon) {
 
+
         if (thisPokemon == null) {
           return const Scaffold(
             body: Center(child: Text('Failed to fetch Pokemon data'))
           );
         }
 
-        final gyaradosSilhouette = Image.asset(
+        debugPrint(thisPokemon.name);
+
+        final questionMark = Image.asset(
           "assets/random_pokemon/random_pokemon.png",
           fit: BoxFit.cover,
           height: 300,
           width: 300,
         );
-
-        debugPrint(thisPokemon.name);
 
         final questionWrappedUtils = QuestionWrappedUtils(
           pokemon: thisPokemon, 
@@ -87,42 +89,35 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                   flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: pokemonGuessedCorrectly ? Colors.black12 : Colors.transparent
-                      ),
-                      child: Center(
-                            child: SizedBox(
-                              height: 250,
-                              width: 250,
-                              child: AudioPlayerWidget(
-                                audioLink: thisPokemon.cry,
-                                child: pokemonGuessedCorrectly
-                                ? FutureBuilder<Widget>(
-                                    future: getPokemonImage(
-                                      thisPokemon.id, 
-                                      isShiny 
-                                      ? thisPokemon.shinySpriteUrl 
-                                      : thisPokemon.spriteUrl
-                                    ),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.waiting) {
-                                        return const Center(child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        debugPrint("[playPage] ${snapshot.error}");
-                                        return const Center(child: Text('[playPage] Failed to load image'));
-                                      } else {
-                                        return snapshot.data!;
-                                      }
-                                    },
-                                    
-                                )
-                                : gyaradosSilhouette,
-                              ),
+                    child: Center(
+                          child: SizedBox(
+                            height: 250,
+                            width: 250,
+                            child: AudioPlayerWidget(
+                              audioLink: thisPokemon.cry,
+                              child: pokemonGuessedCorrectly
+                              ? FutureBuilder<Widget>(
+                                  future: getPokemonImage(
+                                    thisPokemon.id, 
+                                    thisPokemon.name,
+                                    isShiny: isShiny
+                                  ),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return const Center(child: CircularProgressIndicator());
+                                    } else if (snapshot.hasError) {
+                                      debugPrint("[playPage] ${snapshot.error}");
+                                      return const Center(child: Text('[playPage] Failed to load image'));
+                                    } else {
+                                      return snapshot.data!;
+                                    }
+                                  },
+                                  
+                              )
+                              : questionMark,
                             ),
                           ),
-                    ),
+                        ),
                   ),
                 ),
                 if (!pokemonGuessedCorrectly)

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/consts/api_links.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/theme/theme.dart';
@@ -115,7 +114,7 @@ class _CaughtPageState extends State<CaughtPage> {
         }
         return imageDisplayTile(
           id, 
-          ImagesDB.getImage(id), 
+          ImagesDB.getImage(id, isShiny: numberOfShiny > 0), 
           numberOfNormal, 
           numberOfShiny
         );
@@ -154,11 +153,15 @@ class _CaughtPageState extends State<CaughtPage> {
             borderRadius: BorderRadius.circular(15)
           ),
           child: Center(
-            child: image ?? FutureBuilder(
-              future: getPokemonImage(id, '$pokemonImageLink$id'), 
-              builder: (context, snapshot) {
-                return snapshot.data!;
-              }
+            child: SizedBox(
+              height: 100,
+              width: 100,
+              child: image ?? FutureBuilder(
+                future: getPokemonImage(id, "null-name"), 
+                builder: (context, snapshot) {
+                  return snapshot.data!;
+                }
+              ),
             )
           ),
         ),

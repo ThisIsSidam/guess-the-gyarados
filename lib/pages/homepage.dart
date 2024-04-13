@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/consts/asset_strings.dart';
+import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
-import 'package:guessthegyarados/provider/pokemon_provider.dart';
+import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/provider.dart';
 import 'package:guessthegyarados/theme/theme.dart';
 
@@ -30,8 +30,9 @@ class HomePage extends ConsumerWidget {
       body: pokemonNamesFuture.when(
           data: (pokemonNames) {
             return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                const SizedBox(height: 40,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -46,6 +47,7 @@ class HomePage extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 20,),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -1,6 +1,5 @@
-// ignore_for_file: curly_braces_in_flow_control_structures
-
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/consts/api_links.dart';
 
 Color getColorFromString(String input) {
 
@@ -113,4 +112,42 @@ bool excludePokemon(String name) {
   if (name.startsWith("pikachu-")) return true;
 
   return false;
+}
+
+
+// For getting images from HybridShivam Bulbapedia images repo
+
+String getPokemonImageLink(int id, String name) {
+  
+  List<String> parts = name.split("-");
+  String leadingZeroId = '';
+
+  switch (id.toString().length)
+  {
+    case 1 : leadingZeroId = "00$id"; break;
+    case 2 : leadingZeroId = "0$id"; break;
+    case 3 : leadingZeroId = id.toString(); break;
+    default: leadingZeroId = id.toString();
+
+  }
+  parts[0] = leadingZeroId;
+  String linkId = '';
+
+  for (final str in parts)
+  {
+    debugPrint(str);
+    linkId+=str;
+  }
+
+  return "$pokemonImageLink$linkId.png";
+}
+
+String getPokemonBackupImageLink(int id, bool isShiny) {
+
+  if (isShiny)
+  {
+    return "$shinyPokemonImageLink${id.toString()}.png";
+
+  }
+  return "$backupPokemonImageLink${id.toString()}.png";
 }

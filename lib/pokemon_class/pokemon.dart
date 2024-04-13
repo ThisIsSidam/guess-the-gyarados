@@ -160,51 +160,52 @@ class Pokemon {
   }
 
   static Map<String, dynamic> getEvolutionDetails(Map<String, dynamic> evolutionChainJson, String pokemonName) {
-    final chain = evolutionChainJson['chain'];
-    int count = 1; // Start with 1 (the base Pokémon)
-    String? evolutionItem;
-    List<String> usableEvolutionItems = [];
-    int stageOfEvolution = 1; // Initialize with 1
+  final chain = evolutionChainJson['chain'];
+  int evolutionTreeSize = 1; // Start with 1 (the base Pokémon)
+  String? evolutionItem;
+  List<String> usableEvolutionItems = [];
+  int stageOfEvolution = 1; // Initialize with 1
 
-    void countEvolutions(Map<String, dynamic> chainData, int currentStage) {
-      final currentSpeciesName = chainData['species']['name'];
-      if (currentSpeciesName == pokemonName) {
-        // This is the current Pokémon's evolution data
-        final evolutionDetails = chainData['evolution_details'];
+  void countEvolutions(Map<String, dynamic> chainData, int currentStage) {
+    final currentSpeciesName = chainData['species']['name'];
+    if (currentSpeciesName == pokemonName.toLowerCase()) 
+    {
+      // This is the current Pokémon's evolution data
+      final evolutionDetails = chainData['evolution_details'];
+      if (evolutionDetails != null && evolutionDetails.isNotEmpty) {
+        final item = evolutionDetails[0]['item'];
+        if (item != null) {
+          evolutionItem = item['name'];
+        } else {
+          evolutionItem = null;
+        }
+      }
+      stageOfEvolution = currentStage; // Update the stage of evolution
+    }
+
+    if (chainData.containsKey('evolves_to')) {
+      final evolutions = chainData['evolves_to'] as List;
+      evolutionTreeSize += evolutions.length;
+      for (final evolution in evolutions) {
+        final evolutionDetails = evolution['evolution_details'];
         if (evolutionDetails != null && evolutionDetails.isNotEmpty) {
           final item = evolutionDetails[0]['item'];
           if (item != null) {
-            evolutionItem = item['name'];
-          } else {
-            evolutionItem = null;
+            usableEvolutionItems.add(item['name']);
           }
         }
-        stageOfEvolution = currentStage; // Update the stage of evolution
-      }
-
-      if (chainData.containsKey('evolves_to')) {
-        final evolutions = chainData['evolves_to'] as List;
-        count += evolutions.length;
-        for (int i = 0; i < evolutions.length; i++) {
-          final evolution = evolutions[i];
-          final evolutionDetails = evolution['evolution_details'];
-          if (evolutionDetails != null && evolutionDetails.isNotEmpty) {
-            final item = evolutionDetails[0]['item'];
-            if (item != null) {
-              usableEvolutionItems.add(item['name']);
-            }
-          }
-          countEvolutions(evolution, currentStage + 1); // Increment the stage for the next evolution
-        }
+        countEvolutions(evolution, currentStage + 1); // Increment the stage for the next evolution
       }
     }
-
-    countEvolutions(chain, stageOfEvolution);
-    return {
-      'evolutionTreeSize': count,
-      'evolutionItem': evolutionItem,
-      'usableEvolutionItems': usableEvolutionItems,
-      'stageOfEvolution': stageOfEvolution,
-    };
   }
+
+  countEvolutions(chain, stageOfEvolution);
+
+  return {
+    'evolutionTreeSize': evolutionTreeSize,
+    'evolutionItem': evolutionItem,
+    'usableEvolutionItems': usableEvolutionItems,
+    'stageOfEvolution': stageOfEvolution,
+  };
+}
 }

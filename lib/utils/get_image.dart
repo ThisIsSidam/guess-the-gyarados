@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 
-Future<Widget> getPokemonImage(int id, String imageUrl) async {
+import 'package:guessthegyarados/utils/misc_methods.dart';
 
-  final Image? pokemonImage = ImagesDB.getImage(id);
+Future<Widget> getPokemonImage(int id, String name, {bool isShiny = false}) async {
+
+  final Image? pokemonImage = ImagesDB.getImage(id, isShiny: isShiny);
   if (pokemonImage != null)
   {
     return pokemonImage;
   }
 
-  final Uint8List imageData = await loadImageDataFromUrl(imageUrl); 
+  final Uint8List? imageData = await loadImageData(name, id, isShiny); 
 
-  ImagesDB.addImage(id, imageData); 
+  if (imageData == null)
+  {
+    return Image.asset(missingNoIcon, fit: BoxFit.cover);
+  }
+
+  ImagesDB.addImage(id, imageData, isShiny: isShiny); 
 
   return Image.memory(
     imageData,
@@ -27,21 +35,52 @@ Future<Widget> getPokemonImage(int id, String imageUrl) async {
   );
 }
 
-Future<Uint8List> loadImageDataFromUrl(String url) async {
-  // Download the image bytes
-  HttpClient httpClient = HttpClient();
-  var request = await httpClient.getUrl(Uri.parse(url));
-  var response = await request.close();
-  Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+Future<Uint8List?> loadImageData(String name, int id, bool isShiny) async {
+  
+  if (isShiny != true)
+  {
+    try {
+      final mainLink = getPokemonImageLink(id, name);
+      final imageData = await loadImageDataFromUrl(mainLink);
+      if (imageData != null) {
+        return imageData;
+      }
+    } catch (e) {
+      debugPrint('Failed to load image from main link: $e');
+    }
+  }
 
-  return bytes;
+  try {
+    final backupLink = getPokemonBackupImageLink(id, isShiny);
+    final imageData = await loadImageDataFromUrl(backupLink);
+    return imageData;
+  } catch (e) {
+    debugPrint('Failed to load image from backup link: $e');
+    return null;
+  }
+}
+
+Future<Uint8List?> loadImageDataFromUrl(String url) async {
+  try {
+    // Download the image bytes
+    HttpClient httpClient = HttpClient();
+    var request = await httpClient.getUrl(Uri.parse(url));
+    var response = await request.close();
+
+    if (response.statusCode != 200) {
+      debugPrint('Failed to load image from $url (Status code: ${response.statusCode})');
+      return null;
+    }
+
+    Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+    return bytes;
+  } catch (e) {
+    debugPrint('Failed to load image from $url: $e');
+    return null;
+  }
 }
 
 Future<Uint8List> consolidateHttpClientResponseBytes(HttpClientResponse response) async {
-  
-  if (response.statusCode < 200 || response.statusCode >= 300) {
-    debugPrint('HTTP request failed with status code ${response.statusCode}');
-  }
   
   var completer = Completer<Uint8List>();
   var contents = <int>[];

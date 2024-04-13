@@ -164,7 +164,7 @@ class QuestionWrappedUtils {
     );
   }
   Widget isLegendaryWidget() {
-    String ans = pokemon.isMythical ? "Yes" : "No";
+    String ans = pokemon.isLegendary ? "Yes" : "No";
 
     return QuestionWrapper(
       question: "Is a Legendary", 
