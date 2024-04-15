@@ -1,7 +1,8 @@
-# Pokemon Guessing Game
+# Guess The Gyarados
 
-Welcome to the Pokemon Guessing Game! This is a fun and challenging game where you have to guess a randomly selected Pokemon by answering a series of questions. The game provides no clues, making it a true test of your Pokemon knowledge.
+Welcome! This is Guess The Gyarados. A fun and challenging game where you have to guess a randomly selected Pokemon by answering a series of questions. The game provides no clues, making it a true test of your Pokemon knowledge.
 
+## Screenshots
 <img src="images/homepage.png" width="200" /> <img src="images/play_page.png" width="200" /> <img src="images/caught_page.png" width="200" /> <img src="images/caught.png" width="200" />
 
 ## How to Play
@@ -15,30 +16,27 @@ Welcome to the Pokemon Guessing Game! This is a fun and challenging game where y
 
 - Random Pokemon selection from a comprehensive database.
 - Multiple-choice questions with various options related to the Pokemon's type, and other characteristics.
-- A OG Silhouette "Who's that pokemon" mod (to be implemented).
-- Catching Pokemon after succesful guess (to be implemented).
+- Guessed Pokemon have a chance to be caught depending on the number of steps you took to guess the Pokemon.
+- Caught Pokemon are shown on the separate Caught Page.
+
+## Features To Be Implemented
+
+- The OG Silhouette "Who's that pokemon" mode.
+- Achievements section.
 - Score tracking and high score leaderboard (will maybe be implemented).
-
-## Getting Started
-
-To run the Pokemon Guessing Game locally (would add release files later on), follow these steps:
-
-1. Clone the repository: `https://github.com/ThisIsSidam/guess-the-gyarados`
-2. Navigate to the project directory: `cd guess-the-gyarados`
-3. Install the required dependencies: `flutter pub get`
-4. Run the app: `flutter run`
 
 ## Contributing
 
-Contributions to the Pokemon Guessing Game project are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the [GNU GPLv3](LICENSE).
+Contributions to the project are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+I know that the design is not good, I am aware of it, I am not good at designing it. Give me ideas and they have a very high change of making it into the game.
 
 ## Acknowledgments
 
 - [Pokemon API](https://pokeapi.co/) for providing the Pokemon data.
+- [HybridShivam Pokemon Repository](https://github.com/HybridShivam/Pokemon) for providing images scrapped from bulbapedia.
 - Flutter and Dart communities for their support and resources.
+
+## Copyright Notice
+This is an unofficial, non-commercial, fan-made app and is NOT affiliated, endorsed or supported by Nintendo, Game Freak and The Pokémon Company in any way. Many images used in this app are copyrighted and are supported under fair use. Pokémon and Pokémon character names are trademarks of Nintendo. No copyright infringement intended.
 
 Enjoy the game and Guess 'em all!
