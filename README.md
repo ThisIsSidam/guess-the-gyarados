@@ -2,6 +2,11 @@
 
 Welcome to the Pokemon Guessing Game! This is a fun and challenging game where you have to guess a randomly selected Pokemon by answering a series of questions. The game provides no clues, making it a true test of your Pokemon knowledge.
 
+![Homepage](images/homepage.png)
+![Play Page](images/play_page.png)
+![Caught Page](images/caught_page.png)
+![Caught](images/caught.png)
+
 ## How to Play
 
 1. The game will randomly select a Pokemon from the database.
