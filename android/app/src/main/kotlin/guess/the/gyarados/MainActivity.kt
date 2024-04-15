@@ -1,4 +1,4 @@
-package com.example.guessthegyarados
+package guess.the.gyarados
 
 import io.flutter.embedding.android.FlutterActivity
 
