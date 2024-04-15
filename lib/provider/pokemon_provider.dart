@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
-import 'package:guessthegyarados/utils/fetch_data.dart';
+import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 
 final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomId) async {
   Pokemon? pokemon;

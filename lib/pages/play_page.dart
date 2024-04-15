@@ -9,8 +9,8 @@ import 'package:guessthegyarados/provider/steps_provider.dart';
 import 'package:guessthegyarados/utils/audio_player_widget.dart';
 import 'package:guessthegyarados/utils/catching_widget.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
-import 'package:guessthegyarados/utils/input_utils.dart';
-import 'package:guessthegyarados/utils/question_wrapped_utils.dart';
+import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
+import 'package:guessthegyarados/utils/q_wrapper_and_widgets/question_wrapped_utils.dart';
 
 class PlayPage extends ConsumerStatefulWidget {
   const PlayPage({super.key});
@@ -38,7 +38,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   Widget build(BuildContext context) {
-    final pokemonAsync = ref.watch(pokemonFutureProvider(494));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -53,43 +53,33 @@ class _PlayPageState extends ConsumerState<PlayPage>{
           );
         }
 
-        debugPrint(thisPokemon.name);
-
         final questionWrappedUtils = QuestionWrappedUtils(
           pokemon: thisPokemon, 
           context: context
         );
 
         return Scaffold(
-          body: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(bg1),
-                fit: BoxFit.cover
-              )
+          body: Column(
+              children: [
+                topRow(questionWrappedUtils),
+                const SizedBox(height: 40,),
+                pokemonImageWidget(thisPokemon),
+                if (!pokemonGuessedCorrectly)
+                  Expanded(
+                    flex: 2,
+                    child: listOfQuestionPills(questionWrappedUtils)
+                  ),
+                if (pokemonGuessedCorrectly)
+                  Expanded(
+                    flex: 2,
+                    child: CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
+                  ),
+                getBottomBar(
+                  thisPokemon.name,
+                  pokemonsMap!.values.toList()
+                )
+              ],
             ),
-            child: Column(
-                children: [
-                  topRow(questionWrappedUtils),
-                  const SizedBox(height: 40,),
-                  pokemonImageWidget(thisPokemon),
-                  if (!pokemonGuessedCorrectly)
-                    Expanded(
-                      flex: 2,
-                      child: listOfQuestionPills(questionWrappedUtils)
-                    ),
-                  if (pokemonGuessedCorrectly)
-                    Expanded(
-                      flex: 2,
-                      child: CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
-                    ),
-                  getBottomBar(
-                    thisPokemon.name,
-                    pokemonsMap!.values.toList()
-                  )
-                ],
-              ),
-          ),
         );
       },
       error: (err, stack) => Scaffold(

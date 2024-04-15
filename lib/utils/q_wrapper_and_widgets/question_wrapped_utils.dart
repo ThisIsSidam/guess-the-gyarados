@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
-import 'package:guessthegyarados/utils/question_wrapper.dart';
+import 'package:guessthegyarados/utils/q_wrapper_and_widgets/question_wrapper.dart';
 import 'package:guessthegyarados/utils/type_card.dart';
 
 class QuestionWrappedUtils {

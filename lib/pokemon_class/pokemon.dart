@@ -1,4 +1,4 @@
-import 'package:guessthegyarados/utils/fetch_data.dart';
+import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 
 class Pokemon {
@@ -87,9 +87,9 @@ class Pokemon {
     final varieties = speciesData['varieties'];
     for (final variety in varieties) {
       final varieName = variety['pokemon']['name'];
-      if (varieName.endsWith('-mega')) {
+      if (varieName.contains('-mega')) {
         pokemon.hasMega = true;
-      } else if (varieName.endsWith('-gmax')) {
+      } else if (varieName.contains('-gmax')) {
         pokemon.hasGmax = true;
       }
     }

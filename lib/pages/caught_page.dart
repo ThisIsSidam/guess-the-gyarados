@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
@@ -22,46 +21,41 @@ class _CaughtPageState extends State<CaughtPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(bg2),
-            fit: BoxFit.cover
-          )
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 50,),
-            topBar(),
-            idList.isEmpty
-            ? emptyPage()
-            : Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-                child: pokemonGridView(idList),
-              ),
+      body: Column(
+        children: [
+          const SizedBox(height: 50,),
+          topBar(),
+          idList.isEmpty
+          ? Expanded(child: emptyPage())
+          : Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+              child: pokemonGridView(idList),
             ),
-          ],
-        ),
+          ),
+        ],
       )
     );
   }
 
   Widget topBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {Navigator.pop(context);},
-        ),
-        Center(
-          child: Text(
-            'Caught Pokemon',
-            style: Theme.of(context).textTheme.titleLarge,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Center(
+            child: Text(
+              'Caught Pokemon',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
-        ),
-      ],
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {Navigator.pop(context);},
+          ),
+        ],
+      ),
     );
   }
 

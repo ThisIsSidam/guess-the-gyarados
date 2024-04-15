@@ -28,36 +28,28 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       body: pokemonNamesFuture.when(
           data: (pokemonNames) {
-            return Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(bg1),
-                  fit: BoxFit.cover
-                )
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 40,),
-                    topBar(context),
-                    const SizedBox(height: 70,),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/mc_gyarados/homePageIcon.png",
-                          fit: BoxFit.cover,
-                          height: 300,
-                          width: 300,
-                        ),
-                        const SizedBox(height:50.0),
-                        playButton(context, ref),
-                        const SizedBox(height: 90.0),
-                      ],
-                    ),
-                  ],
-                ),
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40,),
+                  topBar(context),
+                  const SizedBox(height: 70,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "assets/mc_gyarados/homePageIcon.png",
+                        fit: BoxFit.cover,
+                        height: 300,
+                        width: 300,
+                      ),
+                      const SizedBox(height:50.0),
+                      playButton(context, ref),
+                    ],
+                  ),
+                  const SizedBox(),
+                ],
               ),
             );
           },

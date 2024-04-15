@@ -37,11 +37,11 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     final duration = Duration(seconds: Random().nextInt(3) + 3);
     await Future.delayed(duration);
 
-    final successRate = getSuccessRate();
+    final catchRate = getSuccessRate();
 
     final random = Random().nextInt(100);
     setState(() {
-      caught = random < successRate;
+      caught = random < catchRate;
     });
 
     if (caught)
@@ -51,7 +51,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
   }
 
   double getSuccessRate() {
-    double successRate = 100 - (widget.steps * 0.25);
+    double successRate = 100 - (widget.steps * 0.5);
     if (widget.pokemon.isLegendary || widget.pokemon.isMythical) successRate /= 2;
 
     switch(widget.pokemon.stageOfEvolution)
