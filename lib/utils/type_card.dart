@@ -8,18 +8,14 @@ class TypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 5,
-      borderRadius: BorderRadius.circular(15),
-      child: Card(
-        color: getColorFromString(type),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Text(
-              type.toUpperCase(),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+    return Card(
+      color: getColorFromString(type),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Text(
+            type.toUpperCase(),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
       ),

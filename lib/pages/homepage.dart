@@ -4,8 +4,7 @@ import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
-import 'package:guessthegyarados/provider/provider.dart';
-import 'package:guessthegyarados/theme/theme.dart';
+import 'package:guessthegyarados/provider/steps_provider.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -29,65 +28,37 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       body: pokemonNamesFuture.when(
           data: (pokemonNames) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+            return Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(bg1),
+                  fit: BoxFit.cover
+                )
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    IconButton(
-                      onPressed: ()  {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CaughtPage())
-                        );
-                      }, 
-                      icon: Image.asset(pokeballIcon)
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20,),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "assets/mc_gyarados/homePageIcon.png",
-                      fit: BoxFit.cover,
-                      height: 300,
-                      width: 300,
-                    ),
-                    const SizedBox(height: 20.0),
-                    SizedBox(
-                      height: 200,
-                      width: 200,
-                      child: Material(
-                        elevation: 5,
-                        borderRadius: const BorderRadius.all(Radius.circular(15)),
-                        child: ElevatedButton(
-                          onPressed: () => _navigateToPlayPage(context, ref),
-                          style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                            backgroundColor: const MaterialStatePropertyAll(completionPill),
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              side: const BorderSide(
-                                color: Colors.black,
-                                width: 7
-                              )
-                            ))
-                          ),
-                          child: Text(
-                            'Play',
-                            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
+                    const SizedBox(height: 40,),
+                    topBar(context),
+                    const SizedBox(height: 70,),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "assets/mc_gyarados/homePageIcon.png",
+                          fit: BoxFit.cover,
+                          height: 300,
+                          width: 300,
                         ),
-                      ),
+                        const SizedBox(height:50.0),
+                        playButton(context, ref),
+                        const SizedBox(height: 90.0),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             );
           },
           error: (error, stackTrace) {
@@ -99,6 +70,62 @@ class HomePage extends ConsumerWidget {
             child: CircularProgressIndicator(),
           ),
         ),
+    );
+  }
+
+  Widget topBar(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        IconButton(
+          onPressed: ()  {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CaughtPage())
+            );
+          }, 
+          icon: Image.asset(pokeballIcon)
+        ),
+        // IconButton(
+        //   onPressed: ()  {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => const SettingsPage())
+        //     );
+        //   }, 
+        //   icon: const Icon(Icons.settings)
+        // ),
+      ],
+    );
+  }
+
+  Widget playButton(BuildContext context, WidgetRef ref) {
+    return SizedBox(
+      height: 200,
+      width: 200,
+      child: Material(
+        elevation: 5,
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
+        child: ElevatedButton(
+          onPressed: () => _navigateToPlayPage(context, ref),
+          style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
+            backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
+            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+              side: const BorderSide(
+                color: Colors.black,
+                width: 7
+              )
+            ))
+          ),
+          child: Text(
+            'Play',
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              fontWeight: FontWeight.bold
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

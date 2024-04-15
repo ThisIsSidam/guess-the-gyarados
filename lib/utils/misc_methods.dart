@@ -74,7 +74,7 @@ Color getColorFromString(String input) {
     case 'z':
       return Colors.orange.shade400;
     default:
-      return Colors.grey.shade400;
+      return const Color.fromARGB(255, 211, 211, 211);
   }
 }
 
@@ -119,7 +119,6 @@ bool excludePokemon(String name) {
 
 String getPokemonImageLink(int id, String name) {
   
-  List<String> parts = name.split("-");
   String leadingZeroId = '';
 
   switch (id.toString().length)
@@ -128,18 +127,18 @@ String getPokemonImageLink(int id, String name) {
     case 2 : leadingZeroId = "0$id"; break;
     case 3 : leadingZeroId = id.toString(); break;
     default: leadingZeroId = id.toString();
-
   }
-  parts[0] = leadingZeroId;
-  String linkId = '';
 
-  for (final str in parts)
+  if (name.contains("-")) 
   {
-    debugPrint(str);
-    linkId+=str;
+    name.replaceRange(0, name.indexOf("-"), leadingZeroId);
+  } 
+  else 
+  {
+    name = leadingZeroId;
   }
-
-  return "$pokemonImageLink$linkId.png";
+  
+  return "$pokemonImageLink$name.png";
 }
 
 String getPokemonBackupImageLink(int id, bool isShiny) {

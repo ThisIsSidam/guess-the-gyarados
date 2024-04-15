@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 
-const Color completionPill = Color.fromARGB(255, 251, 231, 146);
-const Color neutralPill = Color.fromARGB(255, 211, 211, 211);
+final megaGyaradosTheme = ThemeData(
 
-final myTheme = ThemeData(
-
-  scaffoldBackgroundColor: const Color.fromARGB(255, 43, 173, 225),
+  scaffoldBackgroundColor: const Color.fromARGB(255, 68, 67, 65),
   appBarTheme: const AppBarTheme(
     color: Colors.transparent
+  ),
+
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: const Color.fromARGB(255, 68, 67, 65),
+    primary: const Color.fromARGB(255, 251, 231, 146),
+    secondary: const Color.fromARGB(255, 211, 211, 211)
   ),
 
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       padding: const EdgeInsets.all(0),
-      backgroundColor: neutralPill,
+      backgroundColor: const Color.fromARGB(255, 211, 211, 211),
       foregroundColor: Colors.black,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(15))
       ),
     )
-  ),
-
-  
+  ), 
 
   textTheme: const TextTheme(
     titleLarge: TextStyle(

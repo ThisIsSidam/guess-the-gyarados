@@ -71,7 +71,8 @@ flutter:
     - assets/other_images/MissingNo.png
     - assets/random_pokemon/random_pokemon.png
     - assets/icons/pokeball-icon-48.png
-
+    - assets/backgrounds/blueback.jpeg
+    - assets/backgrounds/blueback2.jpeg
     - assets/data/pokemon_names.json
 
   # An image asset can refer to one or more resolution-specific "variants", see

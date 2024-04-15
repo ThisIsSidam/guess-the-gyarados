@@ -37,8 +37,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     final duration = Duration(seconds: Random().nextInt(3) + 3);
     await Future.delayed(duration);
 
-    double successRate = (100 - widget.steps).toDouble();
-    if (widget.pokemon.isLegendary || widget.pokemon.isMythical) successRate /= 2;
+    final successRate = getSuccessRate();
 
     final random = Random().nextInt(100);
     setState(() {
@@ -51,6 +50,23 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     }
   }
 
+  double getSuccessRate() {
+    double successRate = 100 - (widget.steps * 0.25);
+    if (widget.pokemon.isLegendary || widget.pokemon.isMythical) successRate /= 2;
+
+    switch(widget.pokemon.stageOfEvolution)
+    {
+      case 2 : successRate - 5; break;
+      case 3 : successRate - 10; break;
+    }
+
+    if (widget.pokemon.name.toLowerCase() == "arceus") successRate = 1;
+
+
+    debugPrint("success rate: $successRate");
+    return successRate;
+  }
+
 
   /// Adds caught pokemon id to database
   void successfullyCaught() {
@@ -59,12 +75,15 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: Colors.black12
+          color: caught ? theme.colorScheme.primary : theme.colorScheme.secondary
         ),
         child: Center(
           child: FutureBuilder<void>(

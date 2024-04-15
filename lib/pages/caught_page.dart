@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
-import 'package:guessthegyarados/theme/theme.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 
 class CaughtPage extends StatefulWidget {
@@ -22,44 +22,46 @@ class _CaughtPageState extends State<CaughtPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Caught Pokemon',
-          style: Theme.of(context).textTheme.titleLarge,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(bg2),
+            fit: BoxFit.cover
+          )
         ),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {Navigator.pop(context);},
+        child: Column(
+          children: [
+            const SizedBox(height: 50,),
+            topBar(),
+            idList.isEmpty
+            ? emptyPage()
+            : Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                child: pokemonGridView(idList),
+              ),
+            ),
+          ],
         ),
-      ),
-      body: idList.isEmpty
-        ? emptyPage()
-        : Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-          child: pokemonGridView(idList),
-        )
+      )
     );
   }
 
-  Widget loadingPage() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16.0),
-          SizedBox(
-            width: 200,
-            child: Text(
-              "Wait, your pokemons must be rushing here any moment.",
-              softWrap: true,
-              style: Theme.of(context).textTheme.titleSmall
-            ),
+  Widget topBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: () {Navigator.pop(context);},
+        ),
+        Center(
+          child: Text(
+            'Caught Pokemon',
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -171,10 +173,10 @@ class _CaughtPageState extends State<CaughtPage> {
           child: Row(
             children: [
               if (normalCatch > 1)
-                circledNumber(normalCatch, neutralPill),
+                circledNumber(normalCatch, Theme.of(context).colorScheme.secondary),
               const SizedBox(width: 4,),
               if (shinyCatch > 0)
-                circledNumber(shinyCatch, completionPill)
+                circledNumber(shinyCatch, Theme.of(context).colorScheme.primary)
             ],
           )
         )
