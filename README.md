@@ -2,6 +2,8 @@
 
 Welcome to the Pokemon Guessing Game! This is a fun and challenging game where you have to guess a randomly selected Pokemon by answering a series of questions. The game provides no clues, making it a true test of your Pokemon knowledge.
 
+Note: I know that the UI is bad. Please give me ideas, I really need them. I also have some ideas, so I will apply them in a while.
+
 ## Images
 <img src="images/homepage.png" width="200" /> <img src="images/play_page.png" width="200" /> <img src="images/caught_page.png" width="200" /> <img src="images/caught.png" width="200" />
 
