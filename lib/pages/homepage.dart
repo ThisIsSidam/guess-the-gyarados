@@ -34,17 +34,16 @@ class HomePage extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 40,),
                   topBar(context),
-                  const SizedBox(height: 70,),
+                  const SizedBox(height: 30,),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
                         "assets/mc_gyarados/homePageIcon.png",
                         fit: BoxFit.cover,
-                        height: 300,
-                        width: 300,
+                        height: 400,
+                        width: 400,
                       ),
-                      const SizedBox(height:50.0),
                       playButton(context, ref),
                     ],
                   ),
