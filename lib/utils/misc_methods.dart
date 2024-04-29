@@ -117,28 +117,31 @@ bool excludePokemon(String name) {
 
 // For getting images from HybridShivam Bulbapedia images repo
 
+// A set of Pokemon names that have hyphens in their names
+final Set<String> pokemonNamesWithHyphens = {
+  'Tapu-Lele',
+  'Tapu-Fini',
+  'Tapu-Bulu',
+  'Tapu-Koko'
+  // Add more names here as needed
+};
+
 String getPokemonImageLink(int id, String name) {
-  
-  String leadingZeroId = '';
+  final leadingZeroId = id.toString().padLeft(3, '0');
+  final imageName = _getImageName(leadingZeroId, name);
+  return '$pokemonImageLink$imageName.png';
+}
 
-  switch (id.toString().length)
+String _getImageName(String leadingZeroId, String name) {
+  if (name.contains('-') && !pokemonNamesWithHyphens.contains(name)) 
   {
-    case 1 : leadingZeroId = "00$id"; break;
-    case 2 : leadingZeroId = "0$id"; break;
-    case 3 : leadingZeroId = id.toString(); break;
-    default: leadingZeroId = id.toString();
-  }
-
-  if (name.contains("-")) 
-  {
-    name.replaceRange(0, name.indexOf("-"), leadingZeroId);
+    final nameParts = name.split('-');
+    return '$leadingZeroId-${nameParts.last}';
   } 
   else 
   {
-    name = leadingZeroId;
+    return leadingZeroId;
   }
-  
-  return "$pokemonImageLink$name.png";
 }
 
 String getPokemonBackupImageLink(int id, bool isShiny) {

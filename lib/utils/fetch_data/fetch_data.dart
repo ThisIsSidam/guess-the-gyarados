@@ -13,25 +13,25 @@ Future<Pokemon> fetchPokemonData(int pokemonId) async {
     final speciesData = json.decode(speciesResponse.body);
     final varieties = speciesData['varieties'] as List<dynamic>;
 
-// Filter out varieties with '-mega', '-gmax', '-totem' in the name
-final filteredVarieties = varieties.where((variety) {
-  final varietyName = variety['pokemon']['name'];
-  return !excludePokemon(varietyName);
-}).toList();
+    // Filter out varieties with '-mega', '-gmax', '-totem' in the name
+    final filteredVarieties = varieties.where((variety) {
+      final varietyName = variety['pokemon']['name'];
+      return !excludePokemon(varietyName);
+    }).toList();
 
-// Randomly select one variety from filtered list.
-final random = Random();
-final selectedVariety = filteredVarieties[random.nextInt(filteredVarieties.length)];
+    // Randomly select one variety from filtered list.
+    final random = Random();
+    final selectedVariety = filteredVarieties[random.nextInt(filteredVarieties.length)];
 
-final pokemonUrl = Uri.parse(selectedVariety['pokemon']['url']);
-final pokemonResponse = await http.get(pokemonUrl);
+    final pokemonUrl = Uri.parse(selectedVariety['pokemon']['url']);
+    final pokemonResponse = await http.get(pokemonUrl);
 
-if (pokemonResponse.statusCode == 200) {
-  final jsonData = json.decode(pokemonResponse.body);
-  return Pokemon.fromJsonAsync(jsonData);
-} else {
-  throw Exception('Failed to fetch Pokemon data');
-}
+    if (pokemonResponse.statusCode == 200) {
+      final jsonData = json.decode(pokemonResponse.body);
+      return Pokemon.fromJsonAsync(jsonData);
+    } else {
+      throw Exception('Failed to fetch Pokemon data');
+    }
   } else {
     throw Exception('Failed to fetch Pokemon species data');
   }

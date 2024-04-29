@@ -38,7 +38,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   Widget build(BuildContext context) {
-    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(788));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
