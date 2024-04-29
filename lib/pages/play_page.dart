@@ -59,27 +59,35 @@ class _PlayPageState extends ConsumerState<PlayPage>{
         );
 
         return Scaffold(
-          body: Column(
-              children: [
-                topRow(questionWrappedUtils),
-                const SizedBox(height: 40,),
-                pokemonImageWidget(thisPokemon),
-                if (!pokemonGuessedCorrectly)
-                  Expanded(
-                    flex: 2,
-                    child: listOfQuestionPills(questionWrappedUtils)
-                  ),
-                if (pokemonGuessedCorrectly)
-                  Expanded(
-                    flex: 2,
-                    child: CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
-                  ),
-                getBottomBar(
-                  thisPokemon.name,
-                  pokemonsMap!.values.toList()
-                )
-              ],
+          body: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(grassSprite,),
+                repeat: ImageRepeat.repeat
+              )
             ),
+            child: Column(
+                children: [
+                  topRow(questionWrappedUtils),
+                  const SizedBox(height: 40,),
+                  pokemonImageWidget(thisPokemon),
+                  if (!pokemonGuessedCorrectly)
+                    Expanded(
+                      flex: 2,
+                      child: listOfQuestionPills(questionWrappedUtils)
+                    ),
+                  if (pokemonGuessedCorrectly)
+                    Expanded(
+                      flex: 2,
+                      child: CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
+                    ),
+                  getBottomBar(
+                    thisPokemon.name,
+                    pokemonsMap!.values.toList()
+                  )
+                ],
+              ),
+          ),
         );
       },
       error: (err, stack) => Scaffold(

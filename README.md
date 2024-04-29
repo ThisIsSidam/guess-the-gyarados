@@ -22,7 +22,7 @@ Note: I know that the UI is bad. Please give me ideas, I really need them. I als
 
 ## Features to be implemented
 - A OG Silhouette "Who's that pokemon" mode.
-- Score tracking and high score leaderboard (will maybe be implemented.
+- Score tracking and high score leaderboard will maybe be implemented.
 - Achievements section.
 - Multiple themes.
 

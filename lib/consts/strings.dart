@@ -4,6 +4,8 @@ const pokeballIcon = "assets/icons/pokeball-icon-48.png";
 const missingNoIcon = "assets/other_images/MissingNo.png";
 const pokemonNamesJson = "assets/data/pokemon_names.json";
 
+const grassSprite = "assets/backgrounds/grass.jpeg";
+
 const questionMarkIcon = "assets/random_pokemon/random_pokemon.png";
 
 const bg1 = "assets/backgrounds/blueback.jpeg";

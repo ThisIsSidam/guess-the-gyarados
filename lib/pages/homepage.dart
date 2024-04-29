@@ -26,41 +26,42 @@ class HomePage extends ConsumerWidget {
     final pokemonNamesFuture = ref.watch(pokemonNamesProvider);
 
     return Scaffold(
-      body: pokemonNamesFuture.when(
-          data: (pokemonNames) {
-            return SingleChildScrollView(
-              child: Column(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(grassSprite),
+            repeat: ImageRepeat.repeat
+          )
+        ),
+        child: pokemonNamesFuture.when(
+            data: (pokemonNames) {
+              return Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 40,),
                   topBar(context),
                   const SizedBox(height: 30,),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "assets/mc_gyarados/homePageIcon.png",
-                        fit: BoxFit.cover,
-                        height: 400,
-                        width: 400,
-                      ),
-                      playButton(context, ref),
-                    ],
+                  Image.asset(
+                    "assets/mc_gyarados/homePageIcon.png",
+                    fit: BoxFit.cover,
+                    height: 400,
+                    width: 400,
                   ),
+                  playButton(context, ref),
                   const SizedBox(),
                 ],
-              ),
-            );
-          },
-          error: (error, stackTrace) {
-            return Center(
-              child: Text('Error: $error'),
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
+              );
+            },
+            error: (error, stackTrace) {
+              return Center(
+                child: Text('Error: $error'),
+              );
+            },
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
           ),
-        ),
+      ),
     );
   }
 
