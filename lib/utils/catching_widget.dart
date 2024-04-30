@@ -75,43 +75,34 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   @override
   Widget build(BuildContext context) {
-
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: caught ? theme.colorScheme.primary : theme.colorScheme.secondary
-        ),
-        child: Center(
-          child: FutureBuilder<void>(
-            future: _catchingFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16.0),
-                    Text('Wait, Catching the ${widget.pokemon.name}'),
-                  ],
-                );
-              } else {
-                return Text(
-                  caught
-                  ? 'Excellent, you caught a ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name}!'
-                  : 'Oops, ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name} ran away.',
-                  softWrap: true,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 18.0,
-                  ),
-                );
-              }
-            },
-          ),
+      child: Center(
+        child: FutureBuilder<void>(
+          future: _catchingFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16.0),
+                  Text('Wait, Catching the ${widget.pokemon.name}'),
+                ],
+              );
+            } else {
+              return Text(
+                caught
+                ? 'Excellent, you caught a ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name}!'
+                : 'Oops, ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name} ran away.',
+                softWrap: true,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18.0,
+                ),
+              );
+            }
+          },
         ),
       ),
     );

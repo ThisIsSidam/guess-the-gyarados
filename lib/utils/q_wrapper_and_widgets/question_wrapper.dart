@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
 
 class QuestionWrapper extends ConsumerStatefulWidget {
@@ -58,7 +59,7 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
         borderRadius: BorderRadius.circular(10),
         child: Container(
             decoration: BoxDecoration(
-              color: isGuessedCorrectly ? theme.colorScheme.primary : theme.colorScheme.secondary,
+              color: getColorFromString(isGuessedCorrectly ? widget.answer : widget.question),
               borderRadius: BorderRadius.circular(10),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

@@ -9,6 +9,7 @@ import 'package:guessthegyarados/provider/steps_provider.dart';
 import 'package:guessthegyarados/utils/audio_player_widget.dart';
 import 'package:guessthegyarados/utils/catching_widget.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/question_wrapped_utils.dart';
 
@@ -38,7 +39,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   Widget build(BuildContext context) {
-    final pokemonAsync = ref.watch(pokemonFutureProvider(914));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -59,34 +60,60 @@ class _PlayPageState extends ConsumerState<PlayPage>{
         );
 
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(grassSprite,),
-                repeat: ImageRepeat.repeat
-              )
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  getColorFromString(thisPokemon.types[0]),
+                  thisPokemon.types.length > 1
+                      ? getColorFromString(thisPokemon.types[1])
+                      : getColorFromString(thisPokemon.name)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
             child: Column(
-                children: [
-                  topRow(questionWrappedUtils),
-                  const SizedBox(height: 40,),
-                  pokemonImageWidget(thisPokemon),
-                  if (!pokemonGuessedCorrectly)
-                    Expanded(
-                      flex: 2,
-                      child: listOfQuestionPills(questionWrappedUtils)
+              children: [
+                topRow(questionWrappedUtils),
+                const SizedBox(height: 40),
+                pokemonImageWidget(thisPokemon),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white70,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50)
+                      )
                     ),
-                  if (pokemonGuessedCorrectly)
-                    Expanded(
-                      flex: 2,
-                      child: CatchingWidget(steps: stepsCount, pokemon: thisPokemon, isShiny: isShiny)
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20,),
+                        if (!pokemonGuessedCorrectly)
+                          Expanded(
+                            child: listOfQuestionPills(questionWrappedUtils),
+                          ),
+                        if (pokemonGuessedCorrectly)
+                          Expanded(
+                            child: CatchingWidget(
+                              steps: stepsCount,
+                              pokemon: thisPokemon,
+                              isShiny: isShiny,
+                            ),
+                          ),
+                        getBottomBar(
+                          thisPokemon.name,
+                          pokemonsMap!.values.toList(),
+                        ),
+                      ],
                     ),
-                  getBottomBar(
-                    thisPokemon.name,
-                    pokemonsMap!.values.toList()
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -108,7 +135,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
         children: [
           ElevatedButton(
               onPressed: () {},
-              child: Text("Steps: $stepsCount")
+              child: Text("  Steps: $stepsCount  ")
           ),
           if (!pokemonGuessedCorrectly)
           questionWrappedUtils.typesRow(),
@@ -167,22 +194,26 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        child: Column(
           children: [
-            questionWrappedUtils.generationWidget(),
-            questionWrappedUtils.evolutionTreeSizeWidget(),
-            questionWrappedUtils.noOfFormsWidget(),
-            questionWrappedUtils.itemEvolutionWidget(),
-            questionWrappedUtils.hasMegaWidget(),
-            questionWrappedUtils.hasGmaxWidget(),
-            questionWrappedUtils.currentEvoStageWidget(),
-            questionWrappedUtils.isBabyWidget(),
-            questionWrappedUtils.isLegendaryWidget(),
-            questionWrappedUtils.isMythiscalWidget(),
-            questionWrappedUtils.isStarterWidget(),
-            const SizedBox(height: 20, width: 200,)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                questionWrappedUtils.generationWidget(),
+                questionWrappedUtils.evolutionTreeSizeWidget(),
+                questionWrappedUtils.noOfFormsWidget(),
+                questionWrappedUtils.itemEvolutionWidget(),
+                questionWrappedUtils.hasMegaWidget(),
+                questionWrappedUtils.hasGmaxWidget(),
+                questionWrappedUtils.currentEvoStageWidget(),
+                questionWrappedUtils.isBabyWidget(),
+                questionWrappedUtils.isLegendaryWidget(),
+                questionWrappedUtils.isMythiscalWidget(),
+                questionWrappedUtils.isStarterWidget(),
+              ],
+            ),
+            const SizedBox(height: 10,)
           ],
         ),
       ),
@@ -211,11 +242,16 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                   }
 
                   Navigator.pop(context);
-                }, 
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: pokemonGuessedCorrectly
+                  ? Theme.of(context).canvasColor
+                  : Colors.red,
+                ), 
                 child: Icon(
                   pokemonGuessedCorrectly
                   ? Icons.keyboard_return
-                  : Icons.close
+                  : Icons.close,
                 )
               ),
             ),

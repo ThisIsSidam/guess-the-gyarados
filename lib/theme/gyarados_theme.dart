@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 final gyaradosTheme = ThemeData(
 
-  scaffoldBackgroundColor: Colors.white,
+  scaffoldBackgroundColor: Colors.grey[350],
   appBarTheme: const AppBarTheme(
     color: Colors.transparent
   ),
