@@ -38,7 +38,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   Widget build(BuildContext context) {
-    final pokemonAsync = ref.watch(pokemonFutureProvider(788));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(914));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -181,7 +181,8 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             questionWrappedUtils.isBabyWidget(),
             questionWrappedUtils.isLegendaryWidget(),
             questionWrappedUtils.isMythiscalWidget(),
-            const SizedBox(height: 10, width: 200,)
+            questionWrappedUtils.isStarterWidget(),
+            const SizedBox(height: 20, width: 200,)
           ],
         ),
       ),

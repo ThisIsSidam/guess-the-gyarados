@@ -189,5 +189,18 @@ class QuestionWrappedUtils {
       )
     );
   }
+  Widget isStarterWidget() {
+    String ans = pokemon.isStarter ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is a Starter", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is a Starter",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
 
 }
