@@ -47,7 +47,6 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     return pokemonAsync.when(
       data: (thisPokemon) {
 
-
         if (thisPokemon == null) {
           return const Scaffold(
             body: Center(child: Text('Failed to fetch Pokemon data'))

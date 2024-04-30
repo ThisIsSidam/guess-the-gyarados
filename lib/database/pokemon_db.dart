@@ -1,7 +1,7 @@
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class PokemonDB {
+class CaughtPokemonDB {
 
   static final _idBox = Hive.box(pokemonsOfUserBox);
 

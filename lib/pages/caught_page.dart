@@ -11,7 +11,7 @@ class CaughtPage extends StatefulWidget {
 }
 
 class _CaughtPageState extends State<CaughtPage> {
-  late Map<int, List<int>> idList = PokemonDB.idList;
+  late Map<int, List<int>> idList = CaughtPokemonDB.idList;
 
   @override
   void initState() {

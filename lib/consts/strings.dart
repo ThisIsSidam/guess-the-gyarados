@@ -14,6 +14,7 @@ const bg2 = "assets/backgrounds/blueback2.jpeg";
 // HiveBox Names
 const pokemonsOfUserBox = "caught_pokemon";
 const pokemonImagesBox = "pokemon_images";
+const pokemonDataBox = 'pokemon_data';
 const allPokemonNamesBox = "all_pokemon_names";
 
 const pokemonsOfUserBoxKey = "CAUGHT_POKEMON";

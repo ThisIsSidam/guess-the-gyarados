@@ -1,28 +1,71 @@
 import 'package:guessthegyarados/pokemon_class/pokemon_utils.dart';
 import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
+import 'package:hive/hive.dart';
+part 'pokemon.g.dart';
 
+@HiveType(typeId: 0)
 class Pokemon {
+   @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final int generation;
+
+  @HiveField(3)
   final Map<int, String> abilities;
+
+  @HiveField(4)
   final int noOfForms;
+
+  @HiveField(5)
   final List<String> types;
+
+  @HiveField(6)
   final String spriteUrl;
+
+  @HiveField(7)
   final String shinySpriteUrl;
+
+  @HiveField(8)
   int evolutionTreeSize;
+
+  @HiveField(9)
   String? evolutionItem;
+
+  @HiveField(10)
   List<String> usableEvolutionItems;
+
+  @HiveField(11)
   int stageOfEvolution;
+
+  @HiveField(12)
   String cry;
+
+  @HiveField(13)
   bool hasMega;
+
+  @HiveField(14)
   bool hasGmax;
+
+  @HiveField(15)
   bool isBaby;
+
+  @HiveField(16)
   bool isLegendary;
+
+  @HiveField(17)
   bool isMythical;
+
+  @HiveField(18)
   bool isStarter;
+
+  @HiveField(19)
   bool isPseudo;
+
 
   Pokemon({
     required this.id,

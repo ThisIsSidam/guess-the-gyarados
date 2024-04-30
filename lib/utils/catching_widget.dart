@@ -70,7 +70,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   /// Adds caught pokemon id to database
   void successfullyCaught() {
-    PokemonDB.updateData(widget.pokemon.id, widget.isShiny);
+    CaughtPokemonDB.updateData(widget.pokemon.id, widget.isShiny);
   }
 
   @override
