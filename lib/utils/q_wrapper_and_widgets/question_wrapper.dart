@@ -48,9 +48,6 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
 
   @override
   Widget build(BuildContext context) {
-
-    final theme = Theme.of(context);
-
     return GestureDetector(
       onTap: _showInputDialog,
       child: widget.aliasWidget == null

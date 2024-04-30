@@ -211,6 +211,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                 questionWrappedUtils.isLegendaryWidget(),
                 questionWrappedUtils.isMythiscalWidget(),
                 questionWrappedUtils.isStarterWidget(),
+                questionWrappedUtils.isPseudoWidget()
               ],
             ),
             const SizedBox(height: 10,)

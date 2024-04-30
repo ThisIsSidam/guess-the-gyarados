@@ -202,5 +202,18 @@ class QuestionWrappedUtils {
       )
     );
   }
+  Widget isPseudoWidget() {
+    String ans = pokemon.isPseudo ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is a Pseudo-Legendary", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is a Pseudo-Legendary",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
 
 }
