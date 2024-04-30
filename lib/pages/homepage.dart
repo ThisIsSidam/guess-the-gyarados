@@ -48,7 +48,7 @@ class HomePage extends ConsumerWidget {
                     width: 400,
                   ),
                   playButton(context, ref),
-                  const SizedBox(),
+                  // const SizedBox(),
                 ],
               );
             },

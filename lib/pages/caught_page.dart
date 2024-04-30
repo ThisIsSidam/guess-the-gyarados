@@ -21,41 +21,46 @@ class _CaughtPageState extends State<CaughtPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          const SizedBox(height: 50,),
-          topBar(),
-          idList.isEmpty
-          ? Expanded(child: emptyPage())
-          : Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-              child: pokemonGridView(idList),
+      appBar: topBar(),
+      body: Container(
+        decoration: const BoxDecoration(
+          // image: DecorationImage(
+          //   image: AssetImage(grassSprite,),
+          //   repeat: ImageRepeat.repeat
+          // )
+          color: Colors.white
+        ),
+        child: Column(
+          children: [
+            idList.isEmpty
+            ? Expanded(child: emptyPage())
+            : Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                child: pokemonGridView(idList),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       )
     );
   }
 
-  Widget topBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Center(
-            child: Text(
-              'Caught Pokemon',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () {Navigator.pop(context);},
-          ),
-        ],
+  AppBar topBar() {
+    return AppBar(
+      title: Text(
+        'Pokemon',
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          fontWeight: FontWeight.bold
+        ),
       ),
+      centerTitle: true,
+      leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: () {Navigator.pop(context);},
+        ),
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
     );
   }
 
