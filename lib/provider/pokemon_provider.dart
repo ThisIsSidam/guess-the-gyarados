@@ -9,12 +9,9 @@ final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomI
 
   if (pokemon != null) return pokemon;
 
-  try {
-    pokemon = await fetchPokemonData(randomId);
-    PokemonDB.addData(randomId, pokemon);
-  } catch (e) {
-    debugPrint('Error fetching Pokemon data: $e');
-  }
+  pokemon = await fetchPokemonData(randomId);
+  PokemonDB.addData(randomId, pokemon);
+  
   return pokemon;
 });
 

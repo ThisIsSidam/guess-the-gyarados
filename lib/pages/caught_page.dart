@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
@@ -21,27 +24,19 @@ class _CaughtPageState extends State<CaughtPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: topBar(),
-      body: Container(
-        decoration: const BoxDecoration(
-          // image: DecorationImage(
-          //   image: AssetImage(grassSprite,),
-          //   repeat: ImageRepeat.repeat
-          // )
-          color: Colors.white
-        ),
-        child: Column(
-          children: [
-            idList.isEmpty
-            ? Expanded(child: emptyPage())
-            : Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-                child: pokemonGridView(idList),
-              ),
+      body: Column(
+        children: [
+          idList.isEmpty
+          ? Expanded(child: emptyPage())
+          : Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+              child: pokemonGridView(idList),
             ),
-          ],
-        ),
+          ),
+        ],
       )
     );
   }
@@ -65,36 +60,33 @@ class _CaughtPageState extends State<CaughtPage> {
   }
 
   Widget emptyPage() {
+    int chance = Random().nextInt(1000);
     return Center(
-      child: SizedBox(
-        height: 150,
-        width: 300,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              "assets/other_images/MissingNo.png",
-              height: 150,
-              width: 150,
-              fit: BoxFit.contain,
-            ),
-            Expanded(
-              child: Text(
-                "No Pokemons? Fake fan.",
-                style: Theme.of(context).textTheme.titleMedium,
-                softWrap: true,
-              ),
-            )
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            arceusImagePath,
+            height: 150,
+            width: 150,
+            fit: BoxFit.contain,
+          ),
+          Text(
+            chance == 7
+            ?"Really bro? 0? \nGo catch some."
+            :"Whoso doth not captureth \npokemon shall perish",
+            style: Theme.of(context).textTheme.titleSmall,
+            softWrap: true,
+          )
+        ],
       ),
     );
   }
 
   Widget pokemonGridView(Map<int ,List<int>> idMap) {
     return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: idMap.length > 10 ? 3 : 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),

@@ -2,6 +2,7 @@
 const mainBg = "assets/backgrounds/mainBG.jpeg"; 
 const pokeballIcon = "assets/icons/pokeball-icon-48.png";
 const missingNoIcon = "assets/other_images/MissingNo.png";
+const arceusImagePath = "assets/other_images/arceus.png";
 const pokemonNamesJson = "assets/data/pokemon_names.json";
 
 const grassSprite = "assets/backgrounds/grass.jpeg";

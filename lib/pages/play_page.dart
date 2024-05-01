@@ -7,8 +7,10 @@ import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
 import 'package:guessthegyarados/utils/audio_player_widget.dart';
-import 'package:guessthegyarados/utils/catching_widget.dart';
+import 'package:guessthegyarados/utils/catching_widgets/catching_widget.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
+import 'package:guessthegyarados/utils/screens/error_screen.dart';
+import 'package:guessthegyarados/utils/screens/loading_screen.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/question_wrapped_utils.dart';
@@ -39,7 +41,14 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   Widget build(BuildContext context) {
-    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
+    final arceusImage = Image.asset(
+      arceusImagePath,
+      height: 200,
+      width: 200,
+      fit: BoxFit.contain,
+    );
+
+    final pokemonAsync = ref.watch(pokemonFutureProvider(9999));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -116,11 +125,13 @@ class _PlayPageState extends ConsumerState<PlayPage>{
           ),
         );
       },
-      error: (err, stack) => Scaffold(
-        body: Center(child: Text('Error: $err')),
+      error: (err, stack) => ErrorScreen(
+        image: arceusImage,
+        errorText: err.toString(),
       ),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => HoveringImageLoadingScreen(
+        image: arceusImage,
+        text: "Lemme think",
       ),
     );
   }
