@@ -56,7 +56,6 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     return pokemonAsync.when(
       data: (thisPokemon) {
 
-
         if (thisPokemon == null) {
           return const Scaffold(
             body: Center(child: Text('Failed to fetch Pokemon data'))
@@ -75,13 +74,11 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  getColorFromString(thisPokemon.types[0]),
-                  thisPokemon.types.length > 1
-                      ? getColorFromString(thisPokemon.types[1])
-                      : getColorFromString(thisPokemon.name)
+                  Theme.of(context).scaffoldBackgroundColor,
+                  getColorFromString(thisPokemon.types[1])
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter
               ),
             ),
             child: Column(

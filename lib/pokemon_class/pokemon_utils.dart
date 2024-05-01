@@ -52,8 +52,10 @@ class PokemonUtils {
       return 6;
     } else if (pokemonId <= 809) {
       return 7;
-    } else {
+    } else if (pokemonId <= 905){
       return 8;
+    } else {
+      return 9;
     }
   }
 
@@ -133,9 +135,9 @@ class PokemonUtils {
       810, 811, 812, // Grookey, Thwackey, Rillaboom
       813, 814, 815, // Scorbunny, Raboot, Cinderace
       816, 817, 818, // Sobble, Drizzile, Inteleon
-      906, 907, 908, // Sprigatito, Fuecoco, Quaxly
-      909, 910, 911, // Sprigaquil, Crocalor, Quaxider
-      912, 913, 914  // Meowscarada, Skeledric, Quaquavalier
+      906, 907, 908, // Sprigatito, Floragato, Meowscarada 
+      909, 910, 911, // Fuecoco, Crocalor, Skeledirge 
+      912, 913, 914  // Quaxly, Quaxwell, Quaquaval
     ];
 
     return starterPokemonIds.contains(id);

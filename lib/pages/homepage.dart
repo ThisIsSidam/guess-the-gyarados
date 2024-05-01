@@ -27,49 +27,41 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(grassSprite),
-            repeat: ImageRepeat.repeat
-          )
-        ),
-        child: pokemonNamesFuture.when(
-            data: (pokemonNames) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+      appBar: topBar(context),
+      body: pokemonNamesFuture.when(
+          data: (pokemonNames) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const SizedBox(height: 40,),
-                  topBar(context),
-                  const SizedBox(height: 30,),
                   Image.asset(
-                    "assets/mc_gyarados/homePageIcon.png",
+                    arceusImagePath,
                     fit: BoxFit.cover,
-                    height: 400,
-                    width: 400,
+                    height: 200,
+                    width: 200,
                   ),
                   playButton(context, ref),
                   // const SizedBox(),
                 ],
-              );
-            },
-            error: (error, stackTrace) {
-              return Center(
-                child: Text('Error: $error'),
-              );
-            },
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
+              ),
+            );
+          },
+          error: (error, stackTrace) {
+            return Center(
+              child: Text('Error: $error'),
+            );
+          },
+          loading: () => const Center(
+            child: CircularProgressIndicator(),
           ),
-      ),
+        ),
     );
   }
 
-  Widget topBar(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
+  AppBar topBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      actions: [
         IconButton(
           onPressed: ()  {
             Navigator.push(
@@ -78,16 +70,7 @@ class HomePage extends ConsumerWidget {
             );
           }, 
           icon: Image.asset(pokeballIcon)
-        ),
-        // IconButton(
-        //   onPressed: ()  {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => const SettingsPage())
-        //     );
-        //   }, 
-        //   icon: const Icon(Icons.settings)
-        // ),
+        )
       ],
     );
   }
