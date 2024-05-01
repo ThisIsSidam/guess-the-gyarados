@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
+import 'package:guessthegyarados/utils/catching_widgets/pokeball_animation.dart';
 
 class CatchingWidget extends StatefulWidget {
   final int steps;
@@ -21,21 +21,10 @@ class CatchingWidget extends StatefulWidget {
 
 class _CatchingWidgetState extends State<CatchingWidget> {
   bool caught = false;
-  Future<void>? _catchingFuture;
 
   @override
   void initState() {
     super.initState();
-    _startCatching();
-  }
-
-  void _startCatching() {
-    _catchingFuture = _simulateCatching();
-  }
-
-  Future<void> _simulateCatching() async {
-    final duration = Duration(seconds: Random().nextInt(3) + 3);
-    await Future.delayed(duration);
 
     final catchRate = getSuccessRate();
 
@@ -56,12 +45,11 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
     switch(widget.pokemon.stageOfEvolution)
     {
-      case 2 : successRate - 5; break;
-      case 3 : successRate - 10; break;
+      case 2 : successRate = successRate - 5; break;
+      case 3 : successRate = successRate - 10; break;
     }
 
     if (widget.pokemon.name.toLowerCase() == "arceus") successRate = 1;
-
 
     debugPrint("success rate: $successRate");
     return successRate;
@@ -78,32 +66,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Center(
-        child: FutureBuilder<void>(
-          future: _catchingFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16.0),
-                  Text('Wait, Catching the ${widget.pokemon.name}'),
-                ],
-              );
-            } else {
-              return Text(
-                caught
-                ? 'Excellent, you caught a ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name}!'
-                : 'Oops, ${widget.isShiny ? "Shiny " : ''}${widget.pokemon.name} ran away.',
-                softWrap: true,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18.0,
-                ),
-              );
-            }
-          },
-        ),
+        child: PokeBallCatchAnimation(isCaught: caught,),
       ),
     );
   }

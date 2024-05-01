@@ -5,6 +5,9 @@ const missingNoIcon = "assets/other_images/MissingNo.png";
 const arceusImagePath = "assets/other_images/arceus.png";
 const pokemonNamesJson = "assets/data/pokemon_names.json";
 
+const closedPokeballPath = "assets/other_images/closed_pokeball.png";
+const openPokeballPath = "assets/other_images/open_pokeball.png";
+
 const grassSprite = "assets/backgrounds/grass.jpeg";
 
 const questionMarkIcon = "assets/random_pokemon/random_pokemon.png";

@@ -48,7 +48,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       fit: BoxFit.contain,
     );
 
-    final pokemonAsync = ref.watch(pokemonFutureProvider(9999));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -56,11 +56,13 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     return pokemonAsync.when(
       data: (thisPokemon) {
 
+
         if (thisPokemon == null) {
           return const Scaffold(
             body: Center(child: Text('Failed to fetch Pokemon data'))
           );
         }
+        debugPrint(thisPokemon.name);
 
         final questionWrappedUtils = QuestionWrappedUtils(
           pokemon: thisPokemon, 

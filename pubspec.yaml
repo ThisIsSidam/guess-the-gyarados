@@ -76,6 +76,8 @@ flutter:
     - assets/data/pokemon_names.json
     - assets/backgrounds/grass.jpeg
     - assets/other_images/arceus.png
+    - assets/other_images/open_pokeball.png
+    - assets/other_images/closed_pokeball.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
