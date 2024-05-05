@@ -119,56 +119,26 @@ class _CaughtPageState extends State<CaughtPage> {
     int shinyCatch
   ) {
 
-    Widget circledNumber(int num, Color color) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(50),
-          color: color
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Text(" $num "),
-        ),
-      );
-    }
-
-    return Stack(
-      children: [
-        Container(
-          width: 200,
-          height: 200,
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color: Colors.black12,
-            borderRadius: BorderRadius.circular(15)
+    return Container(
+      width: 200,
+      height: 200,
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.black12,
+        borderRadius: BorderRadius.circular(15)
+      ),
+      child: Center(
+        child: SizedBox(
+          height: 100,
+          width: 100,
+          child: image ?? FutureBuilder(
+            future: getPokemonImage(id,), 
+            builder: (context, snapshot) {
+              return snapshot.data!;
+            }
           ),
-          child: Center(
-            child: SizedBox(
-              height: 100,
-              width: 100,
-              child: image ?? FutureBuilder(
-                future: getPokemonImage(id, "null-name"), 
-                builder: (context, snapshot) {
-                  return snapshot.data!;
-                }
-              ),
-            )
-          ),
-        ),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Row(
-            children: [
-              if (normalCatch > 1)
-                circledNumber(normalCatch, Theme.of(context).colorScheme.secondary),
-              const SizedBox(width: 4,),
-              if (shinyCatch > 0)
-                circledNumber(shinyCatch, Theme.of(context).colorScheme.primary)
-            ],
-          )
         )
-      ],
+      ),
     );
   }
 }

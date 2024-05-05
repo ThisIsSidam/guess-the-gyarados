@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
+import 'package:guessthegyarados/database/pokemon_data_db.dart';
+import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:guessthegyarados/utils/misc_methods.dart';
 
-Future<Widget> getPokemonImage(int id, String name, {bool isShiny = false}) async {
+Future<Widget> getPokemonImage(int id, {bool isShiny = false}) async {
 
   final Image? pokemonImage = ImagesDB.getImage(id, isShiny: isShiny);
   if (pokemonImage != null)
@@ -15,7 +17,9 @@ Future<Widget> getPokemonImage(int id, String name, {bool isShiny = false}) asyn
     return pokemonImage;
   }
 
-  final Uint8List? imageData = await loadImageData(name, id, isShiny); 
+  var mon = PokemonDB.getData(id);
+  mon ??= await fetchPokemonData(id);
+  final Uint8List? imageData = await loadImageData(mon.name, id, isShiny); 
 
   if (imageData == null)
   {

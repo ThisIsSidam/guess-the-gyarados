@@ -177,7 +177,6 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                   ? FutureBuilder<Widget>(
                       future: getPokemonImage(
                         thisPokemon.id, 
-                        thisPokemon.name,
                         isShiny: isShiny
                       ),
                       builder: (context, snapshot) {
@@ -250,12 +249,12 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                     );
 
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
 
-                  CaughtPokemonDB.updateData(
-                    randomId, 
-                    PokemonUpdateType.couldNotGuess
-                  );
+                    CaughtPokemonDB.updateData(
+                      randomId, 
+                      PokemonUpdateType.couldNotGuess
+                    );
+                  }
 
                   Navigator.pop(context);
                 },

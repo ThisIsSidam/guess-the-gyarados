@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
+import 'package:guessthegyarados/pages/pokedex.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
 
@@ -67,6 +68,15 @@ class HomePage extends ConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const CaughtPage())
+            );
+          }, 
+          icon: Image.asset(pokeballIcon)
+        ),
+        IconButton(
+          onPressed: ()  {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PokedexPage())
             );
           }, 
           icon: Image.asset(pokeballIcon)
