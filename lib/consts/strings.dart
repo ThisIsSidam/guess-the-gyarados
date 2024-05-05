@@ -22,6 +22,7 @@ const pokemonDataBox = 'pokemon_data';
 const allPokemonNamesBox = "all_pokemon_names";
 
 const pokemonsOfUserBoxKey = "CAUGHT_POKEMON";
+const guessedNotCaughtBoxKey = "GUESSEDNOTCAUGHT";
 const allPokemonNamesBoxKey = "ALL_POKEMON_NAMES";
 
 

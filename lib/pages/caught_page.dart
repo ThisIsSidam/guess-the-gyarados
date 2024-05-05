@@ -14,7 +14,7 @@ class CaughtPage extends StatefulWidget {
 }
 
 class _CaughtPageState extends State<CaughtPage> {
-  late Map<int, List<int>> idList = CaughtPokemonDB.idList;
+  late Map<int, Map<String, int>> idList = CaughtPokemonDB.getData;
 
   @override
   void initState() {
@@ -83,28 +83,25 @@ class _CaughtPageState extends State<CaughtPage> {
     );
   }
 
-  Widget pokemonGridView(Map<int ,List<int>> idMap) {
+  Widget pokemonGridView(Map<int, Map<String, int>> idMap) {
+
+    final caughtIds = CaughtPokemonDB.getIDsWithNonZeroCaughtNormalAndShiny();
+
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: idMap.length > 10 ? 3 : 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: idMap.length,
+      itemCount: caughtIds.length,
       itemBuilder: (BuildContext context, int index) {
-        final id = idMap.keys.toList()[index];
-        int numberOfNormal = 0; 
-        int numberOfShiny = 0; 
-        for (var element in idMap[id]!) {
-          if(element == 0) 
-          {
-            numberOfNormal++;
-          } 
-          else if (element == 1) 
-          {
-            numberOfShiny++;
-          }
-        }
+        int id = caughtIds.elementAt(index);
+        final catchData = idMap[id];
+
+        if (catchData == null) throw "Catch Data Not Found for ID:$id";
+
+        int numberOfNormal = catchData[PokemonUpdateType.caughtNormal.name] ?? 0; 
+        int numberOfShiny = catchData[PokemonUpdateType.caughtShiny.name] ?? 0; 
         return imageDisplayTile(
           id, 
           ImagesDB.getImage(id, isShiny: numberOfShiny > 0), 

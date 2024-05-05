@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
@@ -75,7 +76,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).scaffoldBackgroundColor,
-                  getColorFromString(thisPokemon.types[1])
+                  getColorFromString(thisPokemon.types[0])
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter
@@ -250,6 +251,11 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
+
+                  CaughtPokemonDB.updateData(
+                    randomId, 
+                    PokemonUpdateType.couldNotGuess
+                  );
 
                   Navigator.pop(context);
                 },

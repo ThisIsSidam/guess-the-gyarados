@@ -37,6 +37,13 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     {
       successfullyCaught();
     }
+    else 
+    {
+      CaughtPokemonDB.updateData(
+        widget.pokemon.id, 
+        PokemonUpdateType.catchFailed
+      );
+    }
   }
 
   double getSuccessRate() {
@@ -58,7 +65,12 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   /// Adds caught pokemon id to database
   void successfullyCaught() {
-    CaughtPokemonDB.updateData(widget.pokemon.id, widget.isShiny);
+    CaughtPokemonDB.updateData(
+      widget.pokemon.id, 
+      widget.isShiny 
+      ? PokemonUpdateType.caughtShiny 
+      : PokemonUpdateType.caughtNormal
+    );
   }
 
   @override
