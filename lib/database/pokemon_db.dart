@@ -58,8 +58,8 @@ class CaughtPokemonDB {
     _idBox.put(pokemonsOfUserBoxKey, idList);
   }
 
-  static Set<int> getIDsWithNonZeroCaughtNormalAndShiny() {
-    final filteredIDs = <int>{};
+  static List<int> getIDsWithNonZeroCaughtNormalAndShiny() {
+    final filteredIDs = <int>[];
     final idList = _idBox.get(pokemonsOfUserBoxKey) ?? {};
 
     idList.forEach((id, innerMap) {

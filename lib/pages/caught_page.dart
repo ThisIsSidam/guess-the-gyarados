@@ -85,7 +85,7 @@ class _CaughtPageState extends State<CaughtPage> {
 
   Widget pokemonGridView(Map<int, Map<String, int>> idMap) {
 
-    final caughtIds = CaughtPokemonDB.getIDsWithNonZeroCaughtNormalAndShiny();
+    final caughtIds = CaughtPokemonDB.getIDsWithNonZeroCaughtNormalAndShiny().reversed;
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
