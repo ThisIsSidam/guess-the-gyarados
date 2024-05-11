@@ -7,6 +7,7 @@ import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
+import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/audio_player_widget.dart';
 import 'package:guessthegyarados/utils/catching_widgets/catching_widget.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
@@ -254,6 +255,22 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                       randomId, 
                       PokemonUpdateType.couldNotGuess
                     );
+                  }
+
+                  ref.read(caughtPokemonProvider.notifier).updateData();
+                  final newAchievements = ref.read(caughtPokemonProvider).newlyReceivedAchievements;
+                  
+                  if (newAchievements.isNotEmpty)
+                  {
+                    final snackBar = SnackBar(
+                      content: Row(
+                        children: [
+                          Text("You just received ${newAchievements.length==1 ? 'an' : 'some'} achievement${newAchievements.length==1 ? '' : 's'}!"),
+                        ],
+                      ),
+                      
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
 
                   Navigator.pop(context);

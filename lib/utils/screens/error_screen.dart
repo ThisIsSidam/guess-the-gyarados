@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class ErrorScreen extends StatelessWidget{
-
   final Image image;
   final String? errorText;
   ErrorScreen({

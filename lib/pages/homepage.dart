@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
 import 'package:guessthegyarados/pages/pokedex.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
+import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 
 class HomePage extends ConsumerWidget {
+
   const HomePage({super.key});
 
   void _navigateToPlayPage(BuildContext context, WidgetRef ref) {
@@ -25,6 +28,7 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pokemonNamesFuture = ref.watch(pokemonNamesProvider);
+    ref.read(caughtPokemonProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -62,6 +66,15 @@ class HomePage extends ConsumerWidget {
   AppBar topBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      leading: IconButton(
+          onPressed: ()  {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AchievementPage())
+            );
+          }, 
+          icon: Image.asset(pokeballIcon)
+        ),
       actions: [
         IconButton(
           onPressed: ()  {

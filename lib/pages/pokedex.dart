@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 
-class PokedexPage extends StatefulWidget {
+class PokedexPage extends ConsumerStatefulWidget {
   const PokedexPage({super.key});
 
   @override
-  State<PokedexPage> createState() => _PokedexPageState();
+  ConsumerState<PokedexPage> createState() => _PokedexPageState();
 }
 
-class _PokedexPageState extends State<PokedexPage> {
+class _PokedexPageState extends ConsumerState<PokedexPage> {
   late List<int> _regionStartIds;
   late List<String> _regionNames;
   int _currentRegionIndex = 0;
@@ -105,7 +106,7 @@ class _PokedexPageState extends State<PokedexPage> {
     final regionStartId = _regionStartIds[_currentRegionIndex];
     final regionEndId = _getRegionEndId(_currentRegionIndex);
 
-    final caughtData = CaughtPokemonDB.getData;
+    final caughtData = ref.read(caughtPokemonProvider).caughtDetails;
 
 
     return Padding(

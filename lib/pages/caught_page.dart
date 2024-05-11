@@ -1,35 +1,26 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 
-class CaughtPage extends StatefulWidget {
+class CaughtPage extends ConsumerWidget {
   const CaughtPage({super.key});
 
   @override
-  State<CaughtPage> createState() => _CaughtPageState();
-}
-
-class _CaughtPageState extends State<CaughtPage> {
-  late Map<int, Map<String, int>> idList = CaughtPokemonDB.getData;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Map<int, Map<String, int>> idList = ref.read(caughtPokemonProvider).caughtDetails;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: topBar(),
+      appBar: topBar(context),
       body: Column(
         children: [
           idList.isEmpty
-          ? Expanded(child: emptyPage())
+          ? Expanded(child: emptyPage(context))
           : Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
@@ -41,7 +32,7 @@ class _CaughtPageState extends State<CaughtPage> {
     );
   }
 
-  AppBar topBar() {
+  AppBar topBar(BuildContext context) {
     return AppBar(
       title: Text(
         'Pokemon',
@@ -59,7 +50,7 @@ class _CaughtPageState extends State<CaughtPage> {
     );
   }
 
-  Widget emptyPage() {
+  Widget emptyPage(BuildContext context) {
     int chance = Random().nextInt(1000);
     return Center(
       child: Column(
@@ -85,7 +76,7 @@ class _CaughtPageState extends State<CaughtPage> {
 
   Widget pokemonGridView(Map<int, Map<String, int>> idMap) {
 
-    final caughtIds = CaughtPokemonDB.getIDsWithNonZeroCaughtNormalAndShiny().reversed;
+    final caughtIds = CaughtPokemonDB.getCaughtPokemonIDs().reversed;
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

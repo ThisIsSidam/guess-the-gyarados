@@ -15,6 +15,7 @@ void main() async {
   await Hive.openBox(allPokemonNamesBox);
   Hive.registerAdapter(PokemonAdapter());
   await Hive.openBox<Pokemon>(pokemonDataBox);
+  await Hive.openBox(achievementBox);
 
   runApp(const ProviderScope(
     child: MyApp())

@@ -33,7 +33,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
       caught = random < catchRate;
     });
 
-    caught = false;
+    caught = true;
     if (caught)
     {
       successfullyCaught();

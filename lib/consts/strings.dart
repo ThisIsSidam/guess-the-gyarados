@@ -20,6 +20,9 @@ const pokemonsOfUserBox = "caught_pokemon";
 const pokemonImagesBox = "pokemon_images";
 const pokemonDataBox = 'pokemon_data';
 const allPokemonNamesBox = "all_pokemon_names";
+const achievementBox = "achievements";
+
+const receivedAchievementsKey = "received_achievements";
 
 const pokemonsOfUserBoxKey = "CAUGHT_POKEMON";
 const guessedNotCaughtBoxKey = "GUESSEDNOTCAUGHT";

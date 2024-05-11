@@ -31,10 +31,8 @@ class CaughtPokemonDB {
     return result;
   }
 
-  static void updateData(int id, PokemonUpdateType updateType) {
+  static Map<int, Map<String, int>> updateData(int id, PokemonUpdateType updateType) {
     final idList = getData;
-
-    debugPrint("Before: ${idList.keys}");
 
     if (idList.containsKey(id)) {
       final innerMap = idList[id]!;
@@ -53,12 +51,12 @@ class CaughtPokemonDB {
       innerMap[updateType.name] = 1; // Set the corresponding key to 1
       idList[id] = innerMap;
     }
-    debugPrint("After: ${idList.keys}");
 
     _idBox.put(pokemonsOfUserBoxKey, idList);
+    return idList;
   }
 
-  static List<int> getIDsWithNonZeroCaughtNormalAndShiny() {
+  static List<int> getCaughtPokemonIDs() {
     final filteredIDs = <int>[];
     final idList = _idBox.get(pokemonsOfUserBoxKey) ?? {};
 
