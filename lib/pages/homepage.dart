@@ -5,6 +5,7 @@ import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
 import 'package:guessthegyarados/pages/pokedex.dart';
+import 'package:guessthegyarados/pages/profile_page.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
@@ -70,12 +71,21 @@ class HomePage extends ConsumerWidget {
           onPressed: ()  {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AchievementPage())
+              MaterialPageRoute(builder: (context) => const ProfilePage())
             );
           }, 
           icon: Image.asset(pokeballIcon)
         ),
       actions: [
+        IconButton(
+          onPressed: ()  {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AchievementPage())
+            );
+          }, 
+          icon: Image.asset(pokeballIcon)
+        ),
         IconButton(
           onPressed: ()  {
             Navigator.push(

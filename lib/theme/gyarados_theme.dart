@@ -36,7 +36,8 @@ final gyaradosTheme = ThemeData(
 
   textTheme: const TextTheme(
     titleLarge: TextStyle(
-      fontSize: 25
+      fontSize: 25,
+      fontWeight: FontWeight.bold
     ),
     titleMedium: TextStyle(
       fontSize: 20
