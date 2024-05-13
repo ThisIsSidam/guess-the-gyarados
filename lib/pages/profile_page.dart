@@ -2,14 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_data.dart';
+import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
+import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
 import 'package:guessthegyarados/utils/achivement_utils/methods.dart';
 
-class ProfilePage extends ConsumerWidget {
+class ProfilePage extends ConsumerStatefulWidget {
+
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  final userNameController = TextEditingController();
+  bool isEditingUsername = false;
+
+  @override
+  void initState() {
+    super.initState();
+    userNameController.text = UserDB.getData(UserDetails.username) ?? 'missingUser';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final pokemonData = CaughtPokemonDB.getData;
     final receivedAchievements =
         ref.read(caughtPokemonProvider).receivedAchievements;
@@ -39,6 +57,7 @@ class ProfilePage extends ConsumerWidget {
     double catchRate = totalCaught > 0 ? (totalCaught / totalGuesses) * 100 : 0.0;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.red,
         leading: IconButton(
@@ -52,7 +71,7 @@ class ProfilePage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _userNameWidget(context, catchRate, guessRate),
+            _userNameWidget(context),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -80,30 +99,7 @@ class ProfilePage extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Received Achievements',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    receivedAchievements.isNotEmpty
-                        ? buildAchievementGrid(receivedAchievements)
-                        : const Center(
-                            child: Text("Kid, you ain't got no achievements. Play more."),
-                          )
-                  ],
-                ),
-              ),
+              child: _achievementsSection(receivedAchievements),
             ),
           ],
         ),
@@ -111,30 +107,77 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _userNameWidget(BuildContext context, double catchRate, double guessRate) {
+  Widget _userNameWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
         children: [
-          Image.asset(
-            pokeballIcon,
-            width: 40.0,
-            height: 40.0,
-          ),
-          const SizedBox(width: 20,),
           Text(
-            'missingUser',
+            "Hello,",
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: Colors.white
             ),
           ),
+          const SizedBox(width: 10,),
+          isEditingUsername
+          ? SizedBox(
+              width: 200,
+              child: TextField(
+                controller: userNameController,
+                autofocus: true,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  color: Colors.white
+                ),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 8.0,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Colors.white,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Colors.white,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                onSubmitted: (value) {
+                  UserDB.addData(
+                    UserDetails.username,
+                    value,
+                  );
+
+                  setState(() {
+                    isEditingUsername = false;
+                  });
+                },
+              ),
+            )
+          : Text(
+              userNameController.text,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                color: Colors.white
+              ),
+            ),
           const SizedBox(width: 8.0),
           IconButton(
             icon: const Icon(Icons.edit),
+            iconSize: 20,
             color: Colors.white,
             onPressed: () {
-              // Implement edit functionality
+              setState(() {
+                isEditingUsername = true;
+              });
             },
           ),
         ],
@@ -167,6 +210,45 @@ class ProfilePage extends ConsumerWidget {
               fontSize: 8
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _achievementsSection(List<Achievement> receivedAchievements) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'My Achievements',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AchievementPage()));
+                  }, 
+                  icon: const Icon(Icons.chevron_right)
+                )
+              ],
+            ),
+          ),
+          receivedAchievements.isNotEmpty
+              ? buildAchievementGrid(receivedAchievements)
+              : const Center(
+                  child: Text("Kid, you ain't got no achievements. Play more."),
+                )
         ],
       ),
     );
