@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
+import 'package:guessthegyarados/utils/pokedex_widgets.dart/individual_mon_dialog.dart';
 
 class PokedexPage extends ConsumerStatefulWidget {
   const PokedexPage({super.key});
@@ -150,28 +151,33 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
           }
 
             
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Center(
-                child: isGuessed
-                    ? isCaught
-                        ? image
-                        : ColorFiltered(
-                            colorFilter: const ColorFilter.mode(
-                              Colors.black,
-                              BlendMode.srcATop,
-                            ),
-                            child: image,
-                          )
-                    : Text(
-                        '$pokemonId',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+          return GestureDetector(
+            onTap: () {
+              if (isCaught) showPokemonDetailsDialog(context, pokemonId);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Center(
+                  child: isGuessed
+                      ? isCaught
+                          ? image
+                          : ColorFiltered(
+                              colorFilter: const ColorFilter.mode(
+                                Colors.black,
+                                BlendMode.srcATop,
+                              ),
+                              child: image,
+                            )
+                      : Text(
+                          '$pokemonId',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                ),
               ),
             ),
           );

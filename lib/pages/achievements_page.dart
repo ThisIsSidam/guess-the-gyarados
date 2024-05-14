@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
-import 'package:guessthegyarados/utils/achivement_utils/methods.dart';
+import 'package:guessthegyarados/utils/achivement_utils/widgets.dart';
 
 class AchievementPage extends ConsumerStatefulWidget {
   const AchievementPage({super.key});

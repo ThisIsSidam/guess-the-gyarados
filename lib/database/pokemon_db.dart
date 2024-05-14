@@ -31,6 +31,29 @@ class CaughtPokemonDB {
     return result;
   }
 
+  static Map<PokemonUpdateType, int>? getDataForId(int id) {
+  final data = getData;
+  if (!data.containsKey(id)) {
+    return null; // Return an empty map if the id is not found
+  }
+
+  final innerMap = data[id];
+
+  if (innerMap == null) return null;
+
+  final result = <PokemonUpdateType, int>{};
+
+  innerMap.forEach((key, value) {
+    final enumType = PokemonUpdateType.values.firstWhere(
+      (e) => e.name == key,
+      orElse: () => PokemonUpdateType.couldNotGuess, // Default value if not found
+    );
+    result[enumType] = value;
+    });
+
+  return result;
+}
+
   static Map<int, Map<String, int>> updateData(int id, PokemonUpdateType updateType) {
     final idList = getData;
 

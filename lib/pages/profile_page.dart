@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
-import 'package:guessthegyarados/utils/achivement_utils/methods.dart';
+import 'package:guessthegyarados/utils/achivement_utils/widgets.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
 
@@ -188,7 +187,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _statTile(String value, String label, BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black12,
+        color: Colors.white24,
         borderRadius: BorderRadius.circular(5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -218,8 +217,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _achievementsSection(List<Achievement> receivedAchievements) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(15), topRight: Radius.circular(15)
+        ),
       ),
       padding: const EdgeInsets.all(16.0),
       child: Column(
