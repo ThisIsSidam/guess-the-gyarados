@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/catching_widgets/pokeball_animation.dart';
 
@@ -37,6 +38,13 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     if (caught)
     {
       successfullyCaught();
+
+      final firstCatch = UserDB.getData(UserDetails.firstCatch);
+      if (firstCatch == null)
+      {
+        UserDB.updateData(UserDetails.firstCatch, widget.pokemon.id.toString());
+        UserDB.updateData(UserDetails.userColorString, widget.pokemon.types.first);
+      }
     }
     else 
     {

@@ -6,6 +6,7 @@ import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
 import 'package:guessthegyarados/utils/achivement_utils/widgets.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
 
@@ -27,6 +28,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userColor = getColorFromString(UserDB.getData(UserDetails.userColorString) ?? "Normal");
+
     final pokemonData = CaughtPokemonDB.getData;
     final receivedAchievements =
         ref.read(caughtPokemonProvider).receivedAchievements;
@@ -58,7 +61,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Colors.red,
+        backgroundColor: userColor,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           color: Colors.white,
@@ -66,11 +69,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
       ),
       body: Container(
-        color: Colors.red,
+        color: userColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _userNameWidget(context),
+            _userNameRowWidget(context),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -106,15 +109,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _userNameWidget(BuildContext context) {
+
+  Widget _userNameRowWidget(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text(
+        children: [Text(
             "Hello,",
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: Colors.white
@@ -128,7 +132,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 controller: userNameController,
                 autofocus: true,
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Colors.white
+                  color: Colors.white,
+                  decoration: TextDecoration.none
                 ),
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
@@ -151,7 +156,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ),
                 onSubmitted: (value) {
-                  UserDB.addData(
+                  UserDB.updateData(
                     UserDetails.username,
                     value,
                   );
@@ -169,16 +174,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
           const SizedBox(width: 8.0),
-          IconButton(
-            icon: const Icon(Icons.edit),
-            iconSize: 20,
-            color: Colors.white,
-            onPressed: () {
-              setState(() {
-                isEditingUsername = true;
-              });
-            },
-          ),
+          if (!isEditingUsername)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              iconSize: 20,
+              color: Colors.white,
+              onPressed: () {
+                setState(() {
+                  isEditingUsername = true;
+                });
+              },
+            ),
         ],
       ),
     );
