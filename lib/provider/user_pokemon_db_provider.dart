@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/database/achievements_db.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievements.dart';
 
@@ -63,6 +64,7 @@ class CaughtPokemonNotifier extends StateNotifier<CaughtPokemonState> {
         {
           receivedAchievements.add(achievement);
           newlyReceivedAchievements.add(achievement);
+          UserDB.addPoints(achievement.points);
         }
         else 
         {

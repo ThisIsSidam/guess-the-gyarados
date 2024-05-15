@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
 import 'package:guessthegyarados/provider/pokemon_provider.dart';
@@ -50,7 +51,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       fit: BoxFit.contain,
     );
 
-    final pokemonAsync = ref.watch(pokemonFutureProvider(251));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -63,7 +64,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             body: Center(child: Text('Failed to fetch Pokemon data'))
           );
         }
-        debugPrint(thisPokemon.name);
+        debugPrint(thisPokemon.name + thisPokemon.bst.toString());
 
         final questionWrappedUtils = QuestionWrappedUtils(
           pokemon: thisPokemon, 
@@ -114,6 +115,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                             ),
                           ),
                         getBottomBar(
+                          thisPokemon.bst,
                           thisPokemon.name,
                           pokemonsMap!.values.toList(),
                         ),
@@ -231,7 +233,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     );
   }
 
-  Widget getBottomBar(String pokemonName, List<String> pokemonsList) {
+  Widget getBottomBar(int pokemonBST, String pokemonName, List<String> pokemonsList) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
@@ -242,38 +244,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  if (!pokemonGuessedCorrectly)
-                  {
-                    final snackBar = SnackBar(
-                      content: Text("${isShiny ? "Shiny" : ''} $pokemonName ran away!"),
-                      duration: const Duration(seconds: 2),
-                    );
-
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                    CaughtPokemonDB.updateData(
-                      randomId, 
-                      PokemonUpdateType.couldNotGuess
-                    );
-                  }
-
-                  ref.read(caughtPokemonProvider.notifier).updateData();
-                  final newAchievements = ref.read(caughtPokemonProvider).newlyReceivedAchievements;
-                  
-                  if (newAchievements.isNotEmpty)
-                  {
-                    final snackBar = SnackBar(
-                      content: Row(
-                        children: [
-                          Text("You just received ${newAchievements.length==1 ? 'an' : 'some'} achievement${newAchievements.length==1 ? '' : 's'}!"),
-                        ],
-                      ),
-                      
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-
-                  Navigator.pop(context);
+                  onPressedBack(pokemonBST, pokemonName);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: pokemonGuessedCorrectly
@@ -324,4 +295,39 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     );
   }
 
+  void onPressedBack(int pokemonBST, String pokemonName) {
+    if (!pokemonGuessedCorrectly)
+    {
+      final snackBar = SnackBar(
+        content: Text("${isShiny ? "Shiny" : ''} $pokemonName ran away!"),
+        duration: const Duration(seconds: 2),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      CaughtPokemonDB.updateData(
+        randomId, 
+        PokemonUpdateType.couldNotGuess
+      );
+      final steps = ref.read(counterProvider);
+      UserDB.addPoints(((pokemonBST / 100) * steps).toInt());
+    }
+
+    ref.read(caughtPokemonProvider.notifier).updateData();
+    final newAchievements = ref.read(caughtPokemonProvider).newlyReceivedAchievements;
+    
+    if (newAchievements.isNotEmpty)
+    {
+      final snackBar = SnackBar(
+        content: Row(
+          children: [
+            Text("You just received ${newAchievements.length==1 ? 'an' : 'some'} achievement${newAchievements.length==1 ? '' : 's'}!"),
+          ],
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+
+    Navigator.pop(context);
+  }
 }

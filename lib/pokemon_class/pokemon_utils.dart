@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class PokemonUtils {
   static Map<int, String> extractAbilities(List<dynamic> abilitiesJson) {
     final abilities = <int, String>{};
@@ -155,5 +157,28 @@ class PokemonUtils {
       996,997,998]; // Gen 9
 
       return pseudoLegendaryPokemonIds.contains(id);
+  }
+
+  static int getBST(List<dynamic> jsonData) {
+    int totalBaseStats = 0;
+
+    for (final stat in jsonData) {
+      if (stat is Map<String, dynamic> && stat.containsKey('base_stat')) {
+        final baseStatValue = stat['base_stat'];
+        if (baseStatValue is int) {
+          totalBaseStats += baseStatValue;
+        }
+        else
+        {
+          debugPrint("bst not int");
+        }
+      }
+      else 
+      {
+        debugPrint("1 condition fail");
+      }
+    }
+
+    return totalBaseStats;
   }
 }

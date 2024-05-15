@@ -20,30 +20,31 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       id: fields[0] as int,
       name: fields[1] as String,
       generation: fields[2] as int,
-      abilities: (fields[3] as Map?)?.cast<int, String>(),
-      noOfForms: fields[4] as int,
-      types: (fields[5] as List).cast<String>(),
-      spriteUrl: fields[6] as String,
-      shinySpriteUrl: fields[7] as String,
-      evolutionTreeSize: fields[8] as int,
-      evolutionItem: fields[9] as String?,
-      usableEvolutionItems: (fields[10] as List).cast<String>(),
-      stageOfEvolution: fields[11] as int,
-      cry: fields[12] as String,
-      hasMega: fields[13] as bool,
-      hasGmax: fields[14] as bool,
-      isBaby: fields[15] as bool,
-      isLegendary: fields[16] as bool,
-      isMythical: fields[17] as bool,
-      isStarter: fields[18] as bool,
-      isPseudo: fields[19] as bool,
+      bst: fields[3] as int,
+      abilities: (fields[4] as Map?)?.cast<int, String>(),
+      noOfForms: fields[5] as int,
+      types: (fields[6] as List).cast<String>(),
+      spriteUrl: fields[7] as String,
+      shinySpriteUrl: fields[8] as String,
+      evolutionTreeSize: fields[9] as int,
+      evolutionItem: fields[10] as String?,
+      usableEvolutionItems: (fields[11] as List).cast<String>(),
+      stageOfEvolution: fields[12] as int,
+      cry: fields[13] as String,
+      hasMega: fields[14] as bool,
+      hasGmax: fields[15] as bool,
+      isBaby: fields[16] as bool,
+      isLegendary: fields[17] as bool,
+      isMythical: fields[18] as bool,
+      isStarter: fields[19] as bool,
+      isPseudo: fields[20] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Pokemon obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -51,38 +52,40 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       ..writeByte(2)
       ..write(obj.generation)
       ..writeByte(3)
-      ..write(obj.abilities)
+      ..write(obj.bst)
       ..writeByte(4)
-      ..write(obj.noOfForms)
+      ..write(obj.abilities)
       ..writeByte(5)
-      ..write(obj.types)
+      ..write(obj.noOfForms)
       ..writeByte(6)
-      ..write(obj.spriteUrl)
+      ..write(obj.types)
       ..writeByte(7)
-      ..write(obj.shinySpriteUrl)
+      ..write(obj.spriteUrl)
       ..writeByte(8)
-      ..write(obj.evolutionTreeSize)
+      ..write(obj.shinySpriteUrl)
       ..writeByte(9)
-      ..write(obj.evolutionItem)
+      ..write(obj.evolutionTreeSize)
       ..writeByte(10)
-      ..write(obj.usableEvolutionItems)
+      ..write(obj.evolutionItem)
       ..writeByte(11)
-      ..write(obj.stageOfEvolution)
+      ..write(obj.usableEvolutionItems)
       ..writeByte(12)
-      ..write(obj.cry)
+      ..write(obj.stageOfEvolution)
       ..writeByte(13)
-      ..write(obj.hasMega)
+      ..write(obj.cry)
       ..writeByte(14)
-      ..write(obj.hasGmax)
+      ..write(obj.hasMega)
       ..writeByte(15)
-      ..write(obj.isBaby)
+      ..write(obj.hasGmax)
       ..writeByte(16)
-      ..write(obj.isLegendary)
+      ..write(obj.isBaby)
       ..writeByte(17)
-      ..write(obj.isMythical)
+      ..write(obj.isLegendary)
       ..writeByte(18)
-      ..write(obj.isStarter)
+      ..write(obj.isMythical)
       ..writeByte(19)
+      ..write(obj.isStarter)
+      ..writeByte(20)
       ..write(obj.isPseudo);
   }
 

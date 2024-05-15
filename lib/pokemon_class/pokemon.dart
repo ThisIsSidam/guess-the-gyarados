@@ -16,61 +16,64 @@ class Pokemon {
   final int generation;
 
   @HiveField(3)
-  final Map<int, String> abilities;
+  final int bst;
 
   @HiveField(4)
-  final int noOfForms;
+  final Map<int, String> abilities;
 
   @HiveField(5)
-  final List<String> types;
+  final int noOfForms;
 
   @HiveField(6)
-  final String spriteUrl;
+  final List<String> types;
 
   @HiveField(7)
-  final String shinySpriteUrl;
+  final String spriteUrl;
 
   @HiveField(8)
-  int evolutionTreeSize;
+  final String shinySpriteUrl;
 
   @HiveField(9)
-  String? evolutionItem;
+  int evolutionTreeSize;
 
   @HiveField(10)
-  List<String> usableEvolutionItems;
+  String? evolutionItem;
 
   @HiveField(11)
-  int stageOfEvolution;
+  List<String> usableEvolutionItems;
 
   @HiveField(12)
-  String cry;
+  int stageOfEvolution;
 
   @HiveField(13)
-  bool hasMega;
+  String cry;
 
   @HiveField(14)
-  bool hasGmax;
+  bool hasMega;
 
   @HiveField(15)
-  bool isBaby;
+  bool hasGmax;
 
   @HiveField(16)
-  bool isLegendary;
+  bool isBaby;
 
   @HiveField(17)
-  bool isMythical;
+  bool isLegendary;
 
   @HiveField(18)
-  bool isStarter;
+  bool isMythical;
 
   @HiveField(19)
-  bool isPseudo;
+  bool isStarter;
 
+  @HiveField(20)
+  bool isPseudo;
 
   Pokemon({
     required this.id,
     required this.name,
     required this.generation,
+    required this.bst,
     Map<int, String>? abilities,
     required this.noOfForms,
     required this.types,
@@ -105,6 +108,7 @@ class Pokemon {
       id: id,
       name: capitalizeString(name),
       generation: generation,
+      bst: PokemonUtils.getBST(json['stats']),
       abilities: abilities,
       noOfForms: forms,
       types: types,

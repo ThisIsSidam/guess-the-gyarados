@@ -7,6 +7,7 @@ import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
 import 'package:guessthegyarados/utils/achivement_utils/widgets.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
+import 'package:guessthegyarados/utils/profile_widgets/level_bar.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
 
@@ -74,6 +75,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _userNameRowWidget(context),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: LevelProgressBar(currentPoints: int.parse(UserDB.getData(UserDetails.points) ?? "0")),
+            ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(

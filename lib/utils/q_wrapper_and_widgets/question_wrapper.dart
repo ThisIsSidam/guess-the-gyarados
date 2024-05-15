@@ -56,7 +56,7 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
         borderRadius: BorderRadius.circular(10),
         child: Container(
             decoration: BoxDecoration(
-              color: getColorFromString(isGuessedCorrectly ? widget.answer : widget.question),
+              color: Colors.black12,
               borderRadius: BorderRadius.circular(10),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

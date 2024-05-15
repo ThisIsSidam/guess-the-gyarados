@@ -52,6 +52,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
         widget.pokemon.id, 
         PokemonUpdateType.catchFailed
       );
+      UserDB.addPoints((widget.pokemon.bst * 0.5).toInt());
     }
   }
 
@@ -80,6 +81,8 @@ class _CatchingWidgetState extends State<CatchingWidget> {
       ? PokemonUpdateType.caughtShiny 
       : PokemonUpdateType.caughtNormal
     );
+
+    UserDB.addPoints((widget.isShiny ? widget.pokemon.bst * 2 : widget.pokemon.bst));
   }
 
   @override
