@@ -19,7 +19,7 @@ Future<Widget> getPokemonImage(int id, {bool isShiny = false}) async {
 
   var mon = PokemonDB.getData(id);
   mon ??= await fetchPokemonFromPokemonId(id);
-  final Uint8List? imageData = await loadImageData(mon.name, id, isShiny); 
+  final Uint8List? imageData = await loadImageData(mon.name, mon.speciesID, isShiny); 
 
   if (imageData == null)
   {

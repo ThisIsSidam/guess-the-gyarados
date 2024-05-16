@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/consts/api_links.dart';
+import 'package:guessthegyarados/utils/pokedex_widgets.dart/individual_mon_dialog.dart';
 
 Color getColorFromString(String input) {
 
@@ -135,13 +136,15 @@ String getPokemonImageLink(int id, String name) {
 }
 
 String _getImageName(String leadingZeroId, String name) {
-  if (name.contains('-') && !pokemonNamesWithHyphens.contains(name)) 
-  {
-    final nameParts = name.split('-');
-    return '$leadingZeroId-${nameParts.last}';
-  } 
-  else 
-  {
+  final nameParts = name.split('-');
+  final otherParts = nameParts.skip(1).toList();
+
+  if (otherParts.isNotEmpty) {
+    final formattedOtherParts = otherParts
+        .map((part) => part.capitalize())
+        .join('-');
+    return '$leadingZeroId-$formattedOtherParts';
+  } else {
     return leadingZeroId;
   }
 }
