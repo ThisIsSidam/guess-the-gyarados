@@ -94,6 +94,7 @@ class CaughtPage extends ConsumerWidget {
         int numberOfNormal = catchData[PokemonUpdateType.caughtNormal.name] ?? 0; 
         int numberOfShiny = catchData[PokemonUpdateType.caughtShiny.name] ?? 0; 
         return imageDisplayTile(
+          context,
           id, 
           ImagesDB.getImage(id, isShiny: numberOfShiny > 0), 
           numberOfNormal, 
@@ -104,6 +105,7 @@ class CaughtPage extends ConsumerWidget {
   }
 
   Widget imageDisplayTile(
+    BuildContext context,
     int id, 
     Widget? image, 
     int normalCatch, 
@@ -125,8 +127,14 @@ class CaughtPage extends ConsumerWidget {
           child: image ?? FutureBuilder(
             future: getPokemonImage(id,), 
             builder: (context, snapshot) {
-              return snapshot.data!;
-            }
+              return snapshot.data ?? const Center(child: Text("⍰"));
+            },
+            initialData: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).scaffoldBackgroundColor
+                ),
+              ),
           ),
         )
       ),

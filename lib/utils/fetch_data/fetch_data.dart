@@ -1,14 +1,19 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:guessthegyarados/consts/api_links.dart';
+import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:http/http.dart' as http;
 
-Future<Pokemon> fetchPokemonData(int pokemonId) async {
+Future<Pokemon> fetchPokemonDataFromSpeciesId(int pokemonId) async {
+
+  Pokemon? pokemon = PokemonDB.getData(pokemonId);
+
+  if (pokemon != null) return pokemon;
+
   final speciesUrl = Uri.parse('$pokemonSpeciesDataApiLink$pokemonId');
   final speciesResponse = await http.get(speciesUrl);
-
   if (speciesResponse.statusCode == 200) {
     final speciesData = json.decode(speciesResponse.body);
     final varieties = speciesData['varieties'] as List<dynamic>;
@@ -33,7 +38,27 @@ Future<Pokemon> fetchPokemonData(int pokemonId) async {
       throw Exception('Failed to fetch Pokemon data');
     }
   } else {
-    throw Exception('Failed to fetch Pokemon species data');
+    throw Exception('bbFailed to fetch Pokemon species data');
+  }
+}
+
+Future<Pokemon> fetchPokemonFromPokemonId(int id) async {
+
+  Pokemon? pokemon = PokemonDB.getData(id);
+
+  if (pokemon != null) return pokemon;
+
+  final pokemonUrl = Uri.parse("$pokemonDataApiLink$id");
+  final pokemonResponse = await http.get(pokemonUrl);
+
+  if (pokemonResponse.statusCode == 200)
+  {
+    final pokemonData = json.decode(pokemonResponse.body);
+    return Pokemon.fromJsonAsync(pokemonData);
+  }
+  else
+  {
+    throw "[fetchPokemonFromPokemonId] failed";
   }
 }
 

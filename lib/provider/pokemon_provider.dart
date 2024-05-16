@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
@@ -7,8 +8,8 @@ final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomI
   Pokemon? pokemon = PokemonDB.getData(randomId);
 
   if (pokemon != null) return pokemon;
-
-  pokemon = await fetchPokemonData(randomId);
+  debugPrint("id: $randomId");
+  pokemon = await fetchPokemonDataFromSpeciesId(randomId);
   PokemonDB.addData(randomId, pokemon);
   
   return pokemon;

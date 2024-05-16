@@ -69,6 +69,9 @@ class Pokemon {
   @HiveField(20)
   bool isPseudo;
 
+  @HiveField(21)
+  int speciesID;
+
   Pokemon({
     required this.id,
     required this.name,
@@ -90,7 +93,8 @@ class Pokemon {
     required this.isLegendary,
     required this.isMythical,
     required this.isStarter,
-    required this.isPseudo
+    required this.isPseudo,
+    required this.speciesID
   }) : abilities = abilities ?? {0: '', 1: '', 2: ''};
 
   factory Pokemon.fromJson(Map<String, dynamic> json) {
@@ -122,7 +126,8 @@ class Pokemon {
       isLegendary: false,
       isMythical: false,
       isStarter: PokemonUtils.checkIfStarter(id),
-      isPseudo: PokemonUtils.checkIfPseudo(id)
+      isPseudo: PokemonUtils.checkIfPseudo(id),
+      speciesID: 0 
     );
   }
 
@@ -154,6 +159,7 @@ class Pokemon {
     pokemon.isBaby = speciesData['is_baby'];
     pokemon.isLegendary = speciesData['is_legendary'];
     pokemon.isMythical = speciesData['is_mythical'];
+    pokemon.speciesID = speciesData['id'];
 
     return pokemon;
   }

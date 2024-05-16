@@ -38,13 +38,14 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       isMythical: fields[18] as bool,
       isStarter: fields[19] as bool,
       isPseudo: fields[20] as bool,
+      speciesID: fields[21] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Pokemon obj) {
     writer
-      ..writeByte(21)
+      ..writeByte(22)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -86,7 +87,9 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       ..writeByte(19)
       ..write(obj.isStarter)
       ..writeByte(20)
-      ..write(obj.isPseudo);
+      ..write(obj.isPseudo)
+      ..writeByte(21)
+      ..write(obj.speciesID);
   }
 
   @override

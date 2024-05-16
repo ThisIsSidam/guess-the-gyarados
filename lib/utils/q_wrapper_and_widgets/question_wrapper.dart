@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
-import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
 
 class QuestionWrapper extends ConsumerStatefulWidget {
