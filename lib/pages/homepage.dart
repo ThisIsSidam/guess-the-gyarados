@@ -29,7 +29,7 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pokemonNamesFuture = ref.watch(pokemonNamesProvider);
-    ref.read(caughtPokemonProvider);
+    ref.read(userPokemonProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/provider/pokemon_names_provider.dart';
@@ -51,7 +51,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       fit: BoxFit.contain,
     );
 
-    final pokemonAsync = ref.watch(pokemonFutureProvider(386));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(741));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);
@@ -305,7 +305,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      CaughtPokemonDB.updateData(
+      UserPokemonDB.updateData(
         randomId, 
         PokemonUpdateType.couldNotGuess
       );
@@ -313,8 +313,8 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       UserDB.addPoints(((pokemonBST / 100) * steps).toInt());
     }
 
-    ref.read(caughtPokemonProvider.notifier).updateData();
-    final newAchievements = ref.read(caughtPokemonProvider).newlyReceivedAchievements;
+    ref.read(userPokemonProvider.notifier).updateData();
+    final newAchievements = ref.read(userPokemonProvider).newlyReceivedAchievements;
     
     if (newAchievements.isNotEmpty)
     {

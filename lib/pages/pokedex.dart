@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 import 'package:guessthegyarados/utils/pokedex_widgets.dart/individual_mon_dialog.dart';
@@ -104,84 +105,125 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
   }
 
   Widget pokemonList() {
-    final regionStartId = _regionStartIds[_currentRegionIndex];
-    final regionEndId = _getRegionEndId(_currentRegionIndex);
+  final regionStartId = _regionStartIds[_currentRegionIndex];
+  final regionEndId = _getRegionEndId(_currentRegionIndex);
+  final caughtData = ref.read(userPokemonProvider).caughtDetails;
 
-    final caughtData = ref.read(caughtPokemonProvider).caughtDetails;
-
-
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 16, left: 16, right: 16
+  return Padding(
+    padding: const EdgeInsets.only(
+      top: 16,
+      left: 16,
+      right: 16,
+    ),
+    child: GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5,
+        childAspectRatio: 1.0,
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
       ),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5,
-          childAspectRatio: 1.0,
-          crossAxisSpacing: 5,
-          mainAxisSpacing: 5
-        ),
-        itemCount: regionEndId - regionStartId + 1,
-        itemBuilder: (context, index) {
-          final pokemonId = regionStartId + index;
-          final details = caughtData[pokemonId] ?? {};
-          final isGuessed = 
-              (details['caughtNormal'] ?? 0) > 0 ||
-              (details['caughtShiny'] ?? 0) > 0 ||
-              (details['catchFailed'] ?? 0) > 0;
-          final isCaught = (details['caughtNormal'] ?? 0) > 0 ||
-              ((details['caughtShiny'] ?? 0) > 0);
- 
-          late Widget image;
-          if (isGuessed)
-          {
-            image = FutureBuilder(
-              initialData: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: CircularProgressIndicator(
-                  color: Theme.of(context).scaffoldBackgroundColor
-                ),
-              ),
-              future: getPokemonImage(pokemonId), 
-              builder: (context, snapshot) {
-                return snapshot.data!;
-              }
-            );
-            debugPrint("$pokemonId $details");
-          }
+      itemCount: regionEndId - regionStartId + 1,
+      itemBuilder: (context, index) {
+        final pokemonId = regionStartId + index;
+        final pokemon = PokemonDB.getData(pokemonId);
 
-            
-          return GestureDetector(
-            onTap: () {
-              if (isCaught) showPokemonDetailsDialog(context, pokemonId);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Center(
-                  child: isGuessed
-                      ? isCaught
-                          ? image
-                          : ColorFiltered(
-                              colorFilter: const ColorFilter.mode(
-                                Colors.black,
-                                BlendMode.srcATop,
-                              ),
-                              child: image,
-                            )
-                      : Text(
-                          '$pokemonId',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                ),
-              ),
-            ),
-          );
+        if (pokemon == null) 
+        {
+          return gridViewElementWidget(null, pokemonId, null);
+        }
+
+        final variantIds = pokemon.variantIDs;
+        debugPrint("[pokemonList] variantIds $variantIds");
+        int? firstCaughtVariant;
+        int? firstGuessedVariant;
+
+        for (final variantId in variantIds) {
+          final variantDetails = caughtData[variantId] ?? {};
+          final isCaughtNormal = (variantDetails['caughtNormal'] ?? 0) > 0;
+          final isCaughtShiny = (variantDetails['caughtShiny'] ?? 0) > 0;
+          final isCaught = isCaughtNormal || isCaughtShiny;
+          final isVariantGuessed = (variantDetails['catchFailed'] ?? 0) > 0;
+
+          if (isCaught) 
+          {
+            firstCaughtVariant = variantId;
+            break;
+          } 
+          else if (firstGuessedVariant == null && isVariantGuessed) 
+          {
+            firstGuessedVariant = variantId;
+          }
+        }
+        debugPrint("[pokemonList] firstCaught: $firstCaughtVariant");
+        debugPrint("[pokemonList] firstGuess: $firstGuessedVariant");
+
+        return gridViewElementWidget(firstGuessedVariant, pokemonId, getCenterWidget(
+          firstCaughtVariant, firstGuessedVariant, pokemonId));
+      },
+    ),
+  );
+}
+
+  Widget? getCenterWidget(int? firstCaughtVariant, int? firstGuessedVariant, int pokemonId)
+  {
+    int? imageId = firstCaughtVariant ?? firstGuessedVariant;
+        
+    late Widget image;
+    if (imageId != null) {
+      image = FutureBuilder(
+        initialData: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CircularProgressIndicator(
+            color: Theme.of(context).scaffoldBackgroundColor,
+          ),
+        ),
+        future: getPokemonImage(imageId),
+        builder: (context, snapshot) {
+          return snapshot.data!;
         },
+      );
+    }
+
+    /// [centerWidget] the widget shown in the center of the time: image/silouhette/id.
+    final Widget? centerWidget = firstCaughtVariant != null
+      ? image 
+      : firstGuessedVariant != null
+        ? ColorFiltered(
+          colorFilter: const ColorFilter.mode(
+            Colors.black,
+            BlendMode.srcATop,
+          ),
+          child: image,
+        )
+        : null;
+
+    return centerWidget;
+  }
+
+  Widget gridViewElementWidget(
+    int? firstCaughtVariant,
+    int pokemonId,
+    Widget? child
+  ) {
+
+    return GestureDetector(
+      onTap: () {
+        if (firstCaughtVariant != null) showPokemonDetailsDialog(context, pokemonId);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black12,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Center(
+            child: child ?? Text(
+              '$pokemonId',
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          ),
+        ),
       ),
     );
   }

@@ -1,21 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/database/achievements_db.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievements.dart';
 
-final caughtPokemonProvider = StateNotifierProvider<CaughtPokemonNotifier, CaughtPokemonState>((ref) {
+final userPokemonProvider = StateNotifierProvider<CaughtPokemonNotifier, UserPokemonState>((ref) {
   return CaughtPokemonNotifier();
 });
 
-class CaughtPokemonState {
+class UserPokemonState {
   final Map<int, Map<String, int>> caughtDetails;
   final List<Achievement> receivedAchievements;
   final List<Achievement> upcomingAchievements;
   final List<Achievement> newlyReceivedAchievements;
 
-  CaughtPokemonState({
+  UserPokemonState({
     required this.caughtDetails,
     required this.receivedAchievements,
     required this.upcomingAchievements,
@@ -23,15 +23,15 @@ class CaughtPokemonState {
   });
 }
 
-class CaughtPokemonNotifier extends StateNotifier<CaughtPokemonState> {
+class CaughtPokemonNotifier extends StateNotifier<UserPokemonState> {
   CaughtPokemonNotifier() : super(_getCaughtPokemonState());
 
-  static CaughtPokemonState _getCaughtPokemonState() {
+  static UserPokemonState _getCaughtPokemonState() {
 
-    final caughtDetails = CaughtPokemonDB.getData;
+    final caughtDetails = UserPokemonDB.getData;
 
     final achievementDetails = _getAchievements(caughtDetails);
-    return CaughtPokemonState(
+    return UserPokemonState(
       caughtDetails: caughtDetails,
       receivedAchievements: achievementDetails['received'] ?? [],
       upcomingAchievements: achievementDetails['upcoming'] ?? [],
@@ -44,7 +44,7 @@ class CaughtPokemonNotifier extends StateNotifier<CaughtPokemonState> {
   }
 
   static Map<String, List<Achievement>> _getAchievements(Map<int, Map<String, int>> caughtDetails) {
-    final caughtPokemonIds = CaughtPokemonDB.getCaughtPokemonIDs();
+    final caughtPokemonIds = UserPokemonDB.getCaughtPokemonIDs();
     final List<Achievement> receivedAchievements = [];
     final List<Achievement> upcomingAchievements = [];
     final List<Achievement> newlyReceivedAchievements = [];

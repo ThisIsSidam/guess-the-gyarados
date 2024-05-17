@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 
 Future<void> showPokemonDetailsDialog(BuildContext context, int pokemonId) async {
   final pokemon = PokemonDB.getData(pokemonId);
-  final pokemonGameData = CaughtPokemonDB.getDataForId(pokemonId);
+  final pokemonGameData = UserPokemonDB.getDataForId(pokemonId);
 
   if (pokemonGameData == null) throw "[showPokemonDetailsPage] PokemonGameData Not Found";
   if (pokemon == null) throw "[showPokemonDetailsDialog] Detail Retrieval Failed";

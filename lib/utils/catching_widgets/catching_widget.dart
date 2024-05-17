@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/catching_widgets/pokeball_animation.dart';
@@ -48,7 +48,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     }
     else 
     {
-      CaughtPokemonDB.updateData(
+      UserPokemonDB.updateData(
         widget.pokemon.id, 
         PokemonUpdateType.catchFailed
       );
@@ -75,7 +75,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   /// Adds caught pokemon id to database
   void successfullyCaught() {
-    CaughtPokemonDB.updateData(
+    UserPokemonDB.updateData(
       widget.pokemon.id, 
       widget.isShiny 
       ? PokemonUpdateType.caughtShiny 

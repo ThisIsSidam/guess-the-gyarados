@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 enum PokemonUpdateType {couldNotGuess, catchFailed, caughtNormal, caughtShiny }
 
-class CaughtPokemonDB {
+class UserPokemonDB {
 
   static final _idBox = Hive.box(pokemonsOfUserBox);
 

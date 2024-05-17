@@ -39,13 +39,16 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       isStarter: fields[19] as bool,
       isPseudo: fields[20] as bool,
       speciesID: fields[21] as int,
+      variantIDs: (fields[22] as List).cast<int>(),
+      isMega: fields[23] as bool,
+      isGmax: fields[24] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Pokemon obj) {
     writer
-      ..writeByte(22)
+      ..writeByte(25)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -89,7 +92,13 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       ..writeByte(20)
       ..write(obj.isPseudo)
       ..writeByte(21)
-      ..write(obj.speciesID);
+      ..write(obj.speciesID)
+      ..writeByte(22)
+      ..write(obj.variantIDs)
+      ..writeByte(23)
+      ..write(obj.isMega)
+      ..writeByte(24)
+      ..write(obj.isGmax);
   }
 
   @override

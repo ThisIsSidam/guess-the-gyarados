@@ -72,6 +72,15 @@ class Pokemon {
   @HiveField(21)
   int speciesID;
 
+  @HiveField(22)
+  List<int> variantIDs;
+
+  @HiveField(23)
+  bool isMega;
+
+  @HiveField(24)
+  bool isGmax;
+
   Pokemon({
     required this.id,
     required this.name,
@@ -94,7 +103,10 @@ class Pokemon {
     required this.isMythical,
     required this.isStarter,
     required this.isPseudo,
-    required this.speciesID
+    required this.speciesID,
+    required this.variantIDs,
+    required this.isMega,
+    required this.isGmax
   }) : abilities = abilities ?? {0: '', 1: '', 2: ''};
 
   factory Pokemon.fromJson(Map<String, dynamic> json) {
@@ -127,7 +139,10 @@ class Pokemon {
       isMythical: false,
       isStarter: PokemonUtils.checkIfStarter(id),
       isPseudo: PokemonUtils.checkIfPseudo(id),
-      speciesID: 0 
+      speciesID: 0,
+      variantIDs: [],
+      isMega: name.contains("-mega"),
+      isGmax: name.contains("-gmax")
     );
   }
 
@@ -160,6 +175,7 @@ class Pokemon {
     pokemon.isLegendary = speciesData['is_legendary'];
     pokemon.isMythical = speciesData['is_mythical'];
     pokemon.speciesID = speciesData['id'];
+    pokemon.variantIDs = PokemonUtils.getVarietyIds(varieties);
 
     return pokemon;
   }

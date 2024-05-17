@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/images_db.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 
@@ -13,7 +13,7 @@ class CaughtPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<int, Map<String, int>> idList = ref.read(caughtPokemonProvider).caughtDetails;
+    final Map<int, Map<String, int>> idList = ref.read(userPokemonProvider).caughtDetails;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: topBar(context),
@@ -76,7 +76,7 @@ class CaughtPage extends ConsumerWidget {
 
   Widget pokemonGridView(Map<int, Map<String, int>> idMap) {
 
-    final caughtIds = CaughtPokemonDB.getCaughtPokemonIDs().reversed;
+    final caughtIds = UserPokemonDB.getCaughtPokemonIDs().reversed;
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

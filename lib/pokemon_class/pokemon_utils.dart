@@ -181,4 +181,50 @@ class PokemonUtils {
 
     return totalBaseStats;
   }
+
+  static List<int> getVarietyIds(List<dynamic> varietiesData) {
+    debugPrint("[getVarientIds] Data : $varietiesData");
+    final List<int> varietyIds = [];
+
+    for (final varietyMap in varietiesData) {
+      if (varietyMap is Map<String, dynamic> && varietyMap.containsKey('pokemon')) {
+        final pokemonMap = varietyMap['pokemon'];
+        if (pokemonMap is Map<String, dynamic> && pokemonMap.containsKey('url')) {
+          final url = pokemonMap['url'];
+          if (url is String) {
+            final urlParts = url.split('/');
+            late int? id;
+            for (final part in urlParts.reversed)
+            {
+              debugPrint("[getVarientIds] part: $part");
+              id = int.tryParse(part);
+              if (id != null) break;
+            }
+            if (id != null) {
+              varietyIds.add(id);
+            }
+            else
+            {
+              debugPrint("[getVarientIds] 4th false");          
+            }
+          }
+          else
+          {
+            debugPrint("[getVarientIds] 3rd false");
+          }
+        }
+        else
+        {
+          debugPrint("[getVarientIds] 2nd false");
+        }
+      }
+      else
+      {
+        debugPrint("[getVarientIds] 1st false");
+      }
+    }
+
+    debugPrint("[getVarientIds] result: $varietyIds");
+    return varietyIds;
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/database/pokemon_db.dart';
+import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
@@ -31,9 +31,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final userColor = getColorFromString(UserDB.getData(UserDetails.userColorString) ?? "Normal");
 
-    final pokemonData = CaughtPokemonDB.getData;
+    final pokemonData = UserPokemonDB.getData;
     final receivedAchievements =
-        ref.read(caughtPokemonProvider).receivedAchievements;
+        ref.read(userPokemonProvider).receivedAchievements;
 
     int totalGuesses = 0;
     int totalAppeared = 0;

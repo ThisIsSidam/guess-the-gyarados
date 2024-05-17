@@ -14,8 +14,8 @@ class _AchievementPageState extends ConsumerState<AchievementPage> {
 
   @override
   Widget build(BuildContext context) {
-    final receivedAchievements = ref.read(caughtPokemonProvider).receivedAchievements;
-    final upcomingAchievements = ref.read(caughtPokemonProvider).upcomingAchievements;
+    final receivedAchievements = ref.read(userPokemonProvider).receivedAchievements;
+    final upcomingAchievements = ref.read(userPokemonProvider).upcomingAchievements;
     
 
     return Scaffold(
