@@ -1,122 +1,264 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/consts/strings.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/database/user_pokemon_db.dart';
+import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 
-Future<void> showPokemonDetailsDialog(BuildContext context, int pokemonId) async {
-  final pokemon = PokemonDB.getData(pokemonId);
-  final pokemonGameData = UserPokemonDB.getDataForId(pokemonId);
+enum PokemonDetailType {appeared, guessed, caughtTotal, caughtShiny}
 
-  if (pokemonGameData == null) throw "[showPokemonDetailsPage] PokemonGameData Not Found";
-  if (pokemon == null) throw "[showPokemonDetailsDialog] Detail Retrieval Failed";
+class PokemonDetailsSection extends StatefulWidget {
+  final List<int> variantIds;
+  final int? firstCaughtVariant;
+  final int? firstGuessedVariant;
 
-  final primaryType = pokemon.types.first.capitalize();
-  final secondaryType = pokemon.types.length > 1 ? pokemon.types[1].capitalize() : null;
+  const PokemonDetailsSection({
+    super.key,
+    required this.variantIds,
+    required this.firstCaughtVariant,
+    required this.firstGuessedVariant
+  });
 
-  final caughtShiny = pokemonGameData[PokemonUpdateType.caughtShiny] ?? 0;
-  final caughtTotal = pokemonGameData[PokemonUpdateType.caughtNormal] ?? 0 + caughtShiny;
-  final guessed = (pokemonGameData[PokemonUpdateType.catchFailed] ?? 0).toInt() + caughtTotal;
-  final appeared = (pokemonGameData[PokemonUpdateType.couldNotGuess] ?? 0).toInt() + guessed;
+  @override
+  State<PokemonDetailsSection> createState() => _PokemonDetailsSectionState();
+}
 
-  Text statText(String str) {
-    return Text(
-      str,
-      style: Theme.of(context).textTheme.bodySmall,
+class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
+  late int _currentVariantIndex;
+  late Pokemon? _currentPokemon;
+  late Map<PokemonDetailType, int>? _currentVariantData;
+  final Map<int, Map<PokemonDetailType, int>?> variantData = {};
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.firstCaughtVariant == null && widget.firstGuessedVariant == null)
+    {
+      throw "[PokemonDetailsSection] No Guessed Variant Found";
+    }
+    final chosenIndex = widget.variantIds.indexOf(widget.firstCaughtVariant ?? widget.firstGuessedVariant!);
+
+    _currentVariantIndex = chosenIndex;
+    _currentPokemon = PokemonDB.getData(widget.variantIds[_currentVariantIndex]);
+
+    for (final id in widget.variantIds) {
+      final data = UserPokemonDB.getDataForId(id);
+      variantData[id] = data != null ? _getVariantStats(data) : null;
+    }
+
+    _currentVariantData = variantData[widget.variantIds[_currentVariantIndex]];
+  }
+
+  void _changeVariant(int index) {
+    final data = variantData[widget.variantIds[index]];
+
+    if (data != null && data[PokemonDetailType.guessed]! > 0) {
+      setState(() {
+        _currentVariantIndex = index;
+
+        _currentPokemon = PokemonDB.getData(widget.variantIds[index]);
+
+        _currentVariantData = variantData[widget.variantIds[_currentVariantIndex]];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_currentVariantData == null) {
+      return const Center(child: Text("No variant is guessed"));
+    }
+
+    final guessedCount = _currentVariantData![PokemonDetailType.guessed];
+
+    if (_currentPokemon == null || guessedCount == 0) {
+      return const Center(child: Text("Pokemon Data Not Found"));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: 150, bottom: 50, left: 50, right: 50),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildPokemonImage(),
+          _buildVariantDots(),
+          _buildDetailsContainer(),
+        ],
+      ),
     );
   }
 
-  showDialog(
-    context: context,
-    barrierColor: Colors.black.withOpacity(0.7), // Dim the background
-    builder: (BuildContext context) {
-      return AlertDialog(
-        surfaceTintColor: Colors.transparent,
-        contentPadding: EdgeInsets.zero,
-        backgroundColor: Colors.transparent, // Set background color to transparent
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            FutureBuilder(
-              future: getPokemonImage(pokemonId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return snapshot.data!;
-                }
-              },
-            ),
-            const SizedBox(height: 16.0), // Add spacing between image and white section
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0), // Rounded corners
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          pokemon.name,
-                          softWrap: true,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Row(
-                          children: [
-                            Chip(
-                              label: Text(
-                                primaryType,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              backgroundColor: getColorFromString(primaryType),
-                            ),
-                            if (secondaryType != null)
-                              const SizedBox(width: 8.0),
-                            if (secondaryType != null)
-                              Chip(
-                                label: Text(
-                                  secondaryType,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                backgroundColor: getColorFromString(secondaryType),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        statText("Appeared: $appeared"),
-                        statText("Guessed: $guessed"),
-                        statText("Caught: $caughtTotal"),
-                        statText("Shiny: $caughtShiny")
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    // Add more details about the Pokemon here
-                  ],
+  Widget _buildPokemonImage() {
+    final caughtTotal = _currentVariantData![PokemonDetailType.caughtTotal];
+
+    return FutureBuilder(
+      future: getPokemonImage(widget.variantIds[_currentVariantIndex]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Image.asset(pokeballIcon);
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return caughtTotal == 0
+              ? ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black,
+                    BlendMode.srcATop,
+                  ),
+                  child: snapshot.data,
+                )
+              : snapshot.data!;
+        }
+      },
+    );
+  }
+
+  Widget _buildVariantDots() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        widget.variantIds.length,
+        (index) {
+          final data = variantData[widget.variantIds[index]];
+
+          return GestureDetector(
+            onTap: () => _changeVariant(index),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24),
+              child: Opacity(
+                opacity: data == null ? 0.5 : data[PokemonDetailType.guessed] == 0 ? 0.5 : 1.0,
+                child: ColorFiltered(
+                  colorFilter:  ColorFilter.mode(
+                    data == null
+                        ? Colors.black.withOpacity(0.9)
+                        : data[PokemonDetailType.guessed] == 0
+                            ? Colors.grey.withOpacity(0.9)
+                            : Colors.transparent,
+                    BlendMode.srcATop,
+                  ),
+                  child: Image.asset(
+                    pokeballIcon,
+                    width: index == _currentVariantIndex ? 24.0 : 16.0,
+                    height: index == _currentVariantIndex ? 24.0 : 16.0,
+                  ),
                 ),
               ),
             ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDetailsContainer() {
+    if (_currentPokemon == null) {
+      return const Center(child: Text("Pokemon Data Not Found"));
+    }
+
+    final primaryType = _currentPokemon!.types.first.capitalize;
+    final secondaryType =
+        _currentPokemon!.types.length > 1 ? _currentPokemon!.types[1].capitalize : null;
+
+    final variantStats = _currentVariantData;
+    final appeared = variantStats![PokemonDetailType.appeared] ?? 0;
+    final caughtTotal = variantStats[PokemonDetailType.caughtTotal] ?? 0;
+    final guessedCount = variantStats[PokemonDetailType.guessed] ?? 0;
+    final caughtShiny = variantStats[PokemonDetailType.caughtShiny] ?? 0;
+
+    return Material( // Had to add Material for Chip widgets.
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildPokemonName(primaryType, secondaryType),
+              const SizedBox(height: 8.0),
+              _buildStatsRow(appeared, guessedCount, caughtTotal, caughtShiny),
+              const SizedBox(height: 16.0),
+              // Add more details about the Pokemon here
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPokemonName(String primaryType, String? secondaryType) {
+    return Wrap(
+      children: [
+        Text(
+          _currentPokemon!.name,
+          softWrap: true,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        Row(
+          children: [
+            Chip(
+              label: Text(
+                primaryType,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              backgroundColor: getColorFromString(primaryType),
+            ),
+            if (secondaryType != null)
+              const SizedBox(width: 8.0),
+            if (secondaryType != null)
+              Chip(
+                label: Text(
+                  secondaryType,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                backgroundColor: getColorFromString(secondaryType),
+              ),
           ],
         ),
-      );
-    },
-  );
-}
+      ],
+    );
+  }
 
-extension StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  Widget _buildStatsRow(int appeared, int guessedCount, int caughtTotal, int caughtShiny) {
+    Text statText(String str) {
+      return Text(
+        str,
+        style: Theme.of(context).textTheme.bodySmall,
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        statText("Appeared: $appeared"),
+        statText("Guessed: $guessedCount"),
+        statText("Caught: $caughtTotal"),
+        statText("Shiny: $caughtShiny")
+      ],
+    );
+  }
+
+  Map<PokemonDetailType, int> _getVariantStats(Map<PokemonUpdateType, int> variantData) {
+    final guessed = (variantData[PokemonUpdateType.catchFailed] ?? 0).toInt() +
+        (variantData[PokemonUpdateType.caughtNormal] ?? 0).toInt() +
+        (variantData[PokemonUpdateType.caughtShiny] ?? 0).toInt();
+    final caughtTotal = (variantData[PokemonUpdateType.caughtNormal] ?? 0).toInt() +
+        (variantData[PokemonUpdateType.caughtShiny] ?? 0).toInt();
+    final appeared = (variantData[PokemonUpdateType.couldNotGuess] ?? 0).toInt() + guessed;
+    final caughtShiny = variantData[PokemonUpdateType.caughtShiny] ?? 0;
+
+    return {
+      PokemonDetailType.appeared : appeared,
+      PokemonDetailType.guessed : guessed,
+      PokemonDetailType.caughtTotal : caughtTotal,
+      PokemonDetailType.caughtShiny : caughtShiny
+    };
   }
 }

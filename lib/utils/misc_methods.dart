@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/consts/api_links.dart';
-import 'package:guessthegyarados/utils/pokedex_widgets.dart/individual_mon_dialog.dart';
 
 Color getColorFromString(String input) {
 
@@ -81,31 +80,10 @@ Color getColorFromString(String input) {
   }
 }
 
-String capitalizeString(String input) {
-  // Split the input string by the hyphen
-  List<String> parts = input.split('-');
-
-  // Initialize an empty string to store the formatted string
-  String formattedString = '';
-
-  // Iterate over the parts
-  for (int i = 0; i < parts.length; i++) {
-    // Get the current part
-    String part = parts[i];
-
-    // Capitalize the first letter of the part
-    String capitalizedPart = part[0].toUpperCase() + part.substring(1);
-
-    // Append the capitalized part to the formatted string
-    formattedString += capitalizedPart;
-
-    // If it's not the last part, add a hyphen
-    if (i < parts.length - 1) {
-      formattedString += '-';
-    }
+extension StringExtension on String {
+  String get capitalize {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
-
-  return formattedString;
 }
 
 bool excludePokemon(String name) {
@@ -141,7 +119,7 @@ String _getImageName(String leadingZeroId, String name) {
 
   if (otherParts.isNotEmpty) {
     final formattedOtherParts = otherParts
-        .map((part) => part.capitalize())
+        .map((part) => part.capitalize)
         .join('-');
     return '$leadingZeroId-$formattedOtherParts';
   } else {

@@ -122,7 +122,7 @@ class Pokemon {
 
     return Pokemon(
       id: id,
-      name: capitalizeString(name),
+      name: name.capitalize,
       generation: generation,
       bst: PokemonUtils.getBST(json['stats']),
       abilities: abilities,

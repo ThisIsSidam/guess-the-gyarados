@@ -129,11 +129,11 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
 
         if (pokemon == null) 
         {
-          return gridViewElementWidget(null, pokemonId, null);
+          return gridViewElementWidget(null, null, pokemonId, null);
         }
 
+
         final variantIds = pokemon.variantIDs;
-        debugPrint("[pokemonList] variantIds $variantIds");
         int? firstCaughtVariant;
         int? firstGuessedVariant;
 
@@ -154,18 +154,16 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
             firstGuessedVariant = variantId;
           }
         }
-        debugPrint("[pokemonList] firstCaught: $firstCaughtVariant");
-        debugPrint("[pokemonList] firstGuess: $firstGuessedVariant");
 
-        return gridViewElementWidget(firstGuessedVariant, pokemonId, getCenterWidget(
-          firstCaughtVariant, firstGuessedVariant, pokemonId));
+        return gridViewElementWidget(firstCaughtVariant, firstGuessedVariant, pokemonId, variantIds);
       },
     ),
   );
 }
 
   Widget? getCenterWidget(int? firstCaughtVariant, int? firstGuessedVariant, int pokemonId)
-  {
+  { 
+
     int? imageId = firstCaughtVariant ?? firstGuessedVariant;
         
     late Widget image;
@@ -197,18 +195,42 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
         )
         : null;
 
+
     return centerWidget;
   }
 
   Widget gridViewElementWidget(
     int? firstCaughtVariant,
+    int? firstGuessedVariant,
     int pokemonId,
-    Widget? child
+    List<int>? variantIds
   ) {
 
     return GestureDetector(
       onTap: () {
-        if (firstCaughtVariant != null) showPokemonDetailsDialog(context, pokemonId);
+
+        if (firstCaughtVariant != null || firstGuessedVariant != null) 
+        {
+          if (variantIds == null) 
+          {
+            debugPrint("[gridViewElementWidget] variantids is null");
+          }
+          else
+          {
+            debugPrint("[gridViewElementWidget] opening page");
+            showDialog(
+              context: context,
+              barrierColor: Colors.black.withOpacity(0.7),
+              builder: (context) => PokemonDetailsSection(
+                variantIds: variantIds,
+                firstCaughtVariant: firstCaughtVariant,
+                firstGuessedVariant: firstGuessedVariant,
+              ),
+            );
+            
+          }
+        }
+
       },
       child: Container(
         decoration: BoxDecoration(
@@ -218,7 +240,11 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Center(
-            child: child ?? Text(
+            child: getCenterWidget(
+              firstCaughtVariant, 
+              firstGuessedVariant, 
+              pokemonId
+            ) ?? Text(
               '$pokemonId',
               style: Theme.of(context).textTheme.bodySmall,
             )

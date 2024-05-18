@@ -51,7 +51,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       fit: BoxFit.contain,
     );
 
-    final pokemonAsync = ref.watch(pokemonFutureProvider(741));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
 
     stepsCount = ref.watch(counterProvider);

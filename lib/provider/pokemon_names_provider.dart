@@ -19,11 +19,11 @@ Future<Map<int, String>> _loadPokemonDataFromJson() async {
 
     for (int i = 0; i < results.length; i++) {
       final pokemonData = results[i];
-      final pokemonName = pokemonData['name'];
+      final String pokemonName = pokemonData['name'];
 
       if (excludePokemon(pokemonName)) continue;
 
-      pokemonNames[i+1] = (capitalizeString(pokemonName));
+      pokemonNames[i+1] = pokemonName.capitalize;
     }
 
     // Store the list of Pokemon names in Hive
