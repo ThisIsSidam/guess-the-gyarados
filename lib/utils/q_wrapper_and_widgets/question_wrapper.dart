@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
-import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
+import 'package:guessthegyarados/utils/q_wrapper_and_widgets/bottom_sheet_methods.dart';
 
 class QuestionWrapper extends ConsumerStatefulWidget {
   final String question;
@@ -50,18 +50,14 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
     return GestureDetector(
       onTap: _showInputDialog,
       child: widget.aliasWidget == null
-      ? Material(
-        elevation: 5,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: getFinalChild(),
+      ? Container(
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(10),
           ),
-      )
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: getFinalChild(),
+        )
       : getFinalChild(),
     );
   }

@@ -1,12 +1,13 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/consts/asset_paths.dart';
 import 'package:guessthegyarados/database/images_db.dart';
+import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/provider/user_pokemon_db_provider.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
+import 'package:guessthegyarados/utils/pokedex_widgets.dart/individual_mon_dialog.dart';
 
 class CaughtPage extends ConsumerWidget {
   const CaughtPage({super.key});
@@ -93,12 +94,30 @@ class CaughtPage extends ConsumerWidget {
 
         int numberOfNormal = catchData[PokemonUpdateType.caughtNormal.name] ?? 0; 
         int numberOfShiny = catchData[PokemonUpdateType.caughtShiny.name] ?? 0; 
-        return imageDisplayTile(
-          context,
-          id, 
-          ImagesDB.getImage(id, isShiny: numberOfShiny > 0), 
-          numberOfNormal, 
-          numberOfShiny
+        return GestureDetector(
+          onTap: () {
+
+            final pokemonData = PokemonDB.getData(id);
+
+            if (pokemonData == null) throw "[pokemonGridVeiw] pokemon Data not found";
+
+            showDialog(
+              context: context,
+              barrierColor: Colors.black.withOpacity(0.7),
+              builder: (context) => PokemonDetailsSection(
+                variantIds: pokemonData.variantIDs,
+                firstCaughtVariant: id,
+                firstGuessedVariant: null,
+              ),
+            );
+          },
+          child: imageDisplayTile(
+            context,
+            id, 
+            ImagesDB.getImage(id, isShiny: numberOfShiny > 0), 
+            numberOfNormal, 
+            numberOfShiny
+          ),
         );
       },
     );

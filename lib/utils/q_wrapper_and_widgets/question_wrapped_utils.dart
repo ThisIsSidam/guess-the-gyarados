@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
+import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/question_wrapper.dart';
-import 'package:guessthegyarados/utils/type_card.dart';
 
 class QuestionWrappedUtils {
 
@@ -37,16 +36,37 @@ class QuestionWrappedUtils {
         QuestionWrapper(
           question: "Primary type",
           answer: typeOne,
-          aliasWidget: const TypeCard(type: "??",),
+          aliasWidget: const Chip(
+                label: Text(
+                  "Type 1",
+                ),
+                backgroundColor: Colors.black12,
+              ),
           options: typeOptions,
-          child: TypeCard(type: typeOne),
+          child: Chip(
+            label: Text(
+              typeOne.capitalize,
+            ),
+            backgroundColor: getColorFromString(typeOne),
+          ),
         ),
+        const SizedBox(width: 10,),
         QuestionWrapper(
           question: "Secondary type",
           answer: typeTwo,
-          aliasWidget: const TypeCard(type: "??",),
+          aliasWidget: const Chip(
+                label: Text(
+                  "Type 2",
+                ),
+                backgroundColor: Colors.black12,
+              ),
           options: typeOptions,
-          child: TypeCard(type: typeTwo),
+          child: Chip(
+            label: Text(
+              typeTwo.capitalize,
+            ),
+            backgroundColor: getColorFromString(typeTwo),
+          ),
         ),
       ],
     );

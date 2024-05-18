@@ -13,7 +13,7 @@ class Pokemon {
   final String name;
 
   @HiveField(2)
-  final int generation;
+  int generation;
 
   @HiveField(3)
   final int bst;
@@ -115,7 +115,6 @@ class Pokemon {
     final types = PokemonUtils.extractTypes(json['types']);
     final spriteUrl = json['sprites']['front_default'];
     final shinySpriteUrl = json['sprites']['front_shiny'];
-    final generation = PokemonUtils.getGeneration(json['id']);
     final cry = json['cries']['latest'] ?? '';
     final String name = json['name'];
     final int id = json['id'];
@@ -123,7 +122,7 @@ class Pokemon {
     return Pokemon(
       id: id,
       name: name.capitalize,
-      generation: generation,
+      generation: -1,
       bst: PokemonUtils.getBST(json['stats']),
       abilities: abilities,
       noOfForms: forms,
@@ -176,6 +175,8 @@ class Pokemon {
     pokemon.isMythical = speciesData['is_mythical'];
     pokemon.speciesID = speciesData['id'];
     pokemon.variantIDs = PokemonUtils.getVarietyIds(varieties);
+    pokemon.generation = PokemonUtils.getGeneration(pokemon.speciesID);
+
 
     return pokemon;
   }

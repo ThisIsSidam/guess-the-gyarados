@@ -78,6 +78,9 @@ flutter:
     - assets/other_images/arceus.png
     - assets/other_images/open_pokeball.png
     - assets/other_images/closed_pokeball.png
+    - assets/icons/achievement_icon.png
+    - assets/icons/pokedex-48.png
+    - assets/icons/profile_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

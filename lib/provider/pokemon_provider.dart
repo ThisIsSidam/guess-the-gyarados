@@ -5,7 +5,7 @@ import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 
 final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomId) async {
-  randomId = 386;
+  // randomId = 386;
 
   // Fetch Pokemon from Database; null if not in database
   Pokemon? pokemonBaseVariant = PokemonDB.getData(randomId);
@@ -17,8 +17,6 @@ final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomI
   // Get the id of the final chosen variant.
   final variantIdList = pokemonBaseVariant.variantIDs;
   final finalId = variantIdList[Random().nextInt(variantIdList.length)];
-  // final finalId = randomId;
-  // const finalId = 385;
 
   // Return base variant if it is final
   if (finalId == randomId) return pokemonBaseVariant;

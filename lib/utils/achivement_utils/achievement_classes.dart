@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/consts/asset_paths.dart';
 import 'package:guessthegyarados/database/achievements_db.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';

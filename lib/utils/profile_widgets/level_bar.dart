@@ -16,6 +16,13 @@ class LevelProgressBar extends StatelessWidget {
     final nextLevelThreshold = calculateLevelThreshold(currentLevel + 1);
     final double progress = currentPoints.toDouble() / nextLevelThreshold.toDouble();
 
+    final levelBarColor = darkenColor(
+      getColorFromString(
+        UserDB.getData(UserDetails.userColorString) ?? "Normal"
+      ),
+      0.4
+    );
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -30,7 +37,7 @@ class LevelProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+            valueColor: AlwaysStoppedAnimation<Color>(levelBarColor),
           ),
         ),
         const SizedBox(width: 10,),

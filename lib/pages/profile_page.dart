@@ -8,6 +8,7 @@ import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart
 import 'package:guessthegyarados/utils/achivement_utils/widgets.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 import 'package:guessthegyarados/utils/profile_widgets/level_bar.dart';
+import 'package:guessthegyarados/utils/screens/message_of_god.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
 
@@ -29,7 +30,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final userColor = getColorFromString(UserDB.getData(UserDetails.userColorString) ?? "Normal");
+    final userColor = darkenColor(
+      getColorFromString(
+        UserDB.getData(UserDetails.userColorString) ?? "Normal"
+      ),
+      0.2
+    );
 
     final pokemonData = UserPokemonDB.getData;
     final receivedAchievements =
@@ -258,9 +264,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           receivedAchievements.isNotEmpty
               ? buildAchievementGrid(receivedAchievements)
-              : const Center(
-                  child: Text("Kid, you ain't got no achievements. Play more."),
-                )
+              : const MessageOfGod(message: "No Achievements. Play More. Catch More.")
         ],
       ),
     );

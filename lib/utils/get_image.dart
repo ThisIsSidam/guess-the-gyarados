@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/consts/asset_paths.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';

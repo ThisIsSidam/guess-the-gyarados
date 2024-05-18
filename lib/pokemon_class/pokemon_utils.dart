@@ -39,25 +39,27 @@ class PokemonUtils {
     return types;
   }
 
-  static int getGeneration(int pokemonId) {
-    if (pokemonId <= 151) {
+  static int getGeneration(int speciesId) {
+    if (speciesId <= 151) {
       return 1;
-    } else if (pokemonId <= 251) {
+    } else if (speciesId <= 251) {
       return 2;
-    } else if (pokemonId <= 386) {
+    } else if (speciesId <= 386) {
       return 3;
-    } else if (pokemonId <= 493) {
+    } else if (speciesId <= 493) {
       return 4;
-    } else if (pokemonId <= 649) {
+    } else if (speciesId <= 649) {
       return 5;
-    } else if (pokemonId <= 721) {
+    } else if (speciesId <= 721) {
       return 6;
-    } else if (pokemonId <= 809) {
+    } else if (speciesId <= 809) {
       return 7;
-    } else if (pokemonId <= 905){
+    } else if (speciesId <= 905){
       return 8;
-    } else {
+    } else if (speciesId <= 1025){
       return 9;
+    } else {
+      return 0;
     }
   }
 

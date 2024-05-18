@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/consts/asset_paths.dart';
 import 'package:guessthegyarados/pages/achievements_page.dart';
 import 'package:guessthegyarados/pages/caught_page.dart';
 import 'package:guessthegyarados/pages/play_page.dart';
@@ -74,7 +74,7 @@ class HomePage extends ConsumerWidget {
               MaterialPageRoute(builder: (context) => const ProfilePage())
             );
           }, 
-          icon: Image.asset(pokeballIcon)
+          icon: Image.asset(profileIconPath)
         ),
       actions: [
         IconButton(
@@ -84,7 +84,7 @@ class HomePage extends ConsumerWidget {
               MaterialPageRoute(builder: (context) => const AchievementPage())
             );
           }, 
-          icon: Image.asset(pokeballIcon)
+          icon: Image.asset(achievementsIconPath)
         ),
         IconButton(
           onPressed: ()  {
@@ -102,7 +102,7 @@ class HomePage extends ConsumerWidget {
               MaterialPageRoute(builder: (context) => const PokedexPage())
             );
           }, 
-          icon: Image.asset(pokeballIcon)
+          icon: Image.asset(pokedexIconPath)
         )
       ],
     );

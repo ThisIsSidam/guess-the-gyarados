@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/consts/strings.dart';
+import 'package:guessthegyarados/consts/asset_paths.dart';
 import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
@@ -15,7 +15,7 @@ import 'package:guessthegyarados/utils/get_image.dart';
 import 'package:guessthegyarados/utils/screens/error_screen.dart';
 import 'package:guessthegyarados/utils/screens/loading_screen.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
-import 'package:guessthegyarados/utils/q_wrapper_and_widgets/input_utils.dart';
+import 'package:guessthegyarados/utils/q_wrapper_and_widgets/bottom_sheet_methods.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/question_wrapped_utils.dart';
 
 class PlayPage extends ConsumerStatefulWidget {
@@ -60,9 +60,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       data: (thisPokemon) {
 
         if (thisPokemon == null) {
-          return const Scaffold(
-            body: Center(child: Text('Failed to fetch Pokemon data'))
-          );
+          return ErrorScreen(image: arceusImage);
         }
         debugPrint(thisPokemon.name + thisPokemon.bst.toString());
 
@@ -146,10 +144,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton(
-              onPressed: () {},
-              child: Text("  Steps: $stepsCount  ")
-          ),
+          Text("  Steps: $stepsCount  "),
           if (!pokemonGuessedCorrectly)
           questionWrappedUtils.typesRow(),
         ],
@@ -282,7 +277,9 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                       );
                     },
                     style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.secondary),
+                      backgroundColor: const MaterialStatePropertyAll(Colors.black26),
+                      surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
+                      shadowColor: const MaterialStatePropertyAll(Colors.transparent)
                     ), 
                     child: const Text("Submit")
                   );
