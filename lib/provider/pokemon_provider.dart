@@ -1,11 +1,12 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 
 final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomId) async {
-  // randomId = 386;
+  randomId = 666;
 
   // Fetch Pokemon from Database; null if not in database
   Pokemon? pokemonBaseVariant = PokemonDB.getData(randomId);
@@ -16,6 +17,7 @@ final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomI
 
   // Get the id of the final chosen variant.
   final variantIdList = pokemonBaseVariant.variantIDs;
+  debugPrint("list: $variantIdList");
   final finalId = variantIdList[Random().nextInt(variantIdList.length)];
 
   // Return base variant if it is final

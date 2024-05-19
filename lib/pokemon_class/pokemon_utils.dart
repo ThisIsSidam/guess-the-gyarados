@@ -185,7 +185,6 @@ class PokemonUtils {
   }
 
   static List<int> getVarietyIds(List<dynamic> varietiesData) {
-    debugPrint("[getVarientIds] Data : $varietiesData");
     final List<int> varietyIds = [];
 
     for (final varietyMap in varietiesData) {
@@ -198,7 +197,6 @@ class PokemonUtils {
             late int? id;
             for (final part in urlParts.reversed)
             {
-              debugPrint("[getVarientIds] part: $part");
               id = int.tryParse(part);
               if (id != null) break;
             }
@@ -226,7 +224,6 @@ class PokemonUtils {
       }
     }
 
-    debugPrint("[getVarientIds] result: $varietyIds");
     return varietyIds;
   }
 }

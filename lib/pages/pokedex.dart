@@ -183,7 +183,7 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     }
 
     /// [centerWidget] the widget shown in the center of the time: image/silouhette/id.
-    final Widget? centerWidget = firstCaughtVariant != null
+    final Widget? showPiece = firstCaughtVariant != null
       ? image 
       : firstGuessedVariant != null
         ? ColorFiltered(
@@ -196,7 +196,7 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
         : null;
 
 
-    return centerWidget;
+    return showPiece;
   }
 
   Widget gridViewElementWidget(
@@ -205,6 +205,8 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     int pokemonId,
     List<int>? variantIds
   ) {
+
+    final child = getCenterWidget(firstCaughtVariant, firstGuessedVariant, pokemonId);
 
     return GestureDetector(
       onTap: () {
@@ -233,18 +235,15 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
 
       },
       child: Container(
-        decoration: BoxDecoration(
+        decoration: child == null
+        ? BoxDecoration(
           color: Colors.black12,
           borderRadius: BorderRadius.circular(8),
-        ),
+        ) : null,
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Center(
-            child: getCenterWidget(
-              firstCaughtVariant, 
-              firstGuessedVariant, 
-              pokemonId
-            ) ?? Text(
+            child: child ?? Text(
               '$pokemonId',
               style: Theme.of(context).textTheme.bodySmall,
             )

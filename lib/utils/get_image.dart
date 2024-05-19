@@ -3,11 +3,11 @@ import 'package:guessthegyarados/consts/asset_paths.dart';
 import 'package:guessthegyarados/database/images_db.dart';
 import 'package:guessthegyarados/database/pokemon_data_db.dart';
 import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
+import 'package:guessthegyarados/utils/get_image_link.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 
-import 'package:guessthegyarados/utils/misc_methods.dart';
 
 Future<Widget> getPokemonImage(int id, {bool isShiny = false}) async {
 

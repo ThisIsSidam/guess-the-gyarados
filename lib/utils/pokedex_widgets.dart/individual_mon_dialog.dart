@@ -77,9 +77,7 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
       return const Center(child: Text("Pokemon Data Not Found"));
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 150, bottom: 50, left: 50, right: 50),
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,25 +93,28 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
   Widget _buildPokemonImage() {
     final caughtTotal = _currentVariantData![PokemonDetailType.caughtTotal];
 
-    return FutureBuilder(
-      future: getPokemonImage(widget.variantIds[_currentVariantIndex]),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Image.asset(pokeballIcon);
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return caughtTotal == 0
-              ? ColorFiltered(
-                  colorFilter: const ColorFilter.mode(
-                    Colors.black,
-                    BlendMode.srcATop,
-                  ),
-                  child: snapshot.data,
-                )
-              : snapshot.data!;
-        }
-      },
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+      child: FutureBuilder(
+        future: getPokemonImage(widget.variantIds[_currentVariantIndex]),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Image.asset(pokeballIcon);
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return caughtTotal == 0
+                ? ColorFiltered(
+                    colorFilter: const ColorFilter.mode(
+                      Colors.black,
+                      BlendMode.srcATop,
+                    ),
+                    child: snapshot.data,
+                  )
+                : snapshot.data!;
+          }
+        },
+      ),
     );
   }
 
@@ -125,25 +126,27 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
         (index) {
           final data = variantData[widget.variantIds[index]];
 
-          return GestureDetector(
-            onTap: () => _changeVariant(index),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24),
-              child: Opacity(
-                opacity: data == null ? 0.5 : data[PokemonDetailType.guessed] == 0 ? 0.5 : 1.0,
-                child: ColorFiltered(
-                  colorFilter:  ColorFilter.mode(
-                    data == null
-                        ? Colors.black.withOpacity(0.9)
-                        : data[PokemonDetailType.guessed] == 0
-                            ? Colors.grey.withOpacity(0.9)
-                            : Colors.transparent,
-                    BlendMode.srcATop,
-                  ),
-                  child: Image.asset(
-                    pokeballIcon,
-                    width: index == _currentVariantIndex ? 24.0 : 16.0,
-                    height: index == _currentVariantIndex ? 24.0 : 16.0,
+          return Flexible(
+            child: GestureDetector(
+              onTap: () => _changeVariant(index),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 24),
+                child: Opacity(
+                  opacity: data == null ? 0.5 : data[PokemonDetailType.guessed] == 0 ? 0.5 : 1.0,
+                  child: ColorFiltered(
+                    colorFilter:  ColorFilter.mode(
+                      data == null
+                          ? Colors.black.withOpacity(0.9)
+                          : data[PokemonDetailType.guessed] == 0
+                              ? Colors.grey.withOpacity(0.9)
+                              : Colors.transparent,
+                      BlendMode.srcATop,
+                    ),
+                    child: Image.asset(
+                      pokeballIcon,
+                      width: index == _currentVariantIndex ? 24.0 : 16.0,
+                      height: index == _currentVariantIndex ? 24.0 : 16.0,
+                    ),
                   ),
                 ),
               ),
@@ -169,24 +172,27 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
     final guessedCount = variantStats[PokemonDetailType.guessed] ?? 0;
     final caughtShiny = variantStats[PokemonDetailType.caughtShiny] ?? 0;
 
-    return Material( // Had to add Material for Chip widgets.
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPokemonName(primaryType, secondaryType),
-              const SizedBox(height: 8.0),
-              _buildStatsRow(appeared, guessedCount, caughtTotal, caughtShiny),
-              const SizedBox(height: 16.0),
-              // Add more details about the Pokemon here
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Material( // Had to add Material for Chip widgets.
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPokemonName(primaryType, secondaryType),
+                const SizedBox(height: 8.0),
+                _buildStatsRow(appeared, guessedCount, caughtTotal, caughtShiny),
+                const SizedBox(height: 16.0),
+                // Add more details about the Pokemon here
+              ],
+            ),
           ),
         ),
       ),

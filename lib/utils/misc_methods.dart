@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:guessthegyarados/consts/api_links.dart';
 
 Color getColorFromString(String input) {
 
@@ -93,48 +92,6 @@ bool excludePokemon(String name) {
   if (name.startsWith("pikachu-")) return true;
 
   return false;
-}
-
-
-// For getting images from HybridShivam Bulbapedia images repo
-
-// A set of Pokemon names that have hyphens in their names
-final Set<String> pokemonNamesWithHyphens = {
-  'Tapu-Lele',
-  'Tapu-Fini',
-  'Tapu-Bulu',
-  'Tapu-Koko'
-  // Add more names here as needed
-};
-
-String getPokemonImageLink(int id, String name) {
-  final leadingZeroId = id.toString().padLeft(3, '0');
-  final imageName = _getImageName(leadingZeroId, name);
-  return '$pokemonImageLink$imageName.png';
-}
-
-String _getImageName(String leadingZeroId, String name) {
-  final nameParts = name.split('-');
-  final otherParts = nameParts.skip(1).toList();
-
-  if (otherParts.isNotEmpty) {
-    final formattedOtherParts = otherParts
-        .map((part) => part.capitalize)
-        .join('-');
-    return '$leadingZeroId-$formattedOtherParts';
-  } else {
-    return leadingZeroId;
-  }
-}
-
-String getPokemonBackupImageLink(int id, bool isShiny) {
-
-  if (isShiny)
-  {
-    return "$shinyPokemonImageLink${id.toString()}.png";
-
-  }
-  return "$backupPokemonImageLink${id.toString()}.png";
 }
 
 int getUserLevel(int userPoints) {

@@ -126,10 +126,14 @@ class _PlayPageState extends ConsumerState<PlayPage>{
           ),
         );
       },
-      error: (err, stack) => ErrorScreen(
-        image: arceusImage,
-        errorText: err.toString(),
-      ),
+      error: (err, stack) {
+        debugPrint("[playPage] Error: $err");
+        debugPrint("[playPage] stack : $stack");
+        return ErrorScreen(
+          image: arceusImage,
+          errorText: err.toString(),
+        );
+      } ,
       loading: () => HoveringImageLoadingScreen(
         image: arceusImage,
         text: "Lemme think",
