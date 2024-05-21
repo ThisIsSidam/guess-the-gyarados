@@ -12,7 +12,7 @@ class LevelProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentLevel = int.parse(UserDB.getData(UserDetails.level) ?? "0");
+    final currentLevel = UserDB.getData(UserDetails.level) ?? 0;
     final nextLevelThreshold = calculateLevelThreshold(currentLevel + 1);
     final double progress = currentPoints.toDouble() / nextLevelThreshold.toDouble();
 

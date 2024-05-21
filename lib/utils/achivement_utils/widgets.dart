@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/utils/achivement_utils/achievement_classes.dart';
 
-Widget buildAchievementGrid(List<Achievement> list, ) {
+// Takes a list of achievements and returns a list of it. 
+Widget buildAchievementGrid(List<Achievement> list) {
+
+    final len = list.length;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -13,7 +17,7 @@ Widget buildAchievementGrid(List<Achievement> list, ) {
       ),
       itemCount: list.length,
       itemBuilder: (context, index) {
-        return list[index].achievementBadge;
+        return list[len - index -1].achievementBadge;
       },
     ); 
   }

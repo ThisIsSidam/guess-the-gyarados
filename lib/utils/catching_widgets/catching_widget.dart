@@ -39,10 +39,10 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     {
       successfullyCaught();
 
-      final firstCatch = UserDB.getData(UserDetails.firstCatch);
+      final int? firstCatch = UserDB.getData(UserDetails.firstCatch);
       if (firstCatch == null)
       {
-        UserDB.updateData(UserDetails.firstCatch, widget.pokemon.id.toString());
+        UserDB.updateData(UserDetails.firstCatch, widget.pokemon.id);
         UserDB.updateData(UserDetails.userColorString, widget.pokemon.types.first);
       }
     }
@@ -50,7 +50,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     {
       UserPokemonDB.updateData(
         widget.pokemon.id, 
-        PokemonUpdateType.catchFailed
+        PokemonInteractionType.catchFailed
       );
       UserDB.addPoints((widget.pokemon.bst * 0.5).toInt());
     }
@@ -78,8 +78,8 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     UserPokemonDB.updateData(
       widget.pokemon.id, 
       widget.isShiny 
-      ? PokemonUpdateType.caughtShiny 
-      : PokemonUpdateType.caughtNormal
+      ? PokemonInteractionType.caughtShiny 
+      : PokemonInteractionType.caughtNormal
     );
 
     UserDB.addPoints((widget.isShiny ? widget.pokemon.bst * 2 : widget.pokemon.bst));

@@ -22,7 +22,7 @@ Future<Map<int, String>> _loadPokemonDataFromJson() async {
       final pokemonData = results[i];
       final String pokemonName = pokemonData['name'];
 
-      if (excludePokemon(pokemonName)) continue;
+      if (pokemonName.contains("-totem")) continue; // Ignore totem pokemons
 
       pokemonNames[i+1] = pokemonName.capitalize;
     }

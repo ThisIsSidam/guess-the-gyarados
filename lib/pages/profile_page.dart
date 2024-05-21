@@ -83,7 +83,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             _userNameRowWidget(context),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: LevelProgressBar(currentPoints: int.parse(UserDB.getData(UserDetails.points) ?? "0")),
+              child: LevelProgressBar(currentPoints: UserDB.getData(UserDetails.points) ?? 0),
             ),
             Padding(
               padding: const EdgeInsets.all(16),

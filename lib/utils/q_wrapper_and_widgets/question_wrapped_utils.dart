@@ -43,6 +43,7 @@ class QuestionWrappedUtils {
                 backgroundColor: Colors.black12,
               ),
           options: typeOptions,
+          coloredOptions: true,
           child: Chip(
             label: Text(
               typeOne.capitalize,
@@ -61,6 +62,7 @@ class QuestionWrappedUtils {
                 backgroundColor: Colors.black12,
               ),
           options: typeOptions,
+          coloredOptions: true,
           child: Chip(
             label: Text(
               typeTwo.capitalize,
@@ -157,8 +159,22 @@ class QuestionWrappedUtils {
     );
   }
 
+  Widget isMegaWidget() {
+    String ans = pokemon.isMega ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is Mega Form", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is Mega",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
+
   Widget hasGmaxWidget() {
-    String ans = pokemon.hasMega ? "Yes" : "No";
+    String ans = pokemon.hasGmax ? "Yes" : "No";
 
     return QuestionWrapper(
       question: "Has Gmax Form", 
@@ -166,6 +182,20 @@ class QuestionWrappedUtils {
       answerIsBoolean: true,
       child: Text(
         "Has Gmax form",
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+    );
+  }
+
+  Widget isGmaxWidget() {
+    String ans = pokemon.isGmax ? "Yes" : "No";
+
+    return QuestionWrapper(
+      question: "Is Gmax Form", 
+      answer: ans, 
+      answerIsBoolean: true,
+      child: Text(
+        "Is Gmax form",
         style: Theme.of(context).textTheme.bodyLarge,
       )
     );

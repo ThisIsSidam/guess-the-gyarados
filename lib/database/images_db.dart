@@ -7,6 +7,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 class ImagesDB {
   static final _imagesBox = Hive.box(pokemonImagesBox);
 
+  // Box has two compartments: one for normal images, second for shiny. They both store 
+  // Maps of int(id) and image(Uint8List) in them.
   static Future<void> addImage(int pokemonId, Uint8List image, {bool isShiny = false}) async {
     try {
       final imagesMap = _getImagesMap(isShiny);
@@ -21,7 +23,7 @@ class ImagesDB {
     final imagesMap = _getImagesMap(isShiny);
     final Uint8List? imageData = imagesMap[pokemonId.toString()];
     if (imageData != null) {
-      return Image.memory(
+      return Image.memory( // because imageData is of type Uint8List
         imageData,
         errorBuilder: (context, error, stackTrace) {
           debugPrint("[gPI error] $error");

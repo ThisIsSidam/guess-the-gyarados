@@ -26,10 +26,10 @@ class PlayPage extends ConsumerStatefulWidget {
 }
 
 class _PlayPageState extends ConsumerState<PlayPage>{
-  final randomId = Random().nextInt(1000) + 1;
+  final randomId = Random().nextInt(1025) + 1; // Randoly pick a pokemon id
   bool isShiny = false;
 
-  @override
+  @override // Lucky enough for a shiny?
   void initState() {
     final shinyChances = Random().nextInt(1000);
     if (shinyChances == 69) isShiny = true; // ¯\_(ツ)_/¯ (¬‿¬)
@@ -44,6 +44,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   @override
   Widget build(BuildContext context) {
+
     final arceusImage = Image.asset(
       arceusImagePath,
       height: 200,
@@ -51,9 +52,9 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       fit: BoxFit.contain,
     );
 
+    // Load data
     final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
-
     stepsCount = ref.watch(counterProvider);
 
     return pokemonAsync.when(
@@ -76,7 +77,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).scaffoldBackgroundColor,
-                  getColorFromString(thisPokemon.types[0])
+                  getColorFromString(thisPokemon.name)
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter
@@ -87,7 +88,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                 topRow(questionWrappedUtils),
                 const SizedBox(height: 40),
                 pokemonImageWidget(thisPokemon),
-                Expanded(
+                Expanded( // White Section including questions and bottomBar
                   flex: 2,
                   child: Container(
                     decoration: const BoxDecoration(
@@ -213,10 +214,13 @@ class _PlayPageState extends ConsumerState<PlayPage>{
               children: [
                 questionWrappedUtils.generationWidget(),
                 questionWrappedUtils.evolutionTreeSizeWidget(),
-                questionWrappedUtils.noOfFormsWidget(),
+                // There are issues with forms-variants with PokeAPI. Can't get the value I want.
+                // questionWrappedUtils.noOfFormsWidget(),
                 questionWrappedUtils.itemEvolutionWidget(),
                 questionWrappedUtils.hasMegaWidget(),
+                questionWrappedUtils.isMegaWidget(),
                 questionWrappedUtils.hasGmaxWidget(),
+                questionWrappedUtils.isGmaxWidget(),
                 questionWrappedUtils.currentEvoStageWidget(),
                 questionWrappedUtils.isBabyWidget(),
                 questionWrappedUtils.isLegendaryWidget(),
@@ -237,7 +241,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Expanded(
+          Expanded( // Close button
             flex: 1,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -259,7 +263,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             ),
           ),
           if(!pokemonGuessedCorrectly)
-          Expanded(
+          Expanded( // Submit button
             flex: pokemonGuessedCorrectly ? 1 : 3,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -296,6 +300,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     );
   }
 
+  // For the close button present on bottom bar
   void onPressedBack(int pokemonBST, String pokemonName) {
     if (!pokemonGuessedCorrectly)
     {
@@ -308,7 +313,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
       UserPokemonDB.updateData(
         randomId, 
-        PokemonUpdateType.couldNotGuess
+        PokemonInteractionType.couldNotGuess
       );
       final steps = ref.read(counterProvider);
       UserDB.addPoints(((pokemonBST / 100) * steps).toInt());

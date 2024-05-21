@@ -64,4 +64,17 @@ List<Achievement> achievements = [
     badgeImageID: 1020,
     pokemonIds: List.generate(12, (index) => 984+index) + List.generate(20, (index) => 1001+index),
   ),
+  ExistenceAchievement(
+    id: 9, 
+    name: "Eevee Family", 
+    points: 9999, 
+    badgeImageID: 133, 
+    pokemonIds: [133, 134, 135, 136, 196, 197, 470, 471, 700] 
+  ), 
+  ExistenceAchievement(
+    id: 10, 
+    name: "Meteor Shower", 
+    points: 14141, 
+    badgeImageID: 774, 
+    pokemonIds: [774] + List.generate(13, (index) => 10130+index))
 ];

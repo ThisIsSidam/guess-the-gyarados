@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/provider/steps_provider.dart';
 import 'package:guessthegyarados/utils/q_wrapper_and_widgets/bottom_sheet_methods.dart';
 
+// A Widget which is wrapped with a question. It shows the child widget normally. 
+// Upon tap, it opens a bottomSheet (Directly shows answer if answerIsBoolean).
+// User can give answer in the bottomSheet. The type of bottomSheet opened may vary 
+// according to the passed arguments.
 class QuestionWrapper extends ConsumerStatefulWidget {
   final String question;
   final String answer;
@@ -11,6 +15,7 @@ class QuestionWrapper extends ConsumerStatefulWidget {
   final bool answerIsBoolean;
   final List<String>? options;
   final bool showTextFieldWithOptions;
+  final bool coloredOptions;
 
   const QuestionWrapper({
     super.key,
@@ -21,6 +26,7 @@ class QuestionWrapper extends ConsumerStatefulWidget {
     this.answerIsBoolean = false,
     this.options,
     this.showTextFieldWithOptions = false,
+    this.coloredOptions = false
   });
 
   @override
@@ -34,7 +40,7 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
   late int stepsCount = ref.read(counterProvider);
   late CounterNotifier stepsCountNotifier = ref.read(counterProvider.notifier); 
 
-  void onTap(bool answerIsCorrect)
+  void bottomSheetOnTap(bool answerIsCorrect)
   {
     setState(() {
       stepsCountNotifier.increment();
@@ -89,39 +95,32 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
   }
 
   void _showInputDialog() {
-    if (isGuessedCorrectly) return;
+    if (isGuessedCorrectly) return; // Dialog not shown if already answered.
 
-    if (widget.answerIsBoolean) 
+    if (widget.answerIsBoolean) // Answer directly shown if answerIsBoolean.
     {
       _showBooleanAnswerDialog(context);
     } 
-    else if (widget.options != null && widget.showTextFieldWithOptions) 
+    // Text Field is provided and user can search the options.
+    else if (widget.options != null) 
     {
       showTextFieldWithOptionsBottomSheet(
         context, 
         widget.question, 
         widget.answer, 
         widget.options!,
-        isAnswerCorrect: onTap
+        coloredOptions: widget.coloredOptions,
+        isAnswerCorrect: bottomSheetOnTap
       );
-    } 
-    else if (widget.options != null) 
-    {
-      showOptionsBottomSheet(
-        context, 
-        widget.question, 
-        widget.answer, 
-        widget.options!,
-        isAnswerCorrect: onTap
-      );
-    } 
+    }  
+    // User has to search the exact answer.
     else 
-    {
+    { 
       showTextInputBottomSheet(
         context, 
         widget.question, 
         widget.answer, 
-        isAnswerCorrect: onTap
+        isAnswerCorrect: bottomSheetOnTap
       );
     }
   }

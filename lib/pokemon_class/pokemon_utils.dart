@@ -191,6 +191,12 @@ class PokemonUtils {
       if (varietyMap is Map<String, dynamic> && varietyMap.containsKey('pokemon')) {
         final pokemonMap = varietyMap['pokemon'];
         if (pokemonMap is Map<String, dynamic> && pokemonMap.containsKey('url')) {
+
+          if (pokemonMap.containsKey("name"))
+          {
+            if (pokemonMap["name"].contains("-totem")) continue; // Ignore totem pokemons
+          }
+          
           final url = pokemonMap['url'];
           if (url is String) {
             final urlParts = url.split('/');

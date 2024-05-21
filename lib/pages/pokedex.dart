@@ -21,7 +21,7 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
   void initState() {
     super.initState();
     // Initialize _regionStartIds with the start IDs of each region
-    _regionStartIds = [1, 152, 252, 387, 495, 650, 722, 810, 905];
+    _regionStartIds = [1, 152, 252, 387, 494, 650, 722, 810, 906];
     // Initialize _regionNames with the names of each region
     _regionNames = [
       'Kanto',
@@ -31,7 +31,7 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
       'Unova',
       'Kalos',
       'Alola',
-      'Galar',
+      'Galar+',
       'Paldea'
     ];
   }
@@ -39,7 +39,7 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
   int _getRegionEndId(int index) {
     return index < _regionStartIds.length - 1
         ? _regionStartIds[index + 1] - 1
-        : 1010; // Assuming 1010 is the last Pokemon ID
+        : 1025; // Assuming 1025 is the last Pokemon ID
   }
 
   @override
@@ -54,13 +54,14 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
         children: [
           regionBar(),
           Expanded(
-            child: pokemonList(),
+            child: pokemonGrid(),
           ),
         ],
       ),
     );
   }
 
+  // This bar is horizontally scrollable and shows all regions. Tapping them opens their page.
   Widget regionBar() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -104,7 +105,8 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     );
   }
 
-  Widget pokemonList() {
+  // Grid of the pokemon from the currently selected region.
+  Widget pokemonGrid() {
   final regionStartId = _regionStartIds[_currentRegionIndex];
   final regionEndId = _getRegionEndId(_currentRegionIndex);
   final caughtData = ref.read(userPokemonProvider).caughtDetails;

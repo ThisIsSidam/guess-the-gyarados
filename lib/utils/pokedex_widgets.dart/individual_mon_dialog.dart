@@ -6,8 +6,6 @@ import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/get_image.dart';
 import 'package:guessthegyarados/utils/misc_methods.dart';
 
-enum PokemonDetailType {appeared, guessed, caughtTotal, caughtShiny}
-
 class PokemonDetailsSection extends StatefulWidget {
   final List<int> variantIds;
   final int? firstCaughtVariant;
@@ -45,7 +43,7 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
 
     for (final id in widget.variantIds) {
       final data = UserPokemonDB.getDataForId(id);
-      variantData[id] = data != null ? _getVariantStats(data) : null;
+      variantData[id] = data != null ? UserPokemonDB.getVariantStats(id) : null;
     }
 
     _currentVariantData = variantData[widget.variantIds[_currentVariantIndex]];
@@ -251,20 +249,4 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
     );
   }
 
-  Map<PokemonDetailType, int> _getVariantStats(Map<PokemonUpdateType, int> variantData) {
-    final guessed = (variantData[PokemonUpdateType.catchFailed] ?? 0).toInt() +
-        (variantData[PokemonUpdateType.caughtNormal] ?? 0).toInt() +
-        (variantData[PokemonUpdateType.caughtShiny] ?? 0).toInt();
-    final caughtTotal = (variantData[PokemonUpdateType.caughtNormal] ?? 0).toInt() +
-        (variantData[PokemonUpdateType.caughtShiny] ?? 0).toInt();
-    final appeared = (variantData[PokemonUpdateType.couldNotGuess] ?? 0).toInt() + guessed;
-    final caughtShiny = variantData[PokemonUpdateType.caughtShiny] ?? 0;
-
-    return {
-      PokemonDetailType.appeared : appeared,
-      PokemonDetailType.guessed : guessed,
-      PokemonDetailType.caughtTotal : caughtTotal,
-      PokemonDetailType.caughtShiny : caughtShiny
-    };
-  }
 }

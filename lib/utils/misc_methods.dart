@@ -85,15 +85,6 @@ extension StringExtension on String {
   }
 }
 
-bool excludePokemon(String name) {
-  if (name.contains("-mega")) return true;
-  if (name.contains("-gmax")) return true;
-  if (name.contains("-totem")) return true;
-  if (name.startsWith("pikachu-")) return true;
-
-  return false;
-}
-
 int getUserLevel(int userPoints) {
   int level = 0;
   int threshold = 0;

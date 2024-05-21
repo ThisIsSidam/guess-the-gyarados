@@ -67,7 +67,7 @@ class HomePage extends ConsumerWidget {
   AppBar topBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
-      leading: IconButton(
+      leading: IconButton( // Profile Page
           onPressed: ()  {
             Navigator.push(
               context,
@@ -77,7 +77,7 @@ class HomePage extends ConsumerWidget {
           icon: Image.asset(profileIconPath)
         ),
       actions: [
-        IconButton(
+        IconButton( // Achievement Page
           onPressed: ()  {
             Navigator.push(
               context,
@@ -86,7 +86,7 @@ class HomePage extends ConsumerWidget {
           }, 
           icon: Image.asset(achievementsIconPath)
         ),
-        IconButton(
+        IconButton( // Caught Page; shows mons caught by user.
           onPressed: ()  {
             Navigator.push(
               context,
@@ -95,7 +95,7 @@ class HomePage extends ConsumerWidget {
           }, 
           icon: Image.asset(pokeballIcon)
         ),
-        IconButton(
+        IconButton( // Pokedex
           onPressed: ()  {
             Navigator.push(
               context,

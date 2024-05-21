@@ -14,10 +14,10 @@ class _AchievementPageState extends ConsumerState<AchievementPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the list of achievements. 
     final receivedAchievements = ref.read(userPokemonProvider).receivedAchievements;
     final upcomingAchievements = ref.read(userPokemonProvider).upcomingAchievements;
     
-
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
@@ -29,7 +29,7 @@ class _AchievementPageState extends ConsumerState<AchievementPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (receivedAchievements.isNotEmpty)
+              if (receivedAchievements.isNotEmpty) // Show section only when list is not empty.
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
@@ -40,8 +40,9 @@ class _AchievementPageState extends ConsumerState<AchievementPage> {
                     ),
                   ),
                 ),
-              buildAchievementGrid(receivedAchievements),
-              if (upcomingAchievements.isNotEmpty)
+              if (receivedAchievements.isNotEmpty)
+                buildAchievementGrid(receivedAchievements),
+              if (upcomingAchievements.isNotEmpty) // Show section only when list is not empty.
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
@@ -52,7 +53,8 @@ class _AchievementPageState extends ConsumerState<AchievementPage> {
                     ),
                   ),
                 ),
-              buildAchievementGrid(upcomingAchievements),
+              if (upcomingAchievements.isNotEmpty)
+                buildAchievementGrid(upcomingAchievements),
             ],
           ),
         ),

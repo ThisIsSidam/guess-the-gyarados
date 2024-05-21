@@ -33,6 +33,7 @@ class CaughtPage extends ConsumerWidget {
     );
   }
 
+  // Bar includes step count and type widgets
   AppBar topBar(BuildContext context) {
     return AppBar(
       title: Text(
@@ -51,6 +52,7 @@ class CaughtPage extends ConsumerWidget {
     );
   }
 
+  // In case there are no caught pokemons
   Widget emptyPage(BuildContext context) {
     int chance = Random().nextInt(1000);
     return Center(
@@ -92,16 +94,15 @@ class CaughtPage extends ConsumerWidget {
 
         if (catchData == null) throw "Catch Data Not Found for ID:$id";
 
-        int numberOfNormal = catchData[PokemonUpdateType.caughtNormal.name] ?? 0; 
-        int numberOfShiny = catchData[PokemonUpdateType.caughtShiny.name] ?? 0; 
+        int numberOfNormal = catchData[PokemonInteractionType.caughtNormal.name] ?? 0; 
+        int numberOfShiny = catchData[PokemonInteractionType.caughtShiny.name] ?? 0; 
         return GestureDetector(
-          onTap: () {
+          onTap: () { 
 
             final pokemonData = PokemonDB.getData(id);
-
             if (pokemonData == null) throw "[pokemonGridVeiw] pokemon Data not found";
 
-            showDialog(
+            showDialog( // Show Pokemon's individual section when tapped
               context: context,
               barrierColor: Colors.black.withOpacity(0.7),
               builder: (context) => PokemonDetailsSection(
