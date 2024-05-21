@@ -5,7 +5,7 @@ Welcome to the Pokemon Guessing Game! This is a fun and challenging game where y
 Note: I know that the UI is bad. Please give me ideas, I really need them. I also have some ideas, so I will apply them in a while.
 
 ## Images
-<img src="images/homepage.png" width="200" /> <img src="images/profile.png" width="200" /> <img src="images/pokedex.png" width="200" /> <img src="images/caught_page.png" width="200" /> <img src="images/caught.png" width="200" /> <img src="images/achievements.png" width="200" /> 
+<img src="images/homepage.png" width="200" /> <img src="images/play_page.png" width="200" /> <img src="images/profile.png" width="200" /> <img src="images/pokedex.png" width="200" /> <img src="images/caught_page.png" width="200" /> <img src="images/caught.png" width="200" /> <img src="images/achievements.png" width="200" /> 
 
 ## How to Play
 
