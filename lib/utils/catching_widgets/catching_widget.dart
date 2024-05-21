@@ -72,7 +72,6 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     return successRate;
   }
 
-
   /// Adds caught pokemon id to database
   void successfullyCaught() {
     UserPokemonDB.updateData(

@@ -5,7 +5,7 @@ Welcome to the Pokemon Guessing Game! This is a fun and challenging game where y
 Note: I know that the UI is bad. Please give me ideas, I really need them. I also have some ideas, so I will apply them in a while.
 
 ## Images
-<img src="images/homepage.png" width="200" /> <img src="images/play_page.png" width="200" /> <img src="images/caught_page.png" width="200" /> <img src="images/caught.png" width="200" />
+<img src="images/homepage.png" width="200" /> <img src="images/profile.png" width="200" /> <img src="images/pokedex.png" width="200" /> <img src="images/caught_page.png" width="200" /> <img src="images/caught.png" width="200" /> <img src="images/achievements.png" width="200" /> 
 
 ## How to Play
 
@@ -19,12 +19,13 @@ Note: I know that the UI is bad. Please give me ideas, I really need them. I als
 - Random Pokemon selection from a comprehensive database.
 - Multiple-choice questions with various options related to the Pokemon's type, and other characteristics.
 - Catching Pokemon after succesful guess.
+- Catching a collection of pokemon can get you an achievement.
+- A profile where user can view their stats and achievements.
+- A pokedex where user can see individual stats about their caught pokemons.
 
 ## Features to be implemented
 - A OG Silhouette "Who's that pokemon" mode.
 - Score tracking and high score leaderboard will maybe be implemented.
-- Achievements section.
-- Multiple themes.
 
 ## Contributing
 
@@ -34,7 +35,7 @@ Contributions to the Pokemon Guessing Game project are welcome! If you find any 
 
 - [Pokemon API](https://pokeapi.co/) for providing the Pokemon data.
 - [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Main_Page) for the high quality images used through HybridShivam's repository.
-- [HypridShivam's Pokemon Assets Repository](https://github.com/HybridShivam/pokemon) for providing images.
+- [HypridShivam's Pokemon Assets Repository](https://github.com/HybridShivam/pokemon) for providing images. (Main repo used to images is forked from this repo)
 - Flutter and Dart communities for their support and resources.
 
 ## Copyright Notice

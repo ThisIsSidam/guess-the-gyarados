@@ -16,6 +16,7 @@ class QuestionWrapper extends ConsumerStatefulWidget {
   final List<String>? options;
   final bool showTextFieldWithOptions;
   final bool coloredOptions;
+  final Color defaultColor;
 
   const QuestionWrapper({
     super.key,
@@ -26,7 +27,8 @@ class QuestionWrapper extends ConsumerStatefulWidget {
     this.answerIsBoolean = false,
     this.options,
     this.showTextFieldWithOptions = false,
-    this.coloredOptions = false
+    this.coloredOptions = false,
+    this.defaultColor = Colors.black
   });
 
   @override
@@ -56,13 +58,10 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
     return GestureDetector(
       onTap: _showInputDialog,
       child: widget.aliasWidget == null
-      ? Container(
-          decoration: BoxDecoration(
-            color: Colors.black12,
-            borderRadius: BorderRadius.circular(10),
-          ),
+      ? Chip(
+          color: MaterialStatePropertyAll(widget.defaultColor),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: getFinalChild(),
+          label: getFinalChild(),
         )
       : getFinalChild(),
     );
@@ -101,7 +100,8 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
     {
       _showBooleanAnswerDialog(context);
     } 
-    // Text Field is provided and user can search the options.
+    // Text Field is provided and user can search the options. Options are shown directly
+    // if there are under 20.
     else if (widget.options != null) 
     {
       showTextFieldWithOptionsBottomSheet(

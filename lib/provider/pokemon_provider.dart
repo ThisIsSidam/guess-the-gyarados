@@ -6,7 +6,6 @@ import 'package:guessthegyarados/pokemon_class/pokemon.dart';
 import 'package:guessthegyarados/utils/fetch_data/fetch_data.dart';
 
 final pokemonFutureProvider = FutureProvider.family<Pokemon?, int>((ref, randomId) async {
-  randomId = 720;
 
   // Fetch Pokemon from Database; null if not in database
   Pokemon? pokemonBaseVariant = PokemonDB.getData(randomId);

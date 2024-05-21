@@ -53,7 +53,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     );
 
     // Load data
-    final pokemonAsync = ref.watch(pokemonFutureProvider(randomId));
+    final pokemonAsync = ref.watch(pokemonFutureProvider(133));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
     stepsCount = ref.watch(counterProvider);
 
@@ -67,7 +67,8 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
         final questionWrappedUtils = QuestionWrappedUtils(
           pokemon: thisPokemon, 
-          context: context
+          context: context,
+          color: getColorFromString(thisPokemon.name).withOpacity(0.7)
         );
 
         return Scaffold(
@@ -92,15 +93,19 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                   flex: 2,
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Colors.white70,
+                      color: Colors.white,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(50),
-                        topRight: Radius.circular(50)
+                        topLeft: Radius.circular(25),
+                        topRight: Radius.circular(25)
                       )
                     ),
                     child: Column(
                       children: [
-                        const SizedBox(height: 20,),
+                        getSubmissionBar(
+                          thisPokemon.bst,
+                          thisPokemon.name,
+                          pokemonsMap!.values.toList(),
+                        ),
                         if (!pokemonGuessedCorrectly)
                           Expanded(
                             child: listOfQuestionPills(questionWrappedUtils),
@@ -113,11 +118,6 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                               isShiny: isShiny,
                             ),
                           ),
-                        getBottomBar(
-                          thisPokemon.bst,
-                          thisPokemon.name,
-                          pokemonsMap!.values.toList(),
-                        ),
                       ],
                     ),
                   ),
@@ -236,7 +236,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     );
   }
 
-  Widget getBottomBar(int pokemonBST, String pokemonName, List<String> pokemonsList) {
+  Widget getSubmissionBar(int pokemonBST, String pokemonName, List<String> pokemonsList) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
@@ -285,9 +285,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                       );
                     },
                     style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      backgroundColor: const MaterialStatePropertyAll(Colors.black26),
-                      surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
-                      shadowColor: const MaterialStatePropertyAll(Colors.transparent)
+                      backgroundColor: MaterialStatePropertyAll(getColorFromString(pokemonName)),
                     ), 
                     child: const Text("Submit")
                   );

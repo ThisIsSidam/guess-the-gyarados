@@ -7,10 +7,12 @@ class QuestionWrappedUtils {
 
   final Pokemon pokemon;
   final BuildContext context;
+  final Color color;
 
   QuestionWrappedUtils({
     required this.pokemon,
-    required this.context
+    required this.context,
+    this.color = Colors.black12
   });
 
   Widget typesRow() {
@@ -44,6 +46,7 @@ class QuestionWrappedUtils {
               ),
           options: typeOptions,
           coloredOptions: true,
+          defaultColor: color,
           child: Chip(
             label: Text(
               typeOne.capitalize,
@@ -63,12 +66,13 @@ class QuestionWrappedUtils {
               ),
           options: typeOptions,
           coloredOptions: true,
+          defaultColor: color,
           child: Chip(
             label: Text(
               typeTwo.capitalize,
             ),
             backgroundColor: getColorFromString(typeTwo),
-          ),
+          )
         ),
       ],
     );
@@ -82,10 +86,11 @@ class QuestionWrappedUtils {
       question: "Generation",
       answer: generation.toString(),
       options: List.generate(9, (index) => (index+1).toString()),
+      defaultColor: color,
       child: Text(
         'Generation',
         style: Theme.of(context).textTheme.bodyLarge,
-      ),
+      )
     );
   }
 
@@ -96,10 +101,11 @@ class QuestionWrappedUtils {
       question: "Number of Forms",
       answer: noOfForms.toString(),
       options: List.generate(30, (index) => (index+1).toString()),
+      defaultColor: color,
       child: Text(
         'Forms',
         style: Theme.of(context).textTheme.bodyLarge,
-      ),
+      )
     );
   }
 
@@ -110,11 +116,12 @@ class QuestionWrappedUtils {
     return QuestionWrapper(
       question: "Size of evolution tree", 
       answer: evoTreeSize.toString(),
-      options: List.generate(10, (index) => (index+1).toString()), 
+      options: List.generate(10, (index) => (index+1).toString()),
+      defaultColor: color, 
       child: Text(
         'Size of evolution tree',
         style: Theme.of(context).textTheme.bodyLarge,
-      ),
+      )
     );
   }
 
@@ -124,11 +131,12 @@ class QuestionWrappedUtils {
     return QuestionWrapper(
       question: "Current Evolution Stage", 
       answer: currentEvoStage.toString(),
-      options: List.generate(3, (index) => (index+1).toString()), 
+      options: List.generate(3, (index) => (index+1).toString()),
+      defaultColor: color, 
       child: Text(
         'Evolution Stage',
         style: Theme.of(context).textTheme.bodyLarge,
-      ),
+      )
     );
   }
   Widget itemEvolutionWidget() {
@@ -138,6 +146,7 @@ class QuestionWrappedUtils {
       question: "Has evolved using an item", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Has evolved using an item",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -152,6 +161,7 @@ class QuestionWrappedUtils {
       question: "Has Mega Evolution", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Has Mega",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -166,6 +176,7 @@ class QuestionWrappedUtils {
       question: "Is Mega Form", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is Mega",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -180,6 +191,7 @@ class QuestionWrappedUtils {
       question: "Has Gmax Form", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Has Gmax form",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -194,6 +206,7 @@ class QuestionWrappedUtils {
       question: "Is Gmax Form", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is Gmax form",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -207,6 +220,7 @@ class QuestionWrappedUtils {
       question: "Is Baby Pokemon", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is Baby Pokemon",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -220,6 +234,7 @@ class QuestionWrappedUtils {
       question: "Is a Legendary", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is a Legendary",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -233,6 +248,7 @@ class QuestionWrappedUtils {
       question: "Is a Mythical", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is a Mythical",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -246,6 +262,7 @@ class QuestionWrappedUtils {
       question: "Is a Starter", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is a Starter",
         style: Theme.of(context).textTheme.bodyLarge,
@@ -259,6 +276,7 @@ class QuestionWrappedUtils {
       question: "Is a Pseudo-Legendary", 
       answer: ans, 
       answerIsBoolean: true,
+      defaultColor: color,
       child: Text(
         "Is a Pseudo-Legendary",
         style: Theme.of(context).textTheme.bodyLarge,
