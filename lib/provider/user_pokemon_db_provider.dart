@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:guessthegyarados/database/achievements_db.dart';
 import 'package:guessthegyarados/database/user_pokemon_db.dart';
 import 'package:guessthegyarados/database/user_data.dart';
