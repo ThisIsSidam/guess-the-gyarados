@@ -1,11 +1,11 @@
 import 'package:get_it/get_it.dart';
 import 'package:guessthegyarados/core/network/dio_client.dart';
-import 'package:guessthegyarados/data/local/objectbox_store.dart';
-import 'package:guessthegyarados/data/repositories/achievement_repository.dart';
-import 'package:guessthegyarados/data/repositories/pokemon_names_service.dart';
-import 'package:guessthegyarados/data/repositories/pokemon_repository.dart';
-import 'package:guessthegyarados/data/repositories/user_pokemon_repository.dart';
-import 'package:guessthegyarados/data/repositories/user_profile_repository.dart';
+import 'package:guessthegyarados/core/local/objectbox_store.dart';
+import 'package:guessthegyarados/shared/data/repositories/achievement_repository.dart';
+import 'package:guessthegyarados/shared/data/repositories/pokemon_names_service.dart';
+import 'package:guessthegyarados/shared/data/repositories/pokemon_repository.dart';
+import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
+import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
 
 final getIt = GetIt.instance;
 

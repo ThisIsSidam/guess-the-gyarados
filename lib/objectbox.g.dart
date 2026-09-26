@@ -14,10 +14,10 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'data/local/entities/pokemon_entity.dart';
-import 'data/local/entities/pokemon_interaction_entity.dart';
-import 'data/local/entities/received_achievement_entity.dart';
-import 'data/local/entities/user_profile_entity.dart';
+import 'features/profile/data/entities/user_profile_entity.dart';
+import 'shared/data/entities/pokemon_entity.dart';
+import 'shared/data/entities/pokemon_interaction_entity.dart';
+import 'shared/data/entities/received_achievement_entity.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 

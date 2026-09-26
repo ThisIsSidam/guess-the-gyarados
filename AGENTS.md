@@ -1,34 +1,49 @@
 # AGENTS.md
 
-Conventions and architecture notes for AI agents (and humans) working on this codebase. This is a small hobby Flutter game ("Guess The Gyarados") that went through a full architecture rewrite in 2026 — this file documents the decisions made during that rewrite and why, so future changes stay consistent with them rather than reinventing the pattern per-file.
+Conventions and architecture notes for AI agents (and humans) working on this codebase. This is a small hobby Flutter game ("Guess The Gyarados") that went through a full architecture rewrite in 2026 (layer-first) and a second reorganization shortly after (feature-first) — this file documents the decisions made during both and why, so future changes stay consistent with them rather than reinventing the pattern per-file.
 
-## Layering
+## Layering: feature-first
 
 ```
 lib/
-  core/           cross-cutting, no business logic (constants, theme, extensions, DioClient, get_it wiring)
-  data/           local/ (ObjectBox entities + Store), remote/ (API DTO + parser), repositories/
-  domain/         achievements (pure data), freezed value objects
-  application/    riverpod providers only
-  presentation/   pages + widgets
+  core/                    cross-cutting, no business logic: constants, theme, extensions,
+                           DioClient, get_it wiring (di/), ObjectBoxStore (local/), app theme
+                           provider (providers/)
+  shared/                  anything used by 2+ features, mirroring the internal
+                           presentation/domain/data split of a feature folder:
+                             data/{repositories,entities,remote}/  — pokemon + user-progress +
+                               achievement data, since these are read across most features
+                             domain/{models,achievements}/
+                             application/providers/
+                             presentation/widgets/
+                             utils/
+  features/<name>/         one folder per screen/flow: home, play, pokedex, caught,
+                           achievements, profile. Each contains only what that feature owns:
+                             presentation/{pages,widgets}/
+                             application/providers/   (only if the feature has its own — most don't)
+                             domain/                  (only if the feature has its own models)
+                             data/{repositories,entities}/ (only if the feature owns local data
+                               nothing else reads — currently only profile does)
 ```
 
-Dependency direction: `presentation` → `application`/`domain`/`data` → `core`. Nothing depends on `presentation`.
+Dependency direction: `features/*` → `shared`/`core`. `shared` → `core`. Nothing in `core` or `shared` depends on `features/*`. A feature must never import another feature's internals directly — if two features need the same thing, that thing belongs in `shared`, not in one feature reaching into another.
+
+Where something lands is decided by **how many features read it**, not by what "layer" it conceptually is: `PokemonRepository`/`PokemonEntity`/`PokemonDto` and the caught-pokemon/achievement data are read by nearly every feature (home, play, pokedex, caught, achievements, profile all touch pokemon or catch-state), so they live in `shared/`, not inside any one feature. `UserProfileRepository`/`UserProfileEntity`/`level_math.dart` are read only by the profile feature, so they live in `features/profile/data` and `features/profile/domain`. Before adding a new file, check whether it's consumed by more than one feature (`grep -rl` its would-be import path once written) — if so, it goes in `shared`, not in the feature you happened to be working on.
 
 ## State management: get_it + riverpod, deliberately not combined
 
-- **get_it** (`core/di/injection.dart`) registers repositories, `DioClient`, and the `ObjectBoxStore` as singletons/lazy singletons, configured once in `configureDependencies()` before `runApp`.
+- **get_it** (`core/di/injection.dart`) registers repositories (wherever they now live, `shared/` or a feature's `data/`), `DioClient`, and the `ObjectBoxStore` as singletons/lazy singletons, configured once in `configureDependencies()` before `runApp`.
 - Code (provider bodies, widgets) pulls dependencies **directly** via `getIt<T>()`. There is intentionally **no** riverpod provider that just wraps a `getIt<T>()` lookup — that pattern was considered and rejected (more boilerplate, two ways to reach the same thing) in favor of using riverpod only for genuinely reactive state.
 - **riverpod** (`riverpod_generator`, `@riverpod`) is reserved for state that actually needs to be watched/rebuilt-on: the current game step counter, the derived caught-pokemon/achievements state, the async pokemon-of-the-round fetch, the app theme, the pokemon-names cache.
 - If you're adding a new repository or service: register it in `injection.dart`, call it via `getIt<T>()` where needed. Don't add a provider for it unless something needs to reactively watch it.
 
 ## Pokemon model: DTO vs. entity, deliberately two classes
 
-`data/remote/pokemon_dto.dart` (`PokemonDto`, freezed) is the PokeAPI wire format. `data/local/entities/pokemon_entity.dart` (`PokemonEntity`, plain mutable class) is the ObjectBox local cache. They are **not** the same class, and this was a deliberate call, not an oversight:
+`shared/data/remote/pokemon_dto.dart` (`PokemonDto`, freezed) is the PokeAPI wire format. `shared/data/entities/pokemon_entity.dart` (`PokemonEntity`, plain mutable class) is the ObjectBox local cache. They are **not** the same class, and this was a deliberate call, not an oversight:
 
 - `objectbox_generator` needs to detect a usable generative constructor via static analysis; freezed's private `_$PokemonDtoImpl` behind a factory constructor is known to cause friction with that detection.
 - The two classes already serve different purposes anyway (wire format vs. local cache) — `PokemonDto.toEntity()` bridges them.
-- This is also why the four ObjectBox entities (`PokemonEntity`, `PokemonInteractionEntity`, `ReceivedAchievementEntity`, `UserProfileEntity`) are plain mutable classes, not freezed — that's standard, expected ObjectBox practice, not an inconsistency with the freezed usage elsewhere.
+- This is also why the four ObjectBox entities (`PokemonEntity`, `PokemonInteractionEntity`, `ReceivedAchievementEntity` in `shared/data/entities/`; `UserProfileEntity` in `features/profile/data/entities/` since only that feature reads it) are plain mutable classes, not freezed — that's standard, expected ObjectBox practice, not an inconsistency with the freezed usage elsewhere.
 
 ## Freezed / json_serializable
 
@@ -65,7 +80,8 @@ These are pinned to specific ranges for real dependency-resolution reasons, not 
 
 - `play_page.dart` used to hardcode `pokemonFutureProvider(133)` (Eevee) instead of the page's own randomly-chosen id — every round showed Eevee's evolution line regardless of the actual random pick. Now uses `pokemonProvider(randomId)`.
 - Several pages called `ref.read(userPokemonProvider)` inside `build()` instead of `ref.watch`, so they didn't reactively rebuild after achievements/catches changed elsewhere. All now use `ref.watch(caughtPokemonProvider)`.
-- The `lib/utils/pokedex_widgets.dart/` directory (literally named with a `.dart` extension) is gone — that content now lives in `presentation/widgets/pokedex/`.
+- The `lib/utils/pokedex_widgets.dart/` directory (literally named with a `.dart` extension) is gone — that content now lives in `features/pokedex/presentation/widgets/`.
+- Shortly after the layer-first rewrite above, the codebase was reorganized again into the feature-first layout described in "Layering" — `presentation/`, `application/`, and top-level `domain/`/`data/` no longer exist. `objectbox-model.json` was verified unchanged by the move (entity UIDs are keyed by annotation, not file path), and `flutter analyze` was clean afterward.
 
 ## Not yet needed, but the pattern to reach for when it is
 
