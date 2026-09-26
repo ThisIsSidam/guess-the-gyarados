@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/pages/homepage.dart';
-import 'package:guessthegyarados/provider/theme_provider.dart';
+import 'package:guessthegyarados/application/providers/theme_provider.dart';
+import 'package:guessthegyarados/presentation/pages/home_page.dart';
 
-class MyApp extends ConsumerStatefulWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  ConsumerState<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends ConsumerState<MyApp> {
-
-  @override
-  Widget build(BuildContext context) {
-    final currentTheme = ref.watch(themeProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.watch(appThemeProvider);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,

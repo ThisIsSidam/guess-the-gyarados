@@ -1,0 +1,258 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:6582625366291580358",
+      "lastPropertyId": "25:6797638106672661769",
+      "name": "PokemonEntity",
+      "properties": [
+        {
+          "id": "1:7074926002719553260",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "2:6700320584546828828",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:3525611347977465317",
+          "name": "generation",
+          "type": 6
+        },
+        {
+          "id": "4:1555627733291799928",
+          "name": "bst",
+          "type": 6
+        },
+        {
+          "id": "5:565589447382310112",
+          "name": "hiddenAbility",
+          "type": 9
+        },
+        {
+          "id": "6:3900434122476011710",
+          "name": "ability1",
+          "type": 9
+        },
+        {
+          "id": "7:5666962775994549435",
+          "name": "ability2",
+          "type": 9
+        },
+        {
+          "id": "8:6905406995687784050",
+          "name": "noOfForms",
+          "type": 6
+        },
+        {
+          "id": "9:9155952350452833934",
+          "name": "types",
+          "type": 30
+        },
+        {
+          "id": "10:661355321079310776",
+          "name": "evolutionTreeSize",
+          "type": 6
+        },
+        {
+          "id": "11:8643433998123449656",
+          "name": "evolutionItem",
+          "type": 9
+        },
+        {
+          "id": "12:2793786732961899732",
+          "name": "usableEvolutionItems",
+          "type": 30
+        },
+        {
+          "id": "13:8475628575919465901",
+          "name": "stageOfEvolution",
+          "type": 6
+        },
+        {
+          "id": "14:9208425719573270251",
+          "name": "cry",
+          "type": 9
+        },
+        {
+          "id": "15:2003972994764883616",
+          "name": "hasMega",
+          "type": 1
+        },
+        {
+          "id": "16:3785886188780414414",
+          "name": "hasGmax",
+          "type": 1
+        },
+        {
+          "id": "17:8226811958251422823",
+          "name": "isBaby",
+          "type": 1
+        },
+        {
+          "id": "18:2663670664903511490",
+          "name": "isLegendary",
+          "type": 1
+        },
+        {
+          "id": "19:6202145939562420574",
+          "name": "isMythical",
+          "type": 1
+        },
+        {
+          "id": "20:5931471156637939825",
+          "name": "isStarter",
+          "type": 1
+        },
+        {
+          "id": "21:8052868021546154084",
+          "name": "isPseudo",
+          "type": 1
+        },
+        {
+          "id": "22:149737774177849648",
+          "name": "isMega",
+          "type": 1
+        },
+        {
+          "id": "23:2132630234330637963",
+          "name": "isGmax",
+          "type": 1
+        },
+        {
+          "id": "24:851660279391860087",
+          "name": "speciesID",
+          "type": 6
+        },
+        {
+          "id": "25:6797638106672661769",
+          "name": "variantIDs",
+          "type": 27
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:1716144295224908794",
+      "lastPropertyId": "6:7925408365907082281",
+      "name": "PokemonInteractionEntity",
+      "properties": [
+        {
+          "id": "1:7894767157480074029",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4154479916835810041",
+          "name": "pokemonId",
+          "indexId": "1:461376106243726858",
+          "type": 6,
+          "flags": 40
+        },
+        {
+          "id": "3:9176130731351788170",
+          "name": "couldNotGuess",
+          "type": 6
+        },
+        {
+          "id": "4:7965345097619730484",
+          "name": "catchFailed",
+          "type": 6
+        },
+        {
+          "id": "5:4262640931040803166",
+          "name": "caughtNormal",
+          "type": 6
+        },
+        {
+          "id": "6:7925408365907082281",
+          "name": "caughtShiny",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:4005050420529562430",
+      "lastPropertyId": "3:459489525629957904",
+      "name": "ReceivedAchievementEntity",
+      "properties": [
+        {
+          "id": "1:1212873070786711827",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5192474739877678476",
+          "name": "achievementId",
+          "indexId": "2:3937881487826277696",
+          "type": 6,
+          "flags": 40
+        },
+        {
+          "id": "3:459489525629957904",
+          "name": "receivedAt",
+          "type": 10
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:3518277617784564902",
+      "lastPropertyId": "6:129024250986088076",
+      "name": "UserProfileEntity",
+      "properties": [
+        {
+          "id": "1:8711083237420585593",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "2:4297635111672712403",
+          "name": "username",
+          "type": 9
+        },
+        {
+          "id": "3:8433162985723476233",
+          "name": "firstCatchPokemonId",
+          "type": 6
+        },
+        {
+          "id": "4:7204529376998605494",
+          "name": "userColorString",
+          "type": 9
+        },
+        {
+          "id": "5:3904586018294507240",
+          "name": "points",
+          "type": 6
+        },
+        {
+          "id": "6:129024250986088076",
+          "name": "level",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "4:3518277617784564902",
+  "lastIndexId": "2:3937881487826277696",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
