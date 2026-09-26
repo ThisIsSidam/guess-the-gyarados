@@ -51,7 +51,8 @@ class _QuestionWrapperState extends ConsumerState<QuestionWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
+      customBorder: const StadiumBorder(),
       onTap: _showInputDialog,
       child: widget.aliasWidget == null
       ? Chip(

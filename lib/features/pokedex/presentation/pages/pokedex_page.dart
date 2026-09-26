@@ -53,12 +53,10 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
         surfaceTintColor: Colors.transparent,
         title: const Text('Pokedex'),
       ),
-      body: Column(
-        children: [
-          regionBar(),
-          Expanded(
-            child: pokemonGrid(),
-          ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: regionBar()),
+          pokemonGrid(),
         ],
       ),
     );
@@ -66,41 +64,39 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
 
   // This bar is horizontally scrollable and shows all regions. Tapping them opens their page.
   Widget regionBar() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
+    return SizedBox(
+      height: 48,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(
-            _regionStartIds.length,
-            (index) => GestureDetector(
-              onTap: () {
-                setState(() {
-                  _currentRegionIndex = index;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  children: [
-                    Text(
-                      _regionNames[index],
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Container(
-                      width: 10,
-                      height: 10,
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: index == _currentRegionIndex
-                            ? Colors.black
-                            : Colors.grey,
-                      ),
-                    ),
-                  ],
+        itemCount: _regionStartIds.length,
+        itemBuilder: (context, index) => InkWell(
+          onTap: () {
+            setState(() {
+              _currentRegionIndex = index;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _regionNames[index],
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              ),
+                Container(
+                  width: 10,
+                  height: 10,
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: index == _currentRegionIndex
+                        ? Colors.black
+                        : Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -108,61 +104,61 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     );
   }
 
-  // Grid of the pokemon from the currently selected region.
+  // Grid of the pokemon from the currently selected region, as a sliver so it
+  // shares the page's single scroll position with the region bar above it
+  // instead of owning a separate nested scrollable.
   Widget pokemonGrid() {
     final regionStartId = _regionStartIds[_currentRegionIndex];
     final regionEndId = _getRegionEndId(_currentRegionIndex);
     final pokemonRepository = getIt<PokemonRepository>();
     final userPokemonRepository = getIt<UserPokemonRepository>();
 
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 16,
-        left: 16,
-        right: 16,
-      ),
-      child: GridView.builder(
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 5,
           childAspectRatio: 1.0,
           crossAxisSpacing: 5,
           mainAxisSpacing: 5,
         ),
-        itemCount: regionEndId - regionStartId + 1,
-        itemBuilder: (context, index) {
-          final pokemonId = regionStartId + index;
-          final pokemon = pokemonRepository.getCached(pokemonId);
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final pokemonId = regionStartId + index;
+            final pokemon = pokemonRepository.getCached(pokemonId);
 
-          if (pokemon == null)
-          {
-            return gridViewElementWidget(null, null, pokemonId, null, null);
-          }
-
-          final variantIds = pokemon.variantIDs;
-          int? firstCaughtVariant;
-          int? firstGuessedVariant;
-
-          for (final variantId in variantIds) {
-            final interaction = userPokemonRepository.getForId(variantId);
-            final isCaught = (interaction?.caughtNormal ?? 0) > 0 || (interaction?.caughtShiny ?? 0) > 0;
-            final isVariantGuessed = (interaction?.catchFailed ?? 0) > 0;
-
-            if (isCaught)
+            if (pokemon == null)
             {
-              firstCaughtVariant = variantId;
-              break;
+              return gridViewElementWidget(null, null, pokemonId, null, null);
             }
-            else if (firstGuessedVariant == null && isVariantGuessed)
-            {
-              firstGuessedVariant = variantId;
+
+            final variantIds = pokemon.variantIDs;
+            int? firstCaughtVariant;
+            int? firstGuessedVariant;
+
+            for (final variantId in variantIds) {
+              final interaction = userPokemonRepository.getForId(variantId);
+              final isCaught = (interaction?.caughtNormal ?? 0) > 0 || (interaction?.caughtShiny ?? 0) > 0;
+              final isVariantGuessed = (interaction?.catchFailed ?? 0) > 0;
+
+              if (isCaught)
+              {
+                firstCaughtVariant = variantId;
+                break;
+              }
+              else if (firstGuessedVariant == null && isVariantGuessed)
+              {
+                firstGuessedVariant = variantId;
+              }
             }
-          }
 
-          final imageId = firstCaughtVariant ?? firstGuessedVariant;
-          final imagePokemon = imageId == null ? null : pokemonRepository.getCached(imageId);
+            final imageId = firstCaughtVariant ?? firstGuessedVariant;
+            final imagePokemon = imageId == null ? null : pokemonRepository.getCached(imageId);
 
-          return gridViewElementWidget(firstCaughtVariant, firstGuessedVariant, pokemonId, variantIds, imagePokemon?.name);
-        },
+            return gridViewElementWidget(firstCaughtVariant, firstGuessedVariant, pokemonId, variantIds, imagePokemon?.name);
+          },
+          childCount: regionEndId - regionStartId + 1,
+        ),
       ),
     );
   }
@@ -200,37 +196,33 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     final imageId = firstCaughtVariant ?? firstGuessedVariant;
     final child = getCenterWidget(firstCaughtVariant, firstGuessedVariant, imageId, imageName);
 
-    return GestureDetector(
-      onTap: () {
-
-        if (firstCaughtVariant != null || firstGuessedVariant != null)
-        {
-          if (variantIds == null)
+    return Material(
+      color: child == null ? Colors.black12 : Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          if (firstCaughtVariant != null || firstGuessedVariant != null)
           {
-            debugPrint("[gridViewElementWidget] variantids is null");
-          }
-          else
-          {
-            showDialog(
-              context: context,
-              barrierColor: Colors.black.withValues(alpha: 0.7),
-              builder: (context) => PokemonDetailsSection(
-                variantIds: variantIds,
-                firstCaughtVariant: firstCaughtVariant,
-                firstGuessedVariant: firstGuessedVariant,
-              ),
-            );
+            if (variantIds == null)
+            {
+              debugPrint("[gridViewElementWidget] variantids is null");
+            }
+            else
+            {
+              showDialog(
+                context: context,
+                barrierColor: Colors.black.withValues(alpha: 0.7),
+                builder: (context) => PokemonDetailsSection(
+                  variantIds: variantIds,
+                  firstCaughtVariant: firstCaughtVariant,
+                  firstGuessedVariant: firstGuessedVariant,
+                ),
+              );
 
+            }
           }
-        }
-
-      },
-      child: Container(
-        decoration: child == null
-        ? BoxDecoration(
-          color: Colors.black12,
-          borderRadius: BorderRadius.circular(8),
-        ) : null,
+        },
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Center(

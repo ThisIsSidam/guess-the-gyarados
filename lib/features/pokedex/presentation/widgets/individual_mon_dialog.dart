@@ -123,25 +123,29 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
           final data = variantData[widget.variantIds[index]];
 
           return Flexible(
-            child: GestureDetector(
-              onTap: () => _changeVariant(index),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 24),
-                child: Opacity(
-                  opacity: data == null ? 0.5 : data.guessed == 0 ? 0.5 : 1.0,
-                  child: ColorFiltered(
-                    colorFilter:  ColorFilter.mode(
-                      data == null
-                          ? Colors.black.withValues(alpha: 0.9)
-                          : data.guessed == 0
-                              ? Colors.grey.withValues(alpha: 0.9)
-                              : Colors.transparent,
-                      BlendMode.srcATop,
-                    ),
-                    child: Image.asset(
-                      pokeballIcon,
-                      width: index == _currentVariantIndex ? 24.0 : 16.0,
-                      height: index == _currentVariantIndex ? 24.0 : 16.0,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => _changeVariant(index),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 24),
+                  child: Opacity(
+                    opacity: data == null ? 0.5 : data.guessed == 0 ? 0.5 : 1.0,
+                    child: ColorFiltered(
+                      colorFilter:  ColorFilter.mode(
+                        data == null
+                            ? Colors.black.withValues(alpha: 0.9)
+                            : data.guessed == 0
+                                ? Colors.grey.withValues(alpha: 0.9)
+                                : Colors.transparent,
+                        BlendMode.srcATop,
+                      ),
+                      child: Image.asset(
+                        pokeballIcon,
+                        width: index == _currentVariantIndex ? 24.0 : 16.0,
+                        height: index == _currentVariantIndex ? 24.0 : 16.0,
+                      ),
                     ),
                   ),
                 ),

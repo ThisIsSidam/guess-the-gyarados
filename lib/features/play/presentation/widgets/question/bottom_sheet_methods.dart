@@ -134,7 +134,8 @@ void showTextFieldWithOptionsBottomSheet(
                         spacing: 8,
                         children: filteredOptions
                             .map(
-                              (option) => GestureDetector(
+                              (option) => InkWell(
+                                borderRadius: BorderRadius.circular(16),
                                 onTap: () {
                                   final answerCorrect = option.toLowerCase() == answer.toLowerCase();
 

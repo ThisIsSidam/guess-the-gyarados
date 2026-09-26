@@ -21,18 +21,12 @@ class CaughtPage extends ConsumerWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: topBar(context),
-      body: Column(
-        children: [
-          caughtIds.isEmpty
-          ? Expanded(child: emptyPage(context))
-          : Expanded(
-            child: Padding(
+      body: caughtIds.isEmpty
+          ? emptyPage(context)
+          : Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
               child: pokemonGridView(caughtIds),
             ),
-          ),
-        ],
-      )
     );
   }
 
@@ -96,23 +90,27 @@ class CaughtPage extends ConsumerWidget {
 
         if (interaction == null) throw StateError("Catch Data Not Found for ID:$id");
 
-        return GestureDetector(
-          onTap: () {
+        return Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(15),
+            onTap: () {
+              final pokemonData = getIt<PokemonRepository>().getCached(id);
+              if (pokemonData == null) throw StateError("[pokemonGridView] pokemon Data not found");
 
-            final pokemonData = getIt<PokemonRepository>().getCached(id);
-            if (pokemonData == null) throw StateError("[pokemonGridView] pokemon Data not found");
-
-            showDialog( // Show Pokemon's individual section when tapped
-              context: context,
-              barrierColor: Colors.black.withValues(alpha: 0.7),
-              builder: (context) => PokemonDetailsSection(
-                variantIds: pokemonData.variantIDs,
-                firstCaughtVariant: id,
-                firstGuessedVariant: null,
-              ),
-            );
-          },
-          child: imageDisplayTile(context, id, interaction),
+              showDialog( // Show Pokemon's individual section when tapped
+                context: context,
+                barrierColor: Colors.black.withValues(alpha: 0.7),
+                builder: (context) => PokemonDetailsSection(
+                  variantIds: pokemonData.variantIDs,
+                  firstCaughtVariant: id,
+                  firstGuessedVariant: null,
+                ),
+              );
+            },
+            child: imageDisplayTile(context, id, interaction),
+          ),
         );
       },
     );

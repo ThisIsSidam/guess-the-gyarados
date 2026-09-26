@@ -258,9 +258,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ],
             ),
           ),
-          receivedAchievements.isNotEmpty
-              ? buildAchievementGrid(receivedAchievements)
-              : const MessageOfGod(message: "No Achievements. Play More. Catch More.")
+          Expanded(
+            child: receivedAchievements.isNotEmpty
+                ? buildAchievementGrid(receivedAchievements)
+                : const MessageOfGod(message: "No Achievements. Play More. Catch More."),
+          ),
         ],
       ),
     );

@@ -2,25 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:guessthegyarados/shared/domain/achievements/achievement.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/achievement_badge.dart';
 
-// Takes a list of achievements and returns a grid of badges for it.
-Widget buildAchievementGrid(List<Achievement> list, {bool isReceived = true}) {
-  final len = list.length;
+const _achievementGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+  crossAxisCount: 2,
+  childAspectRatio: 1.5,
+  mainAxisSpacing: 8.0,
+  crossAxisSpacing: 8.0,
+);
 
+AchievementBadge _badgeAt(List<Achievement> list, int index, bool isReceived) {
+  return AchievementBadge(
+    achievement: list[list.length - index - 1],
+    isReceived: isReceived,
+  );
+}
+
+// Takes a list of achievements and returns a grid of badges for it. For use
+// inside an already-bounded (e.g. Expanded) region that owns its own
+// scrolling — this GridView scrolls itself rather than shrink-wrapping,
+// so it never has to eagerly lay out every badge up front.
+Widget buildAchievementGrid(List<Achievement> list, {bool isReceived = true}) {
   return GridView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      childAspectRatio: 1.5,
-      mainAxisSpacing: 8.0,
-      crossAxisSpacing: 8.0,
-    ),
+    gridDelegate: _achievementGridDelegate,
     itemCount: list.length,
-    itemBuilder: (context, index) {
-      return AchievementBadge(
-        achievement: list[len - index - 1],
-        isReceived: isReceived,
-      );
-    },
+    itemBuilder: (context, index) => _badgeAt(list, index, isReceived),
+  );
+}
+
+// Sliver variant for embedding directly inside a CustomScrollView (e.g.
+// alongside section headers), so the grid shares the page's single scroll
+// position and lazily builds badges instead of being forced to shrink-wrap.
+Widget buildAchievementGridSliver(List<Achievement> list, {bool isReceived = true}) {
+  return SliverGrid(
+    gridDelegate: _achievementGridDelegate,
+    delegate: SliverChildBuilderDelegate(
+      (context, index) => _badgeAt(list, index, isReceived),
+      childCount: list.length,
+    ),
   );
 }

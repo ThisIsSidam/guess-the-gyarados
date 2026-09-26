@@ -17,41 +17,46 @@ class AchievementPage extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         title: const Text('Achievements'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (receivedAchievements.isNotEmpty) // Show section only when list is not empty.
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Received Achievements',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                    ),
+      body: CustomScrollView(
+        slivers: [
+          const SliverPadding(padding: EdgeInsets.only(top: 16.0)),
+          if (receivedAchievements.isNotEmpty) // Show section only when list is not empty.
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  'Received Achievements',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
                   ),
                 ),
-              if (receivedAchievements.isNotEmpty)
-                buildAchievementGrid(receivedAchievements),
-              if (upcomingAchievements.isNotEmpty) // Show section only when list is not empty.
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Upcoming Achievements',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                    ),
+              ),
+            ),
+          if (receivedAchievements.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              sliver: buildAchievementGridSliver(receivedAchievements),
+            ),
+          if (upcomingAchievements.isNotEmpty) // Show section only when list is not empty.
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  'Upcoming Achievements',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
                   ),
                 ),
-              if (upcomingAchievements.isNotEmpty)
-                buildAchievementGrid(upcomingAchievements, isReceived: false),
-            ],
-          ),
-        ),
+              ),
+            ),
+          if (upcomingAchievements.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+              sliver: buildAchievementGridSliver(upcomingAchievements, isReceived: false),
+            ),
+        ],
       ),
     );
   }
