@@ -1,7 +1,14 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/confetti_celebration.dart';
 
+/// A single pokeball that shakes (rocking rotation, like the games) three
+/// times, then either bursts into confetti (caught) or slumps and fades
+/// (escaped) — replaces the old three-static-balls tally.
 class PokeBallCatchAnimation extends StatefulWidget {
   final bool isCaught;
 
@@ -11,92 +18,117 @@ class PokeBallCatchAnimation extends StatefulWidget {
   State<PokeBallCatchAnimation> createState() => _PokeBallCatchAnimationState();
 }
 
-class _PokeBallCatchAnimationState extends State<PokeBallCatchAnimation> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  final List<bool> _ballsColored = [true, false, false]; // First ball is initially colored
-  String _catchMessage = '';
+class _PokeBallCatchAnimationState extends State<PokeBallCatchAnimation> with TickerProviderStateMixin {
+  late final AnimationController _shakeController;
+  late final ConfettiCelebrationController _confetti = ConfettiCelebrationController();
+  int _shakeCount = 0;
+  bool _resolved = false;
+  String _message = '';
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 3),
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 450),
       vsync: this,
-    )..forward();
+    );
+    _runShakes();
+  }
 
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
-    _startCatchAnimation();
+  Future<void> _runShakes() async {
+    for (var i = 0; i < 3; i++) {
+      await _shakeController.forward(from: 0);
+      setState(() => _shakeCount = i + 1);
+      await Future.delayed(const Duration(milliseconds: 120));
+    }
+
+    setState(() {
+      _resolved = true;
+      _message = widget.isCaught ? 'Gotcha!' : 'Oh no! It broke free!';
+    });
+
+    if (widget.isCaught) _confetti.play();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _shakeController.dispose();
+    _confetti.dispose();
     super.dispose();
-  }
-
-  void _startCatchAnimation() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (timer.tick < 3) {
-        setState(() {
-          _ballsColored[timer.tick] = true;
-        });
-      } else {
-        timer.cancel();
-        if (widget.isCaught) {
-          setState(() {
-            _catchMessage = 'Catch successful!';
-          });
-        } else {
-          setState(() {
-            _ballsColored.fillRange(0, 3, false);
-            _catchMessage = 'Catch failed!';
-          });
-        }
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
+      alignment: Alignment.topCenter,
       children: [
-        AnimatedBuilder(
-          animation: _animation,
-          builder: (context, child) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildBall(0),
-                const SizedBox(width: 16),
-                _buildBall(1),
-                const SizedBox(width: 16),
-                _buildBall(2),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 16),
-        Text(
-          _catchMessage,
-          style: const TextStyle(fontSize: 18),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBall(int index) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 500),
-      child: _ballsColored[index]
-          ? widget.isCaught
-              ? Image.asset(pokeballIcon, width: 48, height: 48, key: UniqueKey())
-              : Image.asset(pokeballIcon, width: 32, height: 32, key: UniqueKey())
-          : ColorFiltered(
-              colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcATop),
-              child: Image.asset(pokeballIcon, width: 32, height: 32, key: UniqueKey()),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedBuilder(
+              animation: _shakeController,
+              builder: (context, child) {
+                final wobble = sin(_shakeController.value * pi * 4) * (1 - _shakeController.value);
+                return Transform(
+                  alignment: Alignment.bottomCenter,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.002)
+                    ..rotateZ(_resolved ? 0 : wobble * 0.35)
+                    ..rotateY(_resolved ? 0 : wobble * 0.4),
+                  child: child,
+                );
+              },
+              child: !_resolved
+                  ? Image.asset(pokeballIcon, width: 96, height: 96)
+                  : widget.isCaught
+                      ? Image.asset(pokeballIcon, width: 96, height: 96)
+                          .animate()
+                          .scaleXY(begin: 1, end: 1.3, duration: const Duration(milliseconds: 250))
+                          .then()
+                          .scaleXY(begin: 1.3, end: 1, duration: const Duration(milliseconds: 250))
+                      : ColorFiltered(
+                          colorFilter: const ColorFilter.mode(Colors.black54, BlendMode.srcATop),
+                          child: Image.asset(pokeballIcon, width: 96, height: 96),
+                        ).animate().shake(hz: 2, duration: const Duration(milliseconds: 400)),
             ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(3, (index) {
+                final lit = index < _shakeCount;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: lit ? GameColors.gold : Colors.white24,
+                      boxShadow: lit
+                          ? [BoxShadow(color: GameColors.gold.withValues(alpha: 0.7), blurRadius: 8)]
+                          : null,
+                    ),
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 20),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Text(
+                _message,
+                key: ValueKey(_message),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: widget.isCaught ? GameColors.gold : GameColors.danger,
+                ),
+              ),
+            ),
+          ],
+        ),
+        ConfettiCelebration(controller: _confetti),
+      ],
     );
   }
 }

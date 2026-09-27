@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
 import 'package:guessthegyarados/core/extensions/string_extensions.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 import 'package:guessthegyarados/shared/data/repositories/pokemon_repository.dart';
@@ -168,8 +169,9 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: GameColors.surface,
             borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(color: GameColors.primary.withValues(alpha: 0.3)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),

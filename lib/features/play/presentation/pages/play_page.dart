@@ -7,6 +7,7 @@ import 'package:guessthegyarados/shared/application/providers/pokemon_provider.d
 import 'package:guessthegyarados/shared/application/providers/steps_provider.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
@@ -14,6 +15,8 @@ import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repositor
 import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/audio_player_widget.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/catching/catching_widget.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/bottom_sheet_methods.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/question_wrapped_utils.dart';
@@ -75,8 +78,8 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).scaffoldBackgroundColor,
-                  getColorFromString(thisPokemon.name)
+                  GameColors.backgroundDeep,
+                  getColorFromString(thisPokemon.name).withValues(alpha: 0.55),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter
@@ -85,20 +88,37 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             child: Column(
               children: [
                 topRow(questionWrappedUtils),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
                 pokemonImageWidget(thisPokemon),
-                Expanded( // White Section including questions and bottomBar
+                Expanded( // Game-panel section including questions and bottomBar
                   flex: 2,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        topRight: Radius.circular(25)
-                      )
+                    decoration: BoxDecoration(
+                      color: GameColors.surface,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(28),
+                        topRight: Radius.circular(28)
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: getColorFromString(thisPokemon.name).withValues(alpha: 0.5),
+                          blurRadius: 30,
+                          spreadRadius: -10,
+                          offset: const Offset(0, -10),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 48,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
                         getSubmissionBar(
                           thisPokemon.bst,
                           thisPokemon.name,
@@ -147,9 +167,34 @@ class _PlayPageState extends ConsumerState<PlayPage>{
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("  Steps: $stepsCount  "),
+          stepsHudBadge(),
           if (!pokemonGuessedCorrectly)
           questionWrappedUtils.typesRow(),
+        ],
+      ),
+    );
+  }
+
+  Widget stepsHudBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: GameColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: GameColors.primary.withValues(alpha: 0.6), width: 1.5),
+        boxShadow: [
+          BoxShadow(color: GameColors.primary.withValues(alpha: 0.35), blurRadius: 12),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.directions_walk, size: 18, color: GameColors.primary),
+          const SizedBox(width: 6),
+          Text(
+            "$stepsCount",
+            style: const TextStyle(color: GameColors.textOnDark, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -174,13 +219,15 @@ class _PlayPageState extends ConsumerState<PlayPage>{
                 width: 250,
                 child: AudioPlayerWidget(
                   audioLink: thisPokemon.cry,
-                  child: pokemonGuessedCorrectly
-                  ? PokemonSpriteImage(
-                      pokemonId: thisPokemon.id,
-                      pokemonName: thisPokemon.name,
-                      isShiny: isShiny,
-                    )
-                  : questionMark,
+                  child: TiltCard(
+                    child: pokemonGuessedCorrectly
+                    ? PokemonSpriteImage(
+                        pokemonId: thisPokemon.id,
+                        pokemonName: thisPokemon.name,
+                        isShiny: isShiny,
+                      )
+                    : questionMark,
+                  ),
                 ),
               ),
             ),
@@ -231,19 +278,19 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             flex: 1,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
+              child: GameButton(
+                color: pokemonGuessedCorrectly ? GameColors.surfaceRaised : GameColors.danger,
+                borderRadius: 16,
+                depth: 6,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 onPressed: () {
                   onPressedBack(pokemonBST, pokemonName);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: pokemonGuessedCorrectly
-                  ? Theme.of(context).canvasColor
-                  : Colors.red,
-                ),
                 child: Icon(
                   pokemonGuessedCorrectly
                   ? Icons.keyboard_return
                   : Icons.close,
+                  color: GameColors.textOnDark,
                 )
               ),
             ),
@@ -253,29 +300,29 @@ class _PlayPageState extends ConsumerState<PlayPage>{
             flex: pokemonGuessedCorrectly ? 1 : 3,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Builder(
-                builder: (context) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      showTextFieldWithOptionsBottomSheet(
-                        context,
-                        "Who's that Pokemon?",
-                        pokemonName,
-                        pokemonsList,
-                        isAnswerCorrect: (answerValidity) {
-                          setState(() {
-                            ref.read(stepsCounterProvider.notifier).increment();
-                            pokemonGuessedCorrectly = answerValidity;
-                          });
-                        }
-                      );
-                    },
-                    style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      backgroundColor: WidgetStatePropertyAll(getColorFromString(pokemonName)),
-                    ),
-                    child: const Text("Submit")
+              child: GameButton(
+                color: getColorFromString(pokemonName),
+                borderRadius: 16,
+                depth: 6,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                onPressed: () {
+                  showTextFieldWithOptionsBottomSheet(
+                    context,
+                    "Who's that Pokemon?",
+                    pokemonName,
+                    pokemonsList,
+                    isAnswerCorrect: (answerValidity) {
+                      setState(() {
+                        ref.read(stepsCounterProvider.notifier).increment();
+                        pokemonGuessedCorrectly = answerValidity;
+                      });
+                    }
                   );
-                }
+                },
+                child: const Text(
+                  "SUBMIT",
+                  style: TextStyle(color: GameColors.backgroundDeep, fontWeight: FontWeight.bold),
+                )
               ),
             ),
           )

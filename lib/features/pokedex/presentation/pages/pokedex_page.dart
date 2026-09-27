@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/shared/data/repositories/pokemon_repository.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
 import 'package:guessthegyarados/features/pokedex/presentation/widgets/individual_mon_dialog.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/animated_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
 
 class PokedexPage extends ConsumerStatefulWidget {
@@ -49,15 +52,19 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     ref.watch(caughtPokemonProvider);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        title: const Text('Pokedex'),
+        title: const Text('POKÉDEX'),
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: regionBar()),
-          pokemonGrid(),
-        ],
+      body: AnimatedBackdrop(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight)),
+            SliverToBoxAdapter(child: regionBar()),
+            pokemonGrid(),
+          ],
+        ),
       ),
     );
   }
@@ -65,41 +72,46 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
   // This bar is horizontally scrollable and shows all regions. Tapping them opens their page.
   Widget regionBar() {
     return SizedBox(
-      height: 48,
+      height: 56,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         scrollDirection: Axis.horizontal,
         itemCount: _regionStartIds.length,
-        itemBuilder: (context, index) => InkWell(
-          onTap: () {
-            setState(() {
-              _currentRegionIndex = index;
-            });
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _regionNames[index],
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                Container(
-                  width: 10,
-                  height: 10,
-                  margin: const EdgeInsets.symmetric(vertical: 4),
+        itemBuilder: (context, index) {
+          final isSelected = index == _currentRegionIndex;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  setState(() {
+                    _currentRegionIndex = index;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: index == _currentRegionIndex
-                        ? Colors.black
-                        : Colors.grey,
+                    color: isSelected ? GameColors.primary : GameColors.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: isSelected
+                        ? [BoxShadow(color: GameColors.primary.withValues(alpha: 0.5), blurRadius: 12)]
+                        : null,
+                  ),
+                  child: Text(
+                    _regionNames[index],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? GameColors.backgroundDeep : GameColors.textMuted,
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -195,34 +207,43 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
 
     final imageId = firstCaughtVariant ?? firstGuessedVariant;
     final child = getCenterWidget(firstCaughtVariant, firstGuessedVariant, imageId, imageName);
+    final isKnown = child != null;
 
-    return Material(
-      color: child == null ? Colors.black12 : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {
-          if (firstCaughtVariant != null || firstGuessedVariant != null)
+    return TiltCard(
+      maxTilt: 0.25,
+      onTap: () {
+        if (firstCaughtVariant != null || firstGuessedVariant != null)
+        {
+          if (variantIds == null)
           {
-            if (variantIds == null)
-            {
-              debugPrint("[gridViewElementWidget] variantids is null");
-            }
-            else
-            {
-              showDialog(
-                context: context,
-                barrierColor: Colors.black.withValues(alpha: 0.7),
-                builder: (context) => PokemonDetailsSection(
-                  variantIds: variantIds,
-                  firstCaughtVariant: firstCaughtVariant,
-                  firstGuessedVariant: firstGuessedVariant,
-                ),
-              );
-
-            }
+            debugPrint("[gridViewElementWidget] variantids is null");
           }
-        },
+          else
+          {
+            showDialog(
+              context: context,
+              barrierColor: Colors.black.withValues(alpha: 0.7),
+              builder: (context) => PokemonDetailsSection(
+                variantIds: variantIds,
+                firstCaughtVariant: firstCaughtVariant,
+                firstGuessedVariant: firstGuessedVariant,
+              ),
+            );
+
+          }
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isKnown ? GameColors.surfaceRaised : GameColors.surface.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isKnown ? GameColors.primary.withValues(alpha: 0.5) : Colors.white12,
+          ),
+          boxShadow: isKnown
+              ? [BoxShadow(color: GameColors.primary.withValues(alpha: 0.25), blurRadius: 10)]
+              : null,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Center(

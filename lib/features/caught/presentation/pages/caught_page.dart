@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
 import 'package:guessthegyarados/shared/data/repositories/pokemon_repository.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
 import 'package:guessthegyarados/features/pokedex/presentation/widgets/individual_mon_dialog.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/animated_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
 
 class CaughtPage extends ConsumerWidget {
@@ -21,12 +24,14 @@ class CaughtPage extends ConsumerWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: topBar(context),
-      body: caughtIds.isEmpty
-          ? emptyPage(context)
-          : Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-              child: pokemonGridView(caughtIds),
-            ),
+      body: AnimatedBackdrop(
+        child: caughtIds.isEmpty
+            ? emptyPage(context)
+            : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                child: pokemonGridView(caughtIds),
+              ),
+      ),
     );
   }
 
@@ -90,27 +95,23 @@ class CaughtPage extends ConsumerWidget {
 
         if (interaction == null) throw StateError("Catch Data Not Found for ID:$id");
 
-        return Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(15),
-            onTap: () {
-              final pokemonData = getIt<PokemonRepository>().getCached(id);
-              if (pokemonData == null) throw StateError("[pokemonGridView] pokemon Data not found");
+        return TiltCard(
+          maxTilt: 0.25,
+          onTap: () {
+            final pokemonData = getIt<PokemonRepository>().getCached(id);
+            if (pokemonData == null) throw StateError("[pokemonGridView] pokemon Data not found");
 
-              showDialog( // Show Pokemon's individual section when tapped
-                context: context,
-                barrierColor: Colors.black.withValues(alpha: 0.7),
-                builder: (context) => PokemonDetailsSection(
-                  variantIds: pokemonData.variantIDs,
-                  firstCaughtVariant: id,
-                  firstGuessedVariant: null,
-                ),
-              );
-            },
-            child: imageDisplayTile(context, id, interaction),
-          ),
+            showDialog( // Show Pokemon's individual section when tapped
+              context: context,
+              barrierColor: Colors.black.withValues(alpha: 0.7),
+              builder: (context) => PokemonDetailsSection(
+                variantIds: pokemonData.variantIDs,
+                firstCaughtVariant: id,
+                firstGuessedVariant: null,
+              ),
+            );
+          },
+          child: imageDisplayTile(context, id, interaction),
         );
       },
     );
@@ -118,14 +119,19 @@ class CaughtPage extends ConsumerWidget {
 
   Widget imageDisplayTile(BuildContext context, int id, PokemonInteractionEntity interaction) {
     final pokemon = getIt<PokemonRepository>().getCached(id);
+    final accentColor = interaction.caughtShiny > 0 ? GameColors.gold : GameColors.primary;
 
     return Container(
       width: 200,
       height: 200,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Colors.black12,
-        borderRadius: BorderRadius.circular(15)
+        color: GameColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: accentColor.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(color: accentColor.withValues(alpha: 0.25), blurRadius: 14),
+        ],
       ),
       child: Center(
         child: SizedBox(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
 import 'package:guessthegyarados/core/extensions/color_extensions.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
 import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
@@ -10,6 +11,8 @@ import 'package:guessthegyarados/shared/domain/achievements/achievement.dart';
 import 'package:guessthegyarados/features/achievements/presentation/pages/achievements_page.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/achievement_grid.dart';
 import 'package:guessthegyarados/features/profile/presentation/widgets/level_bar.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/animated_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/screens/message_of_god.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -62,58 +65,61 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: userColor,
+        backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           color: Colors.white,
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Container(
-        color: userColor,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _userNameRowWidget(context),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: LevelProgressBar(
-                currentPoints: profile.points,
-                currentLevel: profile.level,
-                levelBarColor: getColorFromString(profile.userColorString ?? "Normal").darken(0.4),
+      body: AnimatedBackdrop(
+        accentColor: userColor,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _userNameRowWidget(context),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: LevelProgressBar(
+                  currentPoints: profile.points,
+                  currentLevel: profile.level,
+                  levelBarColor: userColor,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(child: _statTile('${catchRate.toStringAsFixed(0)}%', "Catch Rate", context)),
-                  const SizedBox(width: 20,),
-                  Expanded(child: _statTile('${guessRate.toStringAsFixed(0)}%', "Guess Rate", context))
-                ],
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: _statTile('${catchRate.toStringAsFixed(0)}%', "Catch Rate", context)),
+                    const SizedBox(width: 20,),
+                    Expanded(child: _statTile('${guessRate.toStringAsFixed(0)}%', "Guess Rate", context))
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(child: _statTile('$totalCaught', 'Pokemon Caught', context)),
-                  const SizedBox(width: 10,),
-                  Expanded(child: _statTile('$totalSpeciesCaught', 'Species Caught', context)),
-                  const SizedBox(width: 10,),
-                  Expanded(child: _statTile('$totalCaughtShiny', 'Shinies Caught', context)),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: _statTile('$totalCaught', 'Pokemon Caught', context)),
+                    const SizedBox(width: 10,),
+                    Expanded(child: _statTile('$totalSpeciesCaught', 'Species Caught', context)),
+                    const SizedBox(width: 10,),
+                    Expanded(child: _statTile('$totalCaughtShiny', 'Shinies Caught', context)),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: _achievementsSection(receivedAchievements),
-            ),
-          ],
+              Expanded(
+                child: _achievementsSection(receivedAchievements),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -198,41 +204,48 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _statTile(String value, String label, BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white24,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-              color: Colors.white,
+    return TiltCard(
+      maxTilt: 0.2,
+      child: Container(
+        decoration: BoxDecoration(
+          color: GameColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: GameColors.gold.withValues(alpha: 0.4)),
+          boxShadow: [
+            BoxShadow(color: GameColors.gold.withValues(alpha: 0.2), blurRadius: 10),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                color: GameColors.gold,
+              ),
             ),
-          ),
-          Text(
-            label,
-            softWrap: false,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: Colors.white,
-              fontSize: 8
+            Text(
+              label,
+              softWrap: false,
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: GameColors.textMuted,
+                fontSize: 8
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _achievementsSection(List<Achievement> receivedAchievements) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(15), topRight: Radius.circular(15)
+      decoration: const BoxDecoration(
+        color: GameColors.surface,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24), topRight: Radius.circular(24)
         ),
       ),
       padding: const EdgeInsets.all(16.0),
