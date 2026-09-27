@@ -13,12 +13,24 @@ class PokemonSpriteImage extends StatelessWidget {
     required this.pokemonName,
     this.isShiny = false,
     this.fit = BoxFit.contain,
+    this.showLoadingIndicator = true,
   });
 
   final int pokemonId;
   final String pokemonName;
   final bool isShiny;
   final BoxFit fit;
+
+  /// Set false to keep the space blank (no spinner) while the sprite loads
+  /// — for spots like the play page's morph reveal, where a new sprite
+  /// loads every couple of seconds and a flickering spinner would be worse
+  /// than a brief blank.
+  final bool showLoadingIndicator;
+
+  Widget _placeholder(BuildContext context, String url) {
+    if (!showLoadingIndicator) return const SizedBox.shrink();
+    return const Center(child: CircularProgressIndicator());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +40,7 @@ class PokemonSpriteImage extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: primaryUrl ?? backupUrl,
       fit: fit,
-      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+      placeholder: _placeholder,
       errorWidget: (context, url, error) {
         if (primaryUrl == null) {
           return Image.asset(missingNoIcon, fit: BoxFit.cover);
@@ -37,7 +49,7 @@ class PokemonSpriteImage extends StatelessWidget {
         return CachedNetworkImage(
           imageUrl: backupUrl,
           fit: fit,
-          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+          placeholder: _placeholder,
           errorWidget: (context, url, error) => Image.asset(missingNoIcon, fit: BoxFit.cover),
         );
       },

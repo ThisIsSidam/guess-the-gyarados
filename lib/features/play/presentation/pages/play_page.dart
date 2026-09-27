@@ -1,27 +1,45 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
-import 'package:guessthegyarados/shared/application/providers/pokemon_names_provider.dart';
-import 'package:guessthegyarados/shared/application/providers/pokemon_provider.dart';
-import 'package:guessthegyarados/shared/application/providers/steps_provider.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
+import 'package:guessthegyarados/features/play/domain/models/clue.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/backdrop/folded_backdrop.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/catching/catching_widget.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_answer_sheet.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_carousel.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_tile.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/reveal/pokemon_morph_reveal.dart';
+import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
+import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
+import 'package:guessthegyarados/shared/application/providers/pokemon_names_provider.dart';
+import 'package:guessthegyarados/shared/application/providers/pokemon_provider.dart';
+import 'package:guessthegyarados/shared/application/providers/steps_provider.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
-import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/audio_player_widget.dart';
-import 'package:guessthegyarados/features/play/presentation/widgets/catching/catching_widget.dart';
-import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
-import 'package:guessthegyarados/features/play/presentation/widgets/question/bottom_sheet_methods.dart';
-import 'package:guessthegyarados/features/play/presentation/widgets/question/question_wrapped_utils.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/screens/error_screen.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/screens/loading_screen.dart';
+
+/// Neutral, per-round-stable accent colors shown before any type clue has
+/// been revealed — picked from [randomId] so they don't flicker on rebuild,
+/// but they carry no hint about the mystery Pokemon's actual type(s).
+const _neutralAccents = [
+  Colors.teal,
+  Colors.orange,
+  Colors.pink,
+  Colors.cyan,
+  Colors.amber,
+  Colors.blueGrey,
+  Colors.lightGreen,
+];
 
 class PlayPage extends ConsumerStatefulWidget {
   const PlayPage({super.key});
@@ -30,8 +48,8 @@ class PlayPage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _PlayPageState();
 }
 
-class _PlayPageState extends ConsumerState<PlayPage>{
-  final randomId = Random().nextInt(1025) + 1; // Randoly pick a pokemon id
+class _PlayPageState extends ConsumerState<PlayPage> {
+  final randomId = Random().nextInt(1025) + 1; // Randomly pick a pokemon id
   bool isShiny = false;
 
   @override // Lucky enough for a shiny?
@@ -46,9 +64,14 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
   bool pokemonGuessedCorrectly = false;
 
+  // Which clues have already been guessed/revealed this round.
+  final Set<String> revealedClueIds = {};
+
+  Color get _neutralAccent =>
+      _neutralAccents[randomId % _neutralAccents.length];
+
   @override
   Widget build(BuildContext context) {
-
     final arceusImage = Image.asset(
       arceusImagePath,
       height: 200,
@@ -63,84 +86,52 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
     return pokemonAsync.when(
       data: (thisPokemon) {
-
         debugPrint(thisPokemon.name + thisPokemon.bst.toString());
 
-        final questionWrappedUtils = QuestionWrappedUtils(
-          pokemon: thisPokemon,
-          context: context,
-          color: getColorFromString(thisPokemon.name).withValues(alpha: 0.7)
-        );
+        final catalog = buildClueCatalog(thisPokemon);
+        final accentColor = _accentColorFor(catalog);
 
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  GameColors.backgroundDeep,
-                  getColorFromString(thisPokemon.name).withValues(alpha: 0.55),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter
-              ),
-            ),
-            child: Column(
-              children: [
-                topRow(questionWrappedUtils),
-                const SizedBox(height: 24),
-                pokemonImageWidget(thisPokemon),
-                Expanded( // Game-panel section including questions and bottomBar
-                  flex: 2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: GameColors.surface,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(28),
-                        topRight: Radius.circular(28)
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: getColorFromString(thisPokemon.name).withValues(alpha: 0.5),
-                          blurRadius: 30,
-                          spreadRadius: -10,
-                          offset: const Offset(0, -10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 8),
-                        Container(
-                          width: 48,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        getSubmissionBar(
-                          thisPokemon.bst,
-                          thisPokemon.name,
-                          pokemonsMap!.values.toList(),
-                        ),
-                        if (!pokemonGuessedCorrectly)
-                          Expanded(
-                            child: listOfQuestionPills(questionWrappedUtils),
-                          ),
-                        if (pokemonGuessedCorrectly)
-                          Expanded(
-                            child: CatchingWidget(
-                              steps: stepsCount,
-                              pokemon: thisPokemon,
-                              isShiny: isShiny,
-                            ),
-                          ),
-                      ],
-                    ),
+          body: FoldedBackdrop(
+            accentColor: accentColor,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  topBar(thisPokemon, accentColor),
+                  Expanded(
+                    flex: pokemonGuessedCorrectly ? 4 : 5,
+                    child: revealArea(thisPokemon, pokemonsMap ?? const {}),
                   ),
-                ),
-              ],
+                  if (pokemonGuessedCorrectly)
+                    Expanded(
+                      flex: 3,
+                      child: Center(
+                        child: CatchingWidget(
+                          steps: stepsCount,
+                          pokemon: thisPokemon,
+                          isShiny: isShiny,
+                        ),
+                      ),
+                    )
+                  else ...[
+                    infoRow(catalog, accentColor),
+                    const SizedBox(height: 8),
+                    ClueCarousel(
+                      cardGroups: catalog.cardGroups,
+                      cardTitles: catalog.cardTitles,
+                      revealedIds: revealedClueIds,
+                      accentColor: accentColor,
+                      onClueTap: (clue) => onClueTap(clue, accentColor),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (!pokemonGuessedCorrectly)
+                    getSubmissionBar(thisPokemon,
+                        pokemonsMap?.values.toList() ?? const [], accentColor),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           ),
         );
@@ -152,7 +143,7 @@ class _PlayPageState extends ConsumerState<PlayPage>{
           image: arceusImage,
           errorText: err.toString(),
         );
-      } ,
+      },
       loading: () => HoveringImageLoadingScreen(
         image: arceusImage,
         text: "Lemme think",
@@ -160,181 +151,229 @@ class _PlayPageState extends ConsumerState<PlayPage>{
     );
   }
 
-  Widget topRow(QuestionWrappedUtils questionWrappedUtils) {
+  // The neutral, per-round accent until a type is revealed; blends towards
+  // (and eventually becomes) the real type color(s) as Type 1/Type 2 clues
+  // are answered correctly.
+  Color _accentColorFor(ClueCatalog catalog) {
+    final type1 = catalog.infoRow[0];
+    final type2 = catalog.infoRow[1];
+    final revealed1 = revealedClueIds.contains(type1.id);
+    final revealed2 = revealedClueIds.contains(type2.id);
+
+    if (!revealed1 && !revealed2) return _neutralAccent;
+    if (revealed1 && revealed2) {
+      return Color.lerp(getColorFromString(type1.answer),
+          getColorFromString(type2.answer), 0.5)!;
+    }
+    return getColorFromString((revealed1 ? type1 : type2).answer);
+  }
+
+  // Deliberately very different: a soft tick for a right pick, a hard
+  // double-buzz for a wrong one, so the two are never confused by feel.
+  void _feedback(bool success) {
+    if (success) {
+      HapticFeedback.lightImpact();
+    } else {
+      HapticFeedback.heavyImpact();
+      Future.delayed(
+          const Duration(milliseconds: 90), HapticFeedback.heavyImpact);
+    }
+  }
+
+  void onClueTap(ClueSpec clue, Color accentColor) {
+    if (revealedClueIds.contains(clue.id)) return;
+
+    if (clue.kind == ClueKind.boolean) {
+      // Nothing to pick — a boolean fact just reveals itself, at the cost
+      // of a step.
+      setState(() {
+        revealedClueIds.add(clue.id);
+        ref.read(stepsCounterProvider.notifier).increment();
+      });
+      _feedback(true);
+      return;
+    }
+
+    showAnswerSheet(
+      context: context,
+      question: clue.dialogLabel,
+      options: clue.options!,
+      correctAnswer: clue.answer,
+      coloredOptions: clue.coloredOptions,
+      accentColor: accentColor,
+      onAttempt: (correct, value) {
+        ref.read(stepsCounterProvider.notifier).increment();
+        _feedback(correct);
+        if (correct) setState(() => revealedClueIds.add(clue.id));
+      },
+    );
+  }
+
+  void onSubmitTap(
+      PokemonEntity pokemon, List<String> pokemonNames, Color accentColor) {
+    showAnswerSheet(
+      context: context,
+      question: "Who's that Pokemon?",
+      options: pokemonNames,
+      correctAnswer: pokemon.name,
+      accentColor: accentColor,
+      onAttempt: (correct, value) {
+        ref.read(stepsCounterProvider.notifier).increment();
+        _feedback(correct);
+        if (correct) setState(() => pokemonGuessedCorrectly = true);
+      },
+    );
+  }
+
+  Widget revealArea(PokemonEntity thisPokemon, Map<int, String> pokemonNames) {
+    return Center(
+      child: AudioPlayerWidget(
+        audioLink: thisPokemon.cry,
+        child: TiltCard(
+          child: SizedBox(
+            height: 220,
+            width: 220,
+            child: FlipCard(
+              flipped: pokemonGuessedCorrectly,
+              front: PokemonMorphReveal(
+                pokemonNames: pokemonNames,
+                excludeId: thisPokemon.id,
+                size: 220,
+              ),
+              back: PokemonSpriteImage(
+                pokemonId: thisPokemon.id,
+                pokemonName: thisPokemon.name,
+                isShiny: isShiny,
+                showLoadingIndicator: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Replaces the old AppBar — a plain row on the backdrop itself so there's
+  // no separate Material surface/shadow between it and the rest of the page.
+  Widget topBar(PokemonEntity thisPokemon, Color accentColor) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 16, right: 16, bottom: 8, top: 40),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          stepsHudBadge(),
-          if (!pokemonGuessedCorrectly)
-          questionWrappedUtils.typesRow(),
+          Material(
+            color: Colors.white,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => onPressedBack(thisPokemon.bst, thisPokemon.name),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  pokemonGuessedCorrectly
+                      ? Icons.keyboard_return
+                      : Icons.arrow_back,
+                  color: GameColors.textOnLight,
+                ),
+              ),
+            ),
+          ),
+          stepsHudBadge(accentColor),
         ],
       ),
     );
   }
 
-  Widget stepsHudBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+  Widget stepsHudBadge(Color accentColor) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOut,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: GameColors.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: GameColors.primary.withValues(alpha: 0.6), width: 1.5),
-        boxShadow: [
-          BoxShadow(color: GameColors.primary.withValues(alpha: 0.35), blurRadius: 12),
-        ],
+        border:
+            Border.all(color: accentColor.withValues(alpha: 0.6), width: 1.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.directions_walk, size: 18, color: GameColors.primary),
+          Icon(Icons.touch_app, size: 18, color: accentColor),
           const SizedBox(width: 6),
           Text(
             "$stepsCount",
-            style: const TextStyle(color: GameColors.textOnDark, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: GameColors.textOnLight, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget pokemonImageWidget(PokemonEntity thisPokemon) {
-
-    final questionMark = Image.asset(
-      questionMarkIcon,
-      fit: BoxFit.cover,
-      height: 300,
-      width: 300,
-    );
-
-    return Expanded(
-      flex: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-              child: SizedBox(
-                height: 250,
-                width: 250,
-                child: AudioPlayerWidget(
-                  audioLink: thisPokemon.cry,
-                  child: TiltCard(
-                    child: pokemonGuessedCorrectly
-                    ? PokemonSpriteImage(
-                        pokemonId: thisPokemon.id,
-                        pokemonName: thisPokemon.name,
-                        isShiny: isShiny,
-                      )
-                    : questionMark,
-                  ),
-                ),
-              ),
+  Widget infoRow(ClueCatalog catalog, Color accentColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (final clue in catalog.infoRow) ...[
+            if (clue != catalog.infoRow.first) const SizedBox(width: 12),
+            ClueRowChip(
+              clue: clue,
+              revealed: revealedClueIds.contains(clue.id),
+              onTap: () => onClueTap(clue, accentColor),
             ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget listOfQuestionPills(QuestionWrappedUtils questionWrappedUtils) {
+  // Only rendered pre-guess — the exit/return control lives in the app bar.
+  Widget getSubmissionBar(
+      PokemonEntity pokemon, List<String> pokemonNames, Color accentColor) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SingleChildScrollView(
-        child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: submitSearchBar(
+          () => onSubmitTap(pokemon, pokemonNames, accentColor), accentColor),
+    );
+  }
+
+  Widget submitSearchBar(VoidCallback onTap, Color accentColor) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: GameColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border:
+              Border.all(color: accentColor.withValues(alpha: 0.5), width: 1.5),
+        ),
+        child: Row(
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                questionWrappedUtils.generationWidget(),
-                questionWrappedUtils.evolutionTreeSizeWidget(),
-                // There are issues with forms-variants with PokeAPI. Can't get the value I want.
-                // questionWrappedUtils.noOfFormsWidget(),
-                questionWrappedUtils.itemEvolutionWidget(),
-                questionWrappedUtils.hasMegaWidget(),
-                questionWrappedUtils.isMegaWidget(),
-                questionWrappedUtils.hasGmaxWidget(),
-                questionWrappedUtils.isGmaxWidget(),
-                questionWrappedUtils.currentEvoStageWidget(),
-                questionWrappedUtils.isBabyWidget(),
-                questionWrappedUtils.isLegendaryWidget(),
-                questionWrappedUtils.isMythiscalWidget(),
-                questionWrappedUtils.isStarterWidget(),
-                questionWrappedUtils.isPseudoWidget()
-              ],
+            Icon(Icons.search, color: accentColor),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                "Found it? Search the name...",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: GameColors.textMuted, fontWeight: FontWeight.w600),
+              ),
             ),
-            const SizedBox(height: 10,)
           ],
         ),
       ),
     );
   }
 
-  Widget getSubmissionBar(int pokemonBST, String pokemonName, List<String> pokemonsList) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Row(
-        children: [
-          Expanded( // Close button
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GameButton(
-                color: pokemonGuessedCorrectly ? GameColors.surfaceRaised : GameColors.danger,
-                borderRadius: 16,
-                depth: 6,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                onPressed: () {
-                  onPressedBack(pokemonBST, pokemonName);
-                },
-                child: Icon(
-                  pokemonGuessedCorrectly
-                  ? Icons.keyboard_return
-                  : Icons.close,
-                  color: GameColors.textOnDark,
-                )
-              ),
-            ),
-          ),
-          if(!pokemonGuessedCorrectly)
-          Expanded( // Submit button
-            flex: pokemonGuessedCorrectly ? 1 : 3,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GameButton(
-                color: getColorFromString(pokemonName),
-                borderRadius: 16,
-                depth: 6,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                onPressed: () {
-                  showTextFieldWithOptionsBottomSheet(
-                    context,
-                    "Who's that Pokemon?",
-                    pokemonName,
-                    pokemonsList,
-                    isAnswerCorrect: (answerValidity) {
-                      setState(() {
-                        ref.read(stepsCounterProvider.notifier).increment();
-                        pokemonGuessedCorrectly = answerValidity;
-                      });
-                    }
-                  );
-                },
-                child: const Text(
-                  "SUBMIT",
-                  style: TextStyle(color: GameColors.backgroundDeep, fontWeight: FontWeight.bold),
-                )
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   // For the close button present on bottom bar
   void onPressedBack(int pokemonBST, String pokemonName) {
-    if (!pokemonGuessedCorrectly)
-    {
+    if (!pokemonGuessedCorrectly) {
       final snackBar = SnackBar(
         content: Text("${isShiny ? "Shiny" : ''} $pokemonName ran away!"),
         duration: const Duration(seconds: 2),
@@ -342,23 +381,23 @@ class _PlayPageState extends ConsumerState<PlayPage>{
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      getIt<UserPokemonRepository>().recordInteraction(
-        randomId,
-        PokemonInteractionType.couldNotGuess
-      );
+      getIt<UserPokemonRepository>()
+          .recordInteraction(randomId, PokemonInteractionType.couldNotGuess);
       final steps = ref.read(stepsCounterProvider);
-      getIt<UserProfileRepository>().addPoints(((pokemonBST / 100) * steps).toInt());
+      getIt<UserProfileRepository>()
+          .addPoints(((pokemonBST / 100) * steps).toInt());
     }
 
     ref.read(caughtPokemonProvider.notifier).refresh();
-    final newAchievements = ref.read(caughtPokemonProvider).newlyReceivedAchievements;
+    final newAchievements =
+        ref.read(caughtPokemonProvider).newlyReceivedAchievements;
 
-    if (newAchievements.isNotEmpty)
-    {
+    if (newAchievements.isNotEmpty) {
       final snackBar = SnackBar(
         content: Row(
           children: [
-            Text("You just received ${newAchievements.length==1 ? 'an' : 'some'} achievement${newAchievements.length==1 ? '' : 's'}!"),
+            Text(
+                "You just received ${newAchievements.length == 1 ? 'an' : 'some'} achievement${newAchievements.length == 1 ? '' : 's'}!"),
           ],
         ),
       );

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
@@ -47,7 +48,13 @@ class _PokeBallCatchAnimationState extends State<PokeBallCatchAnimation> with Ti
       _message = widget.isCaught ? 'Gotcha!' : 'Oh no! It broke free!';
     });
 
-    if (widget.isCaught) _confetti.play();
+    if (widget.isCaught) {
+      HapticFeedback.lightImpact();
+      _confetti.play();
+    } else {
+      HapticFeedback.heavyImpact();
+      Future.delayed(const Duration(milliseconds: 90), HapticFeedback.heavyImpact);
+    }
   }
 
   @override
