@@ -138,7 +138,7 @@ class CaughtPage extends ConsumerWidget {
           height: 100,
           width: 100,
           child: pokemon == null
-          ? const Center(child: Text("⍰"))
+          ? const Center(child: Text("⍰", style: TextStyle(color: GameColors.textOnLight)))
           : PokemonSpriteImage(
               pokemonId: id,
               pokemonName: pokemon.name,

@@ -259,14 +259,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 Text(
                   'My Achievements',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: GameColors.textOnLight),
                 ),
                 IconButton(
                   onPressed: () {
                     Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const AchievementPage()));
                   },
-                  icon: const Icon(Icons.chevron_right)
+                  icon: const Icon(Icons.chevron_right, color: GameColors.textOnLight)
                 )
               ],
             ),

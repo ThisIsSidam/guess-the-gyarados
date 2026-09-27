@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Arcade/game-console inspired palette: deep space background, electric
-/// cyan primary, gold as the "reward" accent (level-ups, points, catches).
+/// Arcade/game-console inspired palette: a bright backdrop built around the
+/// single electric-cyan/blue accent (`primary`) rather than purple, with
+/// gold as the separate "reward" accent (level-ups, points, catches).
+/// Cards/chips/dialogs/buttons (`surface`/`surfaceRaised`) are white/near-white
+/// — the same white used for the play page's back button — so every raised
+/// component reads consistently across the app; [textOnLight] is the dark
+/// text color used on top of them, while [textOnDark] remains for text sitting
+/// on saturated color (the colorful scaffold background, type chips, badges).
 class GameColors {
-  static const Color background = Color(0xFF0B0F2B);
-  static const Color backgroundDeep = Color(0xFF05060F);
-  static const Color surface = Color(0xFF171B3D);
-  static const Color surfaceRaised = Color(0xFF232963);
+  static const Color background = Color(0xFF2E86FF);
+  static const Color backgroundDeep = Color(0xFF1657C4);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceRaised = Color(0xFFF3F3F6);
   static const Color primary = Color(0xFF3DE8FF);
   static const Color primaryDeep = Color(0xFF1C7FA8);
   static const Color gold = Color(0xFFFFC93D);
@@ -15,7 +21,8 @@ class GameColors {
   static const Color danger = Color(0xFFFF5D6C);
   static const Color success = Color(0xFF52E48F);
   static const Color textOnDark = Color(0xFFF4F6FF);
-  static const Color textMuted = Color(0xFFA8AFDA);
+  static const Color textOnLight = Color(0xFF23262E);
+  static const Color textMuted = Color(0xFF767A85);
 }
 
 final _gameFont = GoogleFonts.baloo2TextTheme();
@@ -60,7 +67,7 @@ final gyaradosTheme = ThemeData(
     style: ElevatedButton.styleFrom(
       padding: const EdgeInsets.all(0),
       backgroundColor: GameColors.surfaceRaised,
-      foregroundColor: GameColors.textOnDark,
+      foregroundColor: GameColors.textOnLight,
       elevation: 0,
       textStyle: GoogleFonts.baloo2(fontWeight: FontWeight.w700),
       shape: RoundedRectangleBorder(

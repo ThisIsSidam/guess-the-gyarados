@@ -197,7 +197,7 @@ class _PokemonDetailsSectionState extends State<PokemonDetailsSection> {
         Text(
           pokemon.name,
           softWrap: true,
-          style: Theme.of(context).textTheme.titleMedium,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: GameColors.textOnLight),
         ),
         Row(
           children: [
