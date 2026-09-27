@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 
 // User gets a search bar to search the answer in the bottom sheet.
@@ -9,7 +10,7 @@ void showTextInputBottomSheet(
   {required Function(bool) isAnswerCorrect}
 ) {
   final textController = TextEditingController();
-  showBottomSheet(
+  showModalBottomSheet(
     context: context,
     builder: (context) {
       return FractionallySizedBox(
@@ -77,8 +78,9 @@ void showTextFieldWithOptionsBottomSheet(
     filteredOptions = options; // Since in this case, we won't be showing the search bar.
   }
 
-  showBottomSheet(
+  showModalBottomSheet(
     context: context,
+    isScrollControlled: true,
     builder: (context) {
       return FractionallySizedBox(
         heightFactor: showSearchBar
@@ -178,10 +180,11 @@ Widget getContainerForOption(String option, bool colorTheContainer) {
       : optionLen * 15,
     height: 80,
     decoration: BoxDecoration(
-      color: colorTheContainer ? getColorFromString(option) : Colors.black12,
+      color: colorTheContainer ? getColorFromString(option) : GameColors.surfaceRaised,
       borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
     ),
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Text(option),
+    child: Text(option, style: const TextStyle(color: GameColors.textOnDark, fontWeight: FontWeight.w600)),
   );
 }
