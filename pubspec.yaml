@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_animate: ^4.5.2
   confetti: ^0.8.0
+  flutter_svg: ^2.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -85,6 +86,7 @@ flutter:
     - assets/icons/achievement_icon.png
     - assets/icons/pokedex-48.png
     - assets/icons/profile_icon.png
+    - assets/icons/types/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

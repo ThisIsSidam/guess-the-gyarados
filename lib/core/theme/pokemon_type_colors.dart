@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 
+const _typeIconNames = [
+  'bug', 'dark', 'dragon', 'electric', 'fairy', 'fighting', 'fire', 'flying',
+  'ghost', 'grass', 'ground', 'ice', 'normal', 'poison', 'psychic', 'rock',
+  'steel', 'water',
+];
+
+/// Path to the monochrome SVG badge for a Pokemon type, or `null` when
+/// [input] isn't a recognized type (e.g. the unrevealed "Type 1"/"Type 2"
+/// chip label) — callers fall back to a generic icon in that case.
+String? getIconPathForType(String input) {
+  final normalized = input.toLowerCase();
+  if (!_typeIconNames.contains(normalized)) return null;
+  return 'assets/icons/types/$normalized.svg';
+}
+
 Color getColorFromString(String input) {
 
   // Define a map of Pokémon types and their corresponding colors
