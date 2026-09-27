@@ -1,6 +1,6 @@
 # Pokemon Guessing Game
 
-Welcome to the Pokemon Guessing Game! This is a fun and challenging game where you have to guess a randomly selected Pokemon by answering a series of questions. The game provides no clues, making it a true test of your Pokemon knowledge.
+Welcome to Guess The Gyarados! Each round, the game secretly picks a random Pokémon (national dex #1–1025) and hides its sprite behind a "Who's that Pokémon?" silhouette. You have to name it yourself — the game gives you nothing for free, but you can spend **steps** to buy hints about the mystery Pokémon's traits, at the cost of a lower catch rate once you get it right.
 
 Note: I know that the UI is bad. Please give me ideas, I really need them. I also have some ideas, so I will apply them in a while.
 
@@ -9,22 +9,33 @@ Note: I know that the UI is bad. Please give me ideas, I really need them. I als
 
 ## How to Play
 
-1. The game will randomly select a Pokemon from the database.
-2. You will be presented with various questions related to the Pokemon, such as its type, abilities, or characteristics with their respective options.
-3. Choose the option that you think best describes the Pokemon.
-4. Continue answering the questions until you correctly guess the Pokemon.
+1. The game randomly picks a Pokémon and shows its two elemental types plus a row of unrevealed clue chips (Generation, Evolution tree size, Evolution stage, whether it evolves with an item, has/is a Mega or Gmax form, is a baby/Legendary/Mythical/Starter/Pseudo-legendary).
+2. Tap any clue chip to spend a **step**:
+   - **Yes/No traits** (Mega, Gmax, Legendary, Mythical, Baby, Starter, Pseudo-legendary, item-evolution) reveal instantly — there's nothing to guess, so the step is just the cost of asking.
+   - **Multi-option traits** (type, generation, evolution-tree size, evolution stage) open a picker instead. Every option you try costs a step, and the chip only reveals the real value once you pick the correct one — wrong picks just burn a step and let you try again.
+3. When you think you know the Pokémon, tap **SUBMIT** to search the full 1025-name Pokédex list and pick your answer. Each submission attempt also costs a step, whether right or wrong.
+4. Guessing the name correctly swaps the silhouette for the real sprite and starts the catch attempt (see below). Tapping the close button instead gives up on the round — the Pokémon "runs away," recorded as a missed encounter, and you still earn a small consolation reward for the steps spent.
+
+## Catch Logic
+
+Every step you burn on hints/guesses lowers your odds of actually catching the Pokémon once you name it correctly:
+
+- Base catch rate starts at **100% − (steps × 0.5%)**.
+- The rate is **halved** if the Pokémon is Legendary or Mythical.
+- It's further reduced by **5%** if the Pokémon is in its 2nd evolution stage, or **10%** if in its 3rd/final stage.
+- Arceus is a special case: its catch rate is always pinned to **1%**, no matter how few steps you used.
+- A random roll then decides success. Catching it awards points equal to the Pokémon's base stat total (BST) — **doubled** if you rolled a shiny (a 1-in-1000 chance each round). A failed catch attempt still awards **half the BST** in points, and giving up early awards `(BST ÷ 100) × steps` points.
 
 ## Features
 
-- Random Pokemon selection from a comprehensive database.
-- Multiple-choice questions with various options related to the Pokemon's type, and other characteristics.
-- Catching Pokemon after succesful guess.
-- Catching a collection of pokemon can get you an achievement.
-- A profile where user can view their stats and achievements.
-- A pokedex where user can see individual stats about their caught pokemons.
+- Random Pokémon selection (including a rare shiny variant) from a comprehensive PokeAPI-backed database.
+- A step-based hint system: yes/no reveals and multiple-choice pickers for type, generation, evolution stage/tree size, and special forms.
+- A name-guessing search over the full Pokédex, with a catch attempt (and catch-rate math) once you're right.
+- Catching Pokémon builds up a personal Pokédex and can unlock achievements for collecting sets of catches.
+- A profile where the user can view their level, points, and earned achievements.
+- A pokedex where the user can see individual stats about their caught Pokémon.
 
 ## Features to be implemented
-- A OG Silhouette "Who's that pokemon" mode.
 - Score tracking and high score leaderboard will maybe be implemented.
 
 ## Contributing
