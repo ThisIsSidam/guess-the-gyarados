@@ -9,10 +9,20 @@ import 'package:guessthegyarados/features/play/domain/models/clue.dart';
 /// clue carousel. Unrevealed: icon + label, dim. Revealed: icon + the
 /// actual value, colored when the clue is a Pokemon type.
 class ClueRowChip extends StatelessWidget {
-  const ClueRowChip({super.key, required this.clue, required this.revealed, this.onTap});
+  const ClueRowChip({
+    super.key,
+    required this.clue,
+    required this.revealed,
+    this.locked = false,
+    this.onTap,
+  });
 
   final ClueSpec clue;
   final bool revealed;
+
+  /// Out of tries without finding the answer: it can still be opened, but
+  /// nothing can be picked.
+  final bool locked;
   final VoidCallback? onTap;
 
   @override
@@ -42,6 +52,10 @@ class ClueRowChip extends StatelessWidget {
                 color: revealed ? GameColors.textOnDark : GameColors.textMuted,
               ),
             ),
+            if (locked && !revealed) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.heart_broken, size: 18, color: GameColors.danger),
+            ],
           ],
         ),
       ),
@@ -74,12 +88,16 @@ class ClueCardRow extends StatelessWidget {
     required this.clue,
     required this.revealed,
     this.accentColor = GameColors.primary,
+    this.locked = false,
     this.onTap,
   });
 
   final ClueSpec clue;
   final bool revealed;
   final Color accentColor;
+
+  /// Out of tries without finding the answer (see [ClueRowChip.locked]).
+  final bool locked;
   final VoidCallback? onTap;
 
   @override
@@ -118,6 +136,8 @@ class ClueCardRow extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w700, color: badgeColor),
                 ),
               )
+            else if (locked)
+              const Icon(Icons.heart_broken, size: 20, color: GameColors.danger)
             else
               const Icon(Icons.help_outline, size: 18, color: GameColors.textMuted),
           ],

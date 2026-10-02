@@ -12,6 +12,7 @@ class ClueCarousel extends StatefulWidget {
     required this.cardGroups,
     required this.cardTitles,
     required this.revealedIds,
+    required this.lockedIds,
     required this.accentColor,
     required this.onClueTap,
   });
@@ -19,6 +20,9 @@ class ClueCarousel extends StatefulWidget {
   final List<List<ClueSpec>> cardGroups;
   final List<String> cardTitles;
   final Set<String> revealedIds;
+
+  /// Clues the player ran out of tries on without finding the answer.
+  final Set<String> lockedIds;
   final Color accentColor;
   final void Function(ClueSpec clue) onClueTap;
 
@@ -66,6 +70,7 @@ class _ClueCarouselState extends State<ClueCarousel> {
               title: widget.cardTitles[index],
               clues: widget.cardGroups[index],
               revealedIds: widget.revealedIds,
+              lockedIds: widget.lockedIds,
               accentColor: widget.accentColor,
               onClueTap: widget.onClueTap,
             ),
@@ -81,6 +86,7 @@ class _ClueCard extends StatelessWidget {
     required this.title,
     required this.clues,
     required this.revealedIds,
+    required this.lockedIds,
     required this.accentColor,
     required this.onClueTap,
   });
@@ -88,6 +94,7 @@ class _ClueCard extends StatelessWidget {
   final String title;
   final List<ClueSpec> clues;
   final Set<String> revealedIds;
+  final Set<String> lockedIds;
   final Color accentColor;
   final void Function(ClueSpec clue) onClueTap;
 
@@ -117,6 +124,7 @@ class _ClueCard extends StatelessWidget {
             (clue) => ClueCardRow(
               clue: clue,
               revealed: revealedIds.contains(clue.id),
+              locked: lockedIds.contains(clue.id),
               accentColor: accentColor,
               onTap: () => onClueTap(clue),
             ),

@@ -5,11 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/extensions/string_extensions.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
-import 'package:guessthegyarados/features/play/presentation/widgets/backdrop/folded_backdrop.dart';
+import 'package:guessthegyarados/features/play/domain/models/clue_attempts.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/outlined_text.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/catching/catch_stage_controller.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/catching/catching_widget.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/forfeit/forfeit_dialog.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_answer_sheet.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_carousel.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_tile.dart';
@@ -41,6 +47,13 @@ const _neutralAccents = [
   Colors.lightGreen,
 ];
 
+/// Where the end-of-round sequence is, whether the player found the Pokemon
+/// or let it go: the options fade out, the page collapses so the Pokemon
+/// slides to the center, it's revealed (flip when found, morph when given up
+/// on), and then [revealed] is the stage for what follows — the catch
+/// animation, or the "It was ..." caption.
+enum _EndPhase { none, fading, moving, revealing, revealed }
+
 class PlayPage extends ConsumerStatefulWidget {
   const PlayPage({super.key});
 
@@ -64,8 +77,42 @@ class _PlayPageState extends ConsumerState<PlayPage> {
 
   bool pokemonGuessedCorrectly = false;
 
+  _EndPhase endPhase = _EndPhase.none;
+
+  bool get _ending => endPhase != _EndPhase.none;
+
+  // True once the round's final animation is done and the player can move on.
+  bool showContinue = false;
+
+  // Shrinks/flashes the Pokemon sprite as the ball takes it in; driven by the
+  // catch animation.
+  final _catchStage = CatchStageController();
+
+  @override
+  void dispose() {
+    _catchStage.dispose();
+    for (final attempts in _attempts.values) {
+      attempts.dispose();
+    }
+    super.dispose();
+  }
+
   // Which clues have already been guessed/revealed this round.
   final Set<String> revealedClueIds = {};
+
+  // Tries spent per choice clue, kept for the whole round so closing and
+  // reopening a clue's dialog never refunds them.
+  final Map<String, ClueAttempts> _attempts = {};
+
+  ClueAttempts _attemptsFor(ClueSpec clue) =>
+      _attempts.putIfAbsent(clue.id, () => ClueAttempts(clue.maxAttempts));
+
+  // Out of tries with the answer still unfound.
+  Set<String> get lockedClueIds => {
+        for (final entry in _attempts.entries)
+          if (entry.value.exhausted && !revealedClueIds.contains(entry.key))
+            entry.key,
+      };
 
   Color get _neutralAccent =>
       _neutralAccents[randomId % _neutralAccents.length];
@@ -91,46 +138,97 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         final catalog = buildClueCatalog(thisPokemon);
         final accentColor = _accentColorFor(catalog);
 
-        return Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: FoldedBackdrop(
-            accentColor: accentColor,
-            child: SafeArea(
-              child: Column(
-                children: [
-                  topBar(thisPokemon, accentColor),
-                  Expanded(
-                    flex: pokemonGuessedCorrectly ? 4 : 5,
-                    child: revealArea(thisPokemon, pokemonsMap ?? const {}),
-                  ),
-                  if (pokemonGuessedCorrectly)
-                    Expanded(
-                      flex: 3,
-                      child: Center(
-                        child: CatchingWidget(
-                          steps: stepsCount,
-                          pokemon: thisPokemon,
-                          isShiny: isShiny,
+        return PopScope(
+          // The phone's back button gets the same treatment as the on-screen
+          // one: confirm first, never leave mid-round silently.
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) onBackPressed(thisPokemon);
+          },
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: FoldedBackdrop(
+              accentColor: accentColor,
+              child: SafeArea(
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        topBar(thisPokemon, accentColor),
+                        Expanded(
+                          child: revealArea(
+                              thisPokemon, pokemonsMap ?? const {}),
+                        ),
+                        // Collapses to nothing once the options have faded,
+                        // which is what lets the reveal slide to center.
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          alignment: Alignment.topCenter,
+                          child: endPhase.index >= _EndPhase.moving.index
+                              ? const SizedBox(width: double.infinity)
+                              : AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: _ending ? 0 : 1,
+                                  child: IgnorePointer(
+                                    ignoring: _ending,
+                                    child: Column(
+                                      children: [
+                                        infoRow(catalog, accentColor),
+                                        const SizedBox(height: 8),
+                                        ClueCarousel(
+                                          cardGroups: catalog.cardGroups,
+                                          cardTitles: catalog.cardTitles,
+                                          revealedIds: revealedClueIds,
+                                          lockedIds: lockedClueIds,
+                                          accentColor: accentColor,
+                                          onClueTap: (clue) =>
+                                              onClueTap(clue, accentColor),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        getSubmissionBar(
+                                            thisPokemon,
+                                            pokemonsMap?.values.toList() ??
+                                                const [],
+                                            accentColor),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 400),
+                          opacity: showContinue ? 1 : 0,
+                          child: IgnorePointer(
+                            ignoring: !showContinue,
+                            child: GameButton(
+                              color: GameColors.primary,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 48),
+                              onPressed: () => leavePage(),
+                              child: const Text(
+                                'CONTINUE',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                  color: GameColors.textOnLight,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    )
-                  else ...[
-                    infoRow(catalog, accentColor),
-                    const SizedBox(height: 8),
-                    ClueCarousel(
-                      cardGroups: catalog.cardGroups,
-                      cardTitles: catalog.cardTitles,
-                      revealedIds: revealedClueIds,
-                      accentColor: accentColor,
-                      onClueTap: (clue) => onClueTap(clue, accentColor),
                     ),
-                    const SizedBox(height: 8),
                   ],
-                  if (!pokemonGuessedCorrectly)
-                    getSubmissionBar(thisPokemon,
-                        pokemonsMap?.values.toList() ?? const [], accentColor),
-                  const SizedBox(height: 12),
-                ],
+                ),
               ),
             ),
           ),
@@ -147,6 +245,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       loading: () => HoveringImageLoadingScreen(
         image: arceusImage,
         text: "Lemme think",
+        accentColor: _neutralAccent,
       ),
     );
   }
@@ -194,6 +293,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       return;
     }
 
+    final attempts = _attemptsFor(clue);
     showAnswerSheet(
       context: context,
       question: clue.dialogLabel,
@@ -201,10 +301,17 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       correctAnswer: clue.answer,
       coloredOptions: clue.coloredOptions,
       accentColor: accentColor,
+      attempts: attempts,
       onAttempt: (correct, value) {
         ref.read(stepsCounterProvider.notifier).increment();
         _feedback(correct);
-        if (correct) setState(() => revealedClueIds.add(clue.id));
+        if (correct) {
+          setState(() => revealedClueIds.add(clue.id));
+        } else {
+          attempts.recordWrong(value);
+          // Refreshes the "out of tries" markers behind the dialog.
+          setState(() {});
+        }
       },
     );
   }
@@ -217,38 +324,160 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       options: pokemonNames,
       correctAnswer: pokemon.name,
       accentColor: accentColor,
+      // The name search is unlimited and has no success flourish: the
+      // end-of-round sequence takes over straight away.
+      closeDelay: Duration.zero,
       onAttempt: (correct, value) {
         ref.read(stepsCounterProvider.notifier).increment();
         _feedback(correct);
-        if (correct) setState(() => pokemonGuessedCorrectly = true);
+        if (correct) foundPokemon();
       },
     );
   }
 
+  // Waits, then moves the end-of-round sequence to [phase]. False if the page
+  // was left in the meantime.
+  Future<bool> _advanceTo(_EndPhase phase, int afterMs) async {
+    await Future.delayed(Duration(milliseconds: afterMs));
+    if (!mounted) return false;
+    setState(() => endPhase = phase);
+    return true;
+  }
+
+  // Correct guess: options fade (300ms) -> page collapses so the Pokemon
+  // slides to center (500ms) -> it flips to the real thing (600ms) -> the
+  // ball is thrown. The catch itself is rolled/recorded by [CatchingWidget]
+  // when it appears.
+  Future<void> foundPokemon() async {
+    setState(() {
+      pokemonGuessedCorrectly = true;
+      endPhase = _EndPhase.fading;
+    });
+    if (!await _advanceTo(_EndPhase.moving, 320)) return;
+    if (!await _advanceTo(_EndPhase.revealing, 550)) return;
+    await _advanceTo(_EndPhase.revealed, 750);
+  }
+
   Widget revealArea(PokemonEntity thisPokemon, Map<int, String> pokemonNames) {
-    return Center(
-      child: AudioPlayerWidget(
-        audioLink: thisPokemon.cry,
-        child: TiltCard(
-          child: SizedBox(
-            height: 220,
-            width: 220,
-            child: FlipCard(
-              flipped: pokemonGuessedCorrectly,
-              front: PokemonMorphReveal(
-                pokemonNames: pokemonNames,
-                excludeId: thisPokemon.id,
-                size: 220,
-              ),
-              back: PokemonSpriteImage(
-                pokemonId: thisPokemon.id,
-                pokemonName: thisPokemon.name,
-                isShiny: isShiny,
-                showLoadingIndicator: false,
-              ),
+    const imageSize = 220.0;
+    final giveUpRevealed =
+        endPhase == _EndPhase.revealed && !pokemonGuessedCorrectly;
+
+    final reveal = AudioPlayerWidget(
+      audioLink: thisPokemon.cry,
+      child: TiltCard(
+        child: SizedBox(
+          height: imageSize,
+          width: imageSize,
+          child: FlipCard(
+            // Found it: flip over once the page has settled.
+            flipped: pokemonGuessedCorrectly &&
+                endPhase.index >= _EndPhase.revealing.index,
+            front: PokemonMorphReveal(
+              pokemonNames: pokemonNames,
+              excludeId: thisPokemon.id,
+              size: imageSize,
+              // Only when giving up: a found Pokemon flips instead of morphing.
+              target: _ending && !pokemonGuessedCorrectly
+                  ? MorphTarget(
+                      id: thisPokemon.id,
+                      name: thisPokemon.name,
+                      isShiny: isShiny,
+                    )
+                  : null,
+              resolve: !pokemonGuessedCorrectly &&
+                  endPhase.index >= _EndPhase.revealing.index,
+            ),
+            back: PokemonSpriteImage(
+              pokemonId: thisPokemon.id,
+              pokemonName: thisPokemon.name,
+              isShiny: isShiny,
+              showLoadingIndicator: false,
             ),
           ),
         ),
+      ),
+    );
+
+    // The ball takes the sprite in (and a failed catch lets it back out); the
+    // wrappers stay in the tree permanently so the sprite's state is never
+    // rebuilt when they start doing something.
+    final stagedReveal = ListenableBuilder(
+      listenable: _catchStage,
+      child: reveal,
+      builder: (context, child) {
+        final absorb = _catchStage.absorb;
+        return Transform.scale(
+          scale: max(1 - absorb, 0.0001),
+          alignment: Alignment(0, _catchStage.anchorY),
+          child: ColorFiltered(
+            colorFilter: ColorFilter.mode(
+              Colors.white.withValues(alpha: (absorb * 1.6).clamp(0.0, 1.0)),
+              BlendMode.srcATop,
+            ),
+            child: child,
+          ),
+        );
+      },
+    );
+
+    // The caption is laid out below the image without moving it, so the image
+    // itself stays exactly centered through the whole sequence.
+    return LayoutBuilder(
+      builder: (context, constraints) => Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          stagedReveal,
+          if (pokemonGuessedCorrectly && endPhase == _EndPhase.revealed)
+            Positioned.fill(
+              child: CatchingWidget(
+                steps: stepsCount,
+                pokemon: thisPokemon,
+                isShiny: isShiny,
+                stage: _catchStage,
+                onFinished: () {
+                  if (mounted) setState(() => showContinue = true);
+                },
+              ),
+            ),
+          Positioned(
+            top: constraints.maxHeight / 2 + imageSize / 2 + 8,
+            left: 16,
+            right: 16,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 400),
+              opacity: giveUpRevealed ? 1 : 0,
+              child: AnimatedSlide(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+                offset: giveUpRevealed
+                    ? Offset.zero
+                    : const Offset(0, 0.3),
+                child: Column(
+                  children: [
+                    const Text(
+                      'IT WAS',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 4,
+                        color: GameColors.textMuted,
+                      ),
+                    ),
+                    OutlinedText(
+                      '${thisPokemon.name.capitalize}!',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(fontSize: 38),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -266,11 +495,12 @@ class _PlayPageState extends ConsumerState<PlayPage> {
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
-              onTap: () => onPressedBack(thisPokemon.bst, thisPokemon.name),
+              onTap: () => onBackPressed(thisPokemon),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Icon(
-                  pokemonGuessedCorrectly
+                  pokemonGuessedCorrectly ||
+                          endPhase == _EndPhase.revealed
                       ? Icons.keyboard_return
                       : Icons.arrow_back,
                   color: GameColors.textOnLight,
@@ -321,6 +551,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
             ClueRowChip(
               clue: clue,
               revealed: revealedClueIds.contains(clue.id),
+              locked: lockedClueIds.contains(clue.id),
               onTap: () => onClueTap(clue, accentColor),
             ),
           ],
@@ -371,23 +602,37 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     );
   }
 
-  // For the close button present on bottom bar
-  void onPressedBack(int pokemonBST, String pokemonName) {
-    if (!pokemonGuessedCorrectly) {
-      final snackBar = SnackBar(
-        content: Text("${isShiny ? "Shiny" : ''} $pokemonName ran away!"),
-        duration: const Duration(seconds: 2),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-      getIt<UserPokemonRepository>()
-          .recordInteraction(randomId, PokemonInteractionType.couldNotGuess);
-      final steps = ref.read(stepsCounterProvider);
-      getIt<UserProfileRepository>()
-          .addPoints(((pokemonBST / 100) * steps).toInt());
+  // Back button (on-screen or the phone's). Mid-round it asks first; once
+  // the round is over (caught/missed) it just leaves.
+  Future<void> onBackPressed(PokemonEntity pokemon) async {
+    if (_ending && endPhase != _EndPhase.revealed) return;
+    if (pokemonGuessedCorrectly || endPhase == _EndPhase.revealed) {
+      leavePage();
+      return;
     }
 
+    final letGo = await showForfeitDialog(context);
+    if (!letGo || !mounted) return;
+    await forfeitRound(pokemon);
+  }
+
+  Future<void> forfeitRound(PokemonEntity pokemon) async {
+    getIt<UserPokemonRepository>()
+        .recordInteraction(randomId, PokemonInteractionType.couldNotGuess);
+    final steps = ref.read(stepsCounterProvider);
+    getIt<UserProfileRepository>()
+        .addPoints(((pokemon.bst / 100) * steps).toInt());
+
+    setState(() => endPhase = _EndPhase.fading);
+    // Options fade (300ms) -> page collapses so the image slides to center
+    // (500ms) -> it morphs into the real Pokemon (900ms) -> caption.
+    if (!await _advanceTo(_EndPhase.moving, 320)) return;
+    if (!await _advanceTo(_EndPhase.revealing, 550)) return;
+    if (!await _advanceTo(_EndPhase.revealed, 1000)) return;
+    setState(() => showContinue = true);
+  }
+
+  void leavePage() {
     ref.read(caughtPokemonProvider.notifier).refresh();
     final newAchievements =
         ref.read(caughtPokemonProvider).newlyReceivedAchievements;

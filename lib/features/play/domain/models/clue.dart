@@ -18,6 +18,7 @@ class ClueSpec {
     required this.icon,
     this.options,
     this.coloredOptions = false,
+    this.maxAttempts = 3,
     String? dialogLabel,
   }) : dialogLabel = dialogLabel ?? label;
 
@@ -32,6 +33,10 @@ class ClueSpec {
   final IconData icon;
   final List<String>? options;
   final bool coloredOptions;
+
+  /// Wrong picks allowed on a choice clue before its dialog locks (the clue
+  /// stays unrevealed). Unused for boolean clues.
+  final int maxAttempts;
 }
 
 /// Every clue for one round, already split the way the play page presents
@@ -69,6 +74,20 @@ const typeOptions = [
   "Fighting",
 ];
 
+/// The region each generation introduced, in generation order (index 0 =
+/// generation 1). Generation clues are asked and answered by region name.
+const generationRegions = [
+  "Kanto",
+  "Johto",
+  "Hoenn",
+  "Sinnoh",
+  "Unova",
+  "Kalos",
+  "Alola",
+  "Galar",
+  "Paldea",
+];
+
 ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
   final types = pokemon.types;
   final type1 = types.first;
@@ -102,10 +121,11 @@ ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
       ClueSpec(
         id: "generation",
         label: "Generation",
-        answer: pokemon.generation.toString(),
+        answer: generationRegions[
+            (pokemon.generation - 1).clamp(0, generationRegions.length - 1)],
         kind: ClueKind.choice,
         icon: Icons.filter_9_plus,
-        options: List.generate(9, (i) => (i + 1).toString()),
+        options: generationRegions,
       ),
       ClueSpec(
         id: "evoStage",
@@ -114,6 +134,8 @@ ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
         kind: ClueKind.choice,
         icon: Icons.timeline,
         options: List.generate(3, (i) => (i + 1).toString()),
+        // One in three is a coin flip with a spare; two tries keeps it honest.
+        maxAttempts: 2,
       ),
       ClueSpec(
         id: "evoTreeSize",
