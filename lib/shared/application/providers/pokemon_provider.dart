@@ -19,3 +19,9 @@ Future<PokemonEntity> pokemon(Ref ref, int randomId) async {
 
   return repository.getOrFetch(finalId);
 }
+
+/// A species exactly as cataloged, with no random variant (mega, regional
+/// form...) swapped in: the daily Pokemon must be the same for everyone.
+@riverpod
+Future<PokemonEntity> baseSpecies(Ref ref, int id) =>
+    getIt<PokemonRepository>().getOrFetch(id);

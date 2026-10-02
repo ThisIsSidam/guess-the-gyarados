@@ -38,6 +38,13 @@ Every screen is a `Scaffold` with **no AppBar**: body = `FoldedBackdrop` (`share
 - **Motion happens only in response to interaction** (press squash via `GameButton`/`GameIconBadge`/`TapBounce`, `TiltCard`, selection changes, one-shot fills). No `repeat()` loops or idle pulses/shimmers/floats on screens.
 - Round icon buttons (`GameIconBadge`) are flat white circles; chunky raised buttons (`GameButton`) use a hard, blur-free offset shadow, never a glow.
 
+## Play loop notes
+
+- Odds and payouts live in `features/play/domain/models/round_scoring.dart` (`RoundScoring`); the end-of-round roll, streak, points and coins are recorded by `RoundSettler` (`features/play/application/`) at the moment the end animation starts, never in a widget.
+- The HUD catch-chance meter is steps-only on purpose: the Pokemon's hidden modifiers (legendary, evolution stage) apply only to the real roll, so the meter can't leak them.
+- The daily challenge (`PlayPage(daily: true)`) is seeded by the UTC date (`DailyChallenge`), uses the base species (no variants, no shiny) and records one result per day on the profile.
+- `PokemonEntity` rows cached before height/weight/colour/habitat existed have `height == 0` and are refetched by `PokemonRepository.getOrFetch`.
+
 ## State management: get_it + riverpod, deliberately not combined
 
 - **get_it** (`core/di/injection.dart`) registers repositories (wherever they now live, `shared/` or a feature's `data/`), `DioClient`, and the `ObjectBoxStore` as singletons/lazy singletons, configured once in `configureDependencies()` before `runApp`.

@@ -9,6 +9,9 @@ import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 class RoundScoring {
   const RoundScoring._();
 
+  /// The daily challenge pays half as much again as a regular round.
+  static const dailyDifficulty = 1.5;
+
   /// Catch chance lost per step.
   static const stepCost = 3.0;
 

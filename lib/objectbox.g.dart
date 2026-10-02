@@ -285,7 +285,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 3518277617784564902),
     name: 'UserProfileEntity',
-    lastPropertyId: const obx_int.IdUid(9, 7627427754858700612),
+    lastPropertyId: const obx_int.IdUid(16, 6733508010429352051),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -340,6 +340,48 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(9, 7627427754858700612),
         name: 'bestStreak',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 4763391576911495076),
+        name: 'lastDailyDay',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 2345963510866239090),
+        name: 'dailyStreak',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 9167835600457366571),
+        name: 'bestDailyStreak',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(13, 1386937208599561860),
+        name: 'lastDailyTrail',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 7247165867250692204),
+        name: 'lastDailySteps',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(15, 214822280053510531),
+        name: 'lastDailySolved',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(16, 6733508010429352051),
+        name: 'lastDailyCaught',
+        type: 1,
         flags: 0,
       ),
     ],
@@ -786,7 +828,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final userColorStringOffset = object.userColorString == null
             ? null
             : fbb.writeString(object.userColorString!);
-        fbb.startTable(10);
+        final lastDailyTrailOffset = fbb.writeString(object.lastDailyTrail);
+        fbb.startTable(17);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, usernameOffset);
         fbb.addInt64(2, object.firstCatchPokemonId);
@@ -796,6 +839,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(6, object.coins);
         fbb.addInt64(7, object.catchStreak);
         fbb.addInt64(8, object.bestStreak);
+        fbb.addInt64(9, object.lastDailyDay);
+        fbb.addInt64(10, object.dailyStreak);
+        fbb.addInt64(11, object.bestDailyStreak);
+        fbb.addOffset(12, lastDailyTrailOffset);
+        fbb.addInt64(13, object.lastDailySteps);
+        fbb.addBool(14, object.lastDailySolved);
+        fbb.addBool(15, object.lastDailyCaught);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -846,6 +896,45 @@ obx_int.ModelDefinition getObjectBoxModel() {
           20,
           0,
         );
+        final lastDailyDayParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          22,
+          0,
+        );
+        final dailyStreakParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          24,
+          0,
+        );
+        final bestDailyStreakParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          26,
+          0,
+        );
+        final lastDailyTrailParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 28, '');
+        final lastDailyStepsParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          30,
+          0,
+        );
+        final lastDailySolvedParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          32,
+          false,
+        );
+        final lastDailyCaughtParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          34,
+          false,
+        );
         final object = UserProfileEntity(
           id: idParam,
           username: usernameParam,
@@ -856,6 +945,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
           coins: coinsParam,
           catchStreak: catchStreakParam,
           bestStreak: bestStreakParam,
+          lastDailyDay: lastDailyDayParam,
+          dailyStreak: dailyStreakParam,
+          bestDailyStreak: bestDailyStreakParam,
+          lastDailyTrail: lastDailyTrailParam,
+          lastDailySteps: lastDailyStepsParam,
+          lastDailySolved: lastDailySolvedParam,
+          lastDailyCaught: lastDailyCaughtParam,
         );
 
         return object;
@@ -1111,5 +1207,40 @@ class UserProfileEntity_ {
   /// See [UserProfileEntity.bestStreak].
   static final bestStreak = obx.QueryIntegerProperty<UserProfileEntity>(
     _entities[3].properties[8],
+  );
+
+  /// See [UserProfileEntity.lastDailyDay].
+  static final lastDailyDay = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[9],
+  );
+
+  /// See [UserProfileEntity.dailyStreak].
+  static final dailyStreak = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[10],
+  );
+
+  /// See [UserProfileEntity.bestDailyStreak].
+  static final bestDailyStreak = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[11],
+  );
+
+  /// See [UserProfileEntity.lastDailyTrail].
+  static final lastDailyTrail = obx.QueryStringProperty<UserProfileEntity>(
+    _entities[3].properties[12],
+  );
+
+  /// See [UserProfileEntity.lastDailySteps].
+  static final lastDailySteps = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[13],
+  );
+
+  /// See [UserProfileEntity.lastDailySolved].
+  static final lastDailySolved = obx.QueryBooleanProperty<UserProfileEntity>(
+    _entities[3].properties[14],
+  );
+
+  /// See [UserProfileEntity.lastDailyCaught].
+  static final lastDailyCaught = obx.QueryBooleanProperty<UserProfileEntity>(
+    _entities[3].properties[15],
   );
 }

@@ -9,6 +9,8 @@ class RoundOutcome {
     this.multiplier = 1,
     this.streakLost = false,
     this.coins = 0,
+    this.dailyStreak = 0,
+    this.dailyBonusCoins = 0,
     required this.isNewCatch,
     required this.levelBefore,
     required this.levelAfter,
@@ -32,10 +34,32 @@ class RoundOutcome {
   final bool streakLost;
   final int coins;
 
+  /// Set for a daily challenge: the consecutive days solved after it, and the
+  /// coins that streak paid.
+  final int dailyStreak;
+  final int dailyBonusCoins;
+
   /// The first time this Pokemon was ever caught.
   final bool isNewCatch;
   final int levelBefore;
   final int levelAfter;
+
+  RoundOutcome withDaily({required int streak, required int bonusCoins}) =>
+      RoundOutcome(
+        caught: caught,
+        basePoints: basePoints,
+        perfectBonus: perfectBonus,
+        streakBonus: streakBonus,
+        streak: this.streak,
+        multiplier: multiplier,
+        streakLost: streakLost,
+        coins: coins,
+        dailyStreak: streak,
+        dailyBonusCoins: bonusCoins,
+        isNewCatch: isNewCatch,
+        levelBefore: levelBefore,
+        levelAfter: levelAfter,
+      );
 
   int get totalPoints => basePoints + perfectBonus + streakBonus;
   bool get leveledUp => levelAfter > levelBefore;

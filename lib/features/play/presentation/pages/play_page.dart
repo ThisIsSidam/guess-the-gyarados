@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
@@ -14,6 +15,7 @@ import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue_attempts.dart';
 import 'package:guessthegyarados/features/play/application/round_settler.dart';
+import 'package:guessthegyarados/features/play/domain/models/daily_challenge.dart';
 import 'package:guessthegyarados/features/play/domain/models/guess_feedback.dart';
 import 'package:guessthegyarados/features/play/domain/models/hint.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_outcome.dart';
@@ -67,7 +69,11 @@ const _neutralAccents = [
 enum _EndPhase { none, fading, moving, revealing, revealed }
 
 class PlayPage extends ConsumerStatefulWidget {
-  const PlayPage({super.key});
+  const PlayPage({super.key, this.daily = false});
+
+  /// Today's shared Pokemon (one try, no shiny, no variants) instead of a
+  /// random one.
+  final bool daily;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _PlayPageState();
@@ -75,18 +81,33 @@ class PlayPage extends ConsumerStatefulWidget {
 
 class _PlayPageState extends ConsumerState<PlayPage> {
   // The pool chosen on the home page; points are scaled by its difficulty.
-  final PlayPool _pool = PlayPool.byName(getIt<AppPreferences>().playPool);
+  late final PlayPool _pool = widget.daily
+      ? PlayPool.all
+      : PlayPool.byName(getIt<AppPreferences>().playPool);
+
+  // Fixed for the whole round, so the day rolling over mid-round can't change it.
+  late final DailyChallenge _challenge = DailyChallenge.today();
+
+  double get _difficulty =>
+      widget.daily ? RoundScoring.dailyDifficulty : _pool.difficulty;
+
+  // One letter per step (see DailyStep), for the daily's share grid.
+  final List<String> _trail = [];
+
+  void _logStep(String step) => _trail.add(step);
 
   // The catch streak going into this round.
   final int _streakBefore = getIt<UserProfileRepository>().getProfile().catchStreak;
 
-  late final randomId = Random().nextInt(_pool.maxId) + 1; // Randomly pick a pokemon id
+  late final randomId = widget.daily
+      ? _challenge.pokemonId
+      : Random().nextInt(_pool.maxId) + 1; // Randomly pick a pokemon id
   bool isShiny = false;
 
   @override // Lucky enough for a shiny?
   void initState() {
     final shinyChances = Random().nextInt(1000);
-    if (shinyChances == 69) isShiny = true; // ¯\_(ツ)_/¯ (¬‿¬)
+    if (!widget.daily && shinyChances == 69) isShiny = true; // ¯\_(ツ)_/¯ (¬‿¬)
 
     super.initState();
   }
@@ -161,7 +182,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     );
 
     // Load data
-    final pokemonAsync = ref.watch(pokemonProvider(randomId));
+    final pokemonAsync = widget.daily
+        ? ref.watch(baseSpeciesProvider(randomId))
+        : ref.watch(pokemonProvider(randomId));
     final pokemonsMap = ref.watch(pokemonNamesProvider).value;
     stepsCount = ref.watch(stepsCounterProvider);
 
@@ -257,9 +280,10 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                                   color: GameColors.primary,
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16, horizontal: 32),
-                                  onPressed: nextPokemon,
-                                  child: const Text(
-                                    'NEXT POKEMON',
+                                  onPressed:
+                                      widget.daily ? _shareDaily : nextPokemon,
+                                  child: Text(
+                                    widget.daily ? 'SHARE RESULT' : 'NEXT POKEMON',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -333,6 +357,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       setState(() {
         revealedClueIds.add(clue.id);
         ref.read(stepsCounterProvider.notifier).increment();
+        _logStep(DailyStep.revealed);
       });
       _feedback(true);
       return;
@@ -350,6 +375,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       onAttempt: (correct, value) {
         ref.read(stepsCounterProvider.notifier).increment();
         _feedback(correct);
+        _logStep(correct ? DailyStep.right : DailyStep.wrong);
         if (correct) {
           setState(() => revealedClueIds.add(clue.id));
         } else {
@@ -386,6 +412,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         if (correct) {
           foundPokemon(pokemon);
         } else {
+          _logStep(DailyStep.wrong);
           _wrongPicks++;
           missed = true;
           _recordGuess(value, idsByName[value] ?? 0);
@@ -451,13 +478,15 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     await Future.delayed(const Duration(milliseconds: 750));
     if (!mounted) return;
     setState(() {
-      _outcome = RoundSettler.settleGuess(
+      var outcome = RoundSettler.settleGuess(
         pokemon: pokemon,
         isShiny: isShiny,
         steps: stepsCount,
         wrongPicks: _wrongPicks,
-        pool: _pool,
+        difficulty: _difficulty,
       );
+      if (widget.daily) outcome = _settleDaily(outcome, solved: true);
+      _outcome = outcome;
       endPhase = _EndPhase.revealed;
     });
   }
@@ -818,14 +847,46 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     await forfeitRound(pokemon);
   }
 
+  RoundOutcome _settleDaily(RoundOutcome outcome, {required bool solved}) =>
+      RoundSettler.settleDaily(
+        outcome,
+        epochDay: _challenge.epochDay,
+        solved: solved,
+        trail: _trail.join(),
+        steps: ref.read(stepsCounterProvider),
+      );
+
+  // Copies the spoiler-free result grid for pasting anywhere.
+  Future<void> _shareDaily() async {
+    final outcome = _outcome;
+    if (outcome == null) return;
+    await Clipboard.setData(ClipboardData(
+      text: dailyShareText(
+        number: _challenge.number,
+        trail: _trail,
+        solved: pokemonGuessedCorrectly,
+        caught: outcome.caught,
+        steps: ref.read(stepsCounterProvider),
+        streak: outcome.dailyStreak,
+      ),
+    ));
+    Haptics.selection();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Result copied. Paste it anywhere!')),
+    );
+  }
+
   Future<void> forfeitRound(PokemonEntity pokemon, {bool fled = false}) async {
     setState(() {
       _fled = fled;
-      _outcome = RoundSettler.settleForfeit(
+      var outcome = RoundSettler.settleForfeit(
         pokemon: pokemon,
         steps: ref.read(stepsCounterProvider),
-        pool: _pool,
+        difficulty: _difficulty,
       );
+      if (widget.daily) outcome = _settleDaily(outcome, solved: false);
+      _outcome = outcome;
       endPhase = _EndPhase.fading;
     });
     // Options fade (300ms) -> page collapses so the image slides to center

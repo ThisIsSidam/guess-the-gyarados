@@ -1,3 +1,4 @@
+import 'package:guessthegyarados/features/profile/domain/daily_streak.dart';
 import 'package:guessthegyarados/features/profile/domain/level_math.dart';
 import 'package:guessthegyarados/features/profile/data/entities/user_profile_entity.dart';
 import 'package:objectbox/objectbox.dart';
@@ -99,5 +100,37 @@ class UserProfileRepository {
     }
     _box.put(profile);
     return profile.catchStreak;
+  }
+
+  bool hasPlayedDaily(int epochDay) => getProfile().lastDailyDay == epochDay;
+
+  /// Records a finished daily. Solving extends the streak (a single missed
+  /// day in between is forgiven); not solving it resets the streak. Returns
+  /// the streak after the update.
+  int recordDaily({
+    required int epochDay,
+    required bool solved,
+    required bool caught,
+    required int steps,
+    required String trail,
+  }) {
+    final profile = getProfile();
+    profile.dailyStreak = nextDailyStreak(
+      current: profile.dailyStreak,
+      lastDay: profile.lastDailyDay,
+      epochDay: epochDay,
+      solved: solved,
+    );
+    if (profile.dailyStreak > profile.bestDailyStreak) {
+      profile.bestDailyStreak = profile.dailyStreak;
+    }
+
+    profile.lastDailyDay = epochDay;
+    profile.lastDailyTrail = trail;
+    profile.lastDailySteps = steps;
+    profile.lastDailySolved = solved;
+    profile.lastDailyCaught = caught;
+    _box.put(profile);
+    return profile.dailyStreak;
   }
 }

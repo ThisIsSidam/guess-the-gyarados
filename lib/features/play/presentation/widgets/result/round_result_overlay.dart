@@ -186,6 +186,12 @@ class _RoundResultOverlayState extends State<RoundResultOverlay>
         if (o.streakLost)
           const _Chip(Icons.heart_broken_rounded, 'STREAK LOST',
               GameColors.danger, Color(0xFFB83A48)),
+        if (o.dailyBonusCoins > 0)
+          _Chip(
+              Icons.calendar_month_rounded,
+              'DAILY STREAK ${o.dailyStreak} +${o.dailyBonusCoins}',
+              GameColors.primaryDeep,
+              GameColors.backgroundDeep),
         if (o.coins > 0)
           _Chip(Icons.monetization_on_rounded, '+${o.coins} coins',
               GameColors.gold, GameColors.goldDeep),

@@ -7,7 +7,6 @@ import 'package:guessthegyarados/features/profile/data/repositories/user_profile
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
-import 'package:guessthegyarados/shared/domain/models/play_pool.dart';
 
 /// Rolls and records the end of a round: the catch roll, the interaction
 /// history, the streak, and the points and coins. Runs the moment the
@@ -22,7 +21,7 @@ class RoundSettler {
     required bool isShiny,
     required int steps,
     required int wrongPicks,
-    required PlayPool pool,
+    required double difficulty,
   }) {
     final pokemonRepo = getIt<UserPokemonRepository>();
     final profileRepo = getIt<UserProfileRepository>();
@@ -36,7 +35,7 @@ class RoundSettler {
           pokemon.id, PokemonInteractionType.catchFailed);
       profileRepo.recordStreak(caught: false);
       final base = RoundScoring.missPoints(
-          steps: steps, pokemon: pokemon, difficulty: pool.difficulty);
+          steps: steps, pokemon: pokemon, difficulty: difficulty);
       final coins = RoundScoring.coinsFor(base);
       profileRepo.addCoins(coins);
       final award = profileRepo.addPoints(base);
@@ -66,7 +65,7 @@ class RoundSettler {
         steps: steps,
         pokemon: pokemon,
         isShiny: isShiny,
-        difficulty: pool.difficulty);
+        difficulty: difficulty);
     final perfect = wrongPicks == 0 ? RoundScoring.perfectBonus(base) : 0;
     final multiplier = RoundScoring.streakMultiplier(streakBefore);
     final streakBonus = ((base + perfect) * (multiplier - 1)).round();
@@ -93,7 +92,7 @@ class RoundSettler {
   static RoundOutcome settleForfeit({
     required PokemonEntity pokemon,
     required int steps,
-    required PlayPool pool,
+    required double difficulty,
   }) {
     final profileRepo = getIt<UserProfileRepository>();
     getIt<UserPokemonRepository>()
@@ -103,7 +102,7 @@ class RoundSettler {
     profileRepo.recordStreak(caught: false);
 
     final base = RoundScoring.forfeitPoints(
-        steps: steps, pokemon: pokemon, difficulty: pool.difficulty);
+        steps: steps, pokemon: pokemon, difficulty: difficulty);
     final coins = RoundScoring.coinsFor(base);
     profileRepo.addCoins(coins);
     final award = profileRepo.addPoints(base);
@@ -117,5 +116,27 @@ class RoundSettler {
       levelBefore: award.levelBefore,
       levelAfter: award.levelAfter,
     );
+  }
+
+  /// Records a finished daily challenge on top of its normal [outcome]:
+  /// solving it extends the daily streak, which pays a few extra coins.
+  static RoundOutcome settleDaily(
+    RoundOutcome outcome, {
+    required int epochDay,
+    required bool solved,
+    required String trail,
+    required int steps,
+  }) {
+    final profileRepo = getIt<UserProfileRepository>();
+    final streak = profileRepo.recordDaily(
+      epochDay: epochDay,
+      solved: solved,
+      caught: outcome.caught,
+      steps: steps,
+      trail: trail,
+    );
+    final bonus = solved ? min(50, streak * 10) : 0;
+    profileRepo.addCoins(bonus);
+    return outcome.withDaily(streak: streak, bonusCoins: bonus);
   }
 }

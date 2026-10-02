@@ -226,7 +226,7 @@
     },
     {
       "id": "4:3518277617784564902",
-      "lastPropertyId": "9:7627427754858700612",
+      "lastPropertyId": "16:6733508010429352051",
       "name": "UserProfileEntity",
       "properties": [
         {
@@ -274,6 +274,41 @@
           "id": "9:7627427754858700612",
           "name": "bestStreak",
           "type": 6
+        },
+        {
+          "id": "10:4763391576911495076",
+          "name": "lastDailyDay",
+          "type": 6
+        },
+        {
+          "id": "11:2345963510866239090",
+          "name": "dailyStreak",
+          "type": 6
+        },
+        {
+          "id": "12:9167835600457366571",
+          "name": "bestDailyStreak",
+          "type": 6
+        },
+        {
+          "id": "13:1386937208599561860",
+          "name": "lastDailyTrail",
+          "type": 9
+        },
+        {
+          "id": "14:7247165867250692204",
+          "name": "lastDailySteps",
+          "type": 6
+        },
+        {
+          "id": "15:214822280053510531",
+          "name": "lastDailySolved",
+          "type": 1
+        },
+        {
+          "id": "16:6733508010429352051",
+          "name": "lastDailyCaught",
+          "type": 1
         }
       ],
       "relations": []

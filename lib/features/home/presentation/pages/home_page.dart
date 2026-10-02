@@ -11,6 +11,7 @@ import 'package:guessthegyarados/features/caught/presentation/pages/caught_page.
 import 'package:guessthegyarados/features/play/presentation/pages/play_page.dart';
 import 'package:guessthegyarados/features/pokedex/presentation/pages/pokedex_page.dart';
 import 'package:guessthegyarados/features/profile/presentation/pages/profile_page.dart';
+import 'package:guessthegyarados/features/home/presentation/widgets/daily_button.dart';
 import 'package:guessthegyarados/features/home/presentation/widgets/pool_selector.dart';
 import 'package:guessthegyarados/features/settings/presentation/pages/settings_page.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
@@ -160,6 +161,7 @@ class HomePage extends ConsumerWidget {
         ),
         const PoolSelector(),
         playButton(context, ref),
+        const DailyButton(),
       ],
     );
   }

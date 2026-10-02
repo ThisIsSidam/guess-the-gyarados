@@ -14,6 +14,13 @@ class UserProfileEntity {
     this.coins = 0,
     this.catchStreak = 0,
     this.bestStreak = 0,
+    this.lastDailyDay = 0,
+    this.dailyStreak = 0,
+    this.bestDailyStreak = 0,
+    this.lastDailyTrail = '',
+    this.lastDailySteps = 0,
+    this.lastDailySolved = false,
+    this.lastDailyCaught = false,
   });
 
   /// Always 1 (single-row profile) — self-assigned, never auto-incremented.
@@ -36,4 +43,16 @@ class UserProfileEntity {
   /// Consecutive catches; a miss or forfeit resets it to 0.
   int catchStreak;
   int bestStreak;
+
+  /// The last UTC epoch day a daily challenge was finished (0 = never), the
+  /// consecutive days solved, and the last result's details for sharing.
+  int lastDailyDay;
+  int dailyStreak;
+  int bestDailyStreak;
+
+  /// The last daily's steps, one letter each (see `DailyStep`).
+  String lastDailyTrail;
+  int lastDailySteps;
+  bool lastDailySolved;
+  bool lastDailyCaught;
 }
