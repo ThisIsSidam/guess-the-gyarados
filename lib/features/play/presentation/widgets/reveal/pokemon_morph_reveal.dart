@@ -22,7 +22,10 @@ class MorphTarget {
 ///
 /// Once [resolve] turns true the cycle stops and the very next swap lands on
 /// [target], using the same crossfade/scale as every other swap — so giving up
-/// on a round reveals the answer without a visible cut. While [target] is
+/// on a round reveals the answer without a visible cut.
+///
+/// With [silhouette] (a bought hint) the cycling stops and the real Pokemon is
+/// shown as a black shape instead; resolving then fades it into full color. While [target] is
 /// set but not yet resolving, its sprite is loaded offstage so it's ready the
 /// moment the swap happens.
 class PokemonMorphReveal extends StatefulWidget {
@@ -33,6 +36,7 @@ class PokemonMorphReveal extends StatefulWidget {
     this.size = 220,
     this.target,
     this.resolve = false,
+    this.silhouette,
   });
 
   final Map<int, String> pokemonNames;
@@ -40,6 +44,7 @@ class PokemonMorphReveal extends StatefulWidget {
   final double size;
   final MorphTarget? target;
   final bool resolve;
+  final MorphTarget? silhouette;
 
   @override
   State<PokemonMorphReveal> createState() => _PokemonMorphRevealState();
@@ -53,14 +58,20 @@ class _PokemonMorphRevealState extends State<PokemonMorphReveal> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 2600), (_) {
-      setState(() => _currentId = _pickRandomId());
-    });
+    if (widget.silhouette == null) {
+      _timer = Timer.periodic(const Duration(milliseconds: 2600), (_) {
+        setState(() => _currentId = _pickRandomId());
+      });
+    }
   }
 
   @override
   void didUpdateWidget(PokemonMorphReveal oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.silhouette != null && oldWidget.silhouette == null) {
+      _timer?.cancel();
+      setState(() {});
+    }
     final target = widget.target;
     if (widget.resolve && !oldWidget.resolve && target != null) {
       _timer?.cancel();
@@ -92,6 +103,7 @@ class _PokemonMorphRevealState extends State<PokemonMorphReveal> {
   @override
   Widget build(BuildContext context) {
     final target = widget.target;
+    final silhouette = _showingTarget ? null : widget.silhouette;
     final name = _showingTarget && target != null
         ? target.name
         : widget.pokemonNames[_currentId] ?? '';
@@ -122,16 +134,30 @@ class _PokemonMorphRevealState extends State<PokemonMorphReveal> {
                 child: child,
               ),
             ),
-            child: Padding(
-              key: ValueKey(_currentId),
-              padding: const EdgeInsets.all(16),
-              child: PokemonSpriteImage(
-                pokemonId: _currentId,
-                pokemonName: name,
-                isShiny: _showingTarget && (target?.isShiny ?? false),
-                showLoadingIndicator: false,
-              ),
-            ),
+            child: silhouette != null
+                ? Padding(
+                    key: const ValueKey('silhouette'),
+                    padding: const EdgeInsets.all(16),
+                    child: ColorFiltered(
+                      colorFilter:
+                          const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      child: PokemonSpriteImage(
+                        pokemonId: silhouette.id,
+                        pokemonName: silhouette.name,
+                        showLoadingIndicator: false,
+                      ),
+                    ),
+                  )
+                : Padding(
+                    key: ValueKey(_currentId),
+                    padding: const EdgeInsets.all(16),
+                    child: PokemonSpriteImage(
+                      pokemonId: _currentId,
+                      pokemonName: name,
+                      isShiny: _showingTarget && (target?.isShiny ?? false),
+                      showLoadingIndicator: false,
+                    ),
+                  ),
           ),
         ],
       ),

@@ -14,9 +14,12 @@ import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue_attempts.dart';
 import 'package:guessthegyarados/features/play/application/round_settler.dart';
+import 'package:guessthegyarados/features/play/domain/models/hint.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_outcome.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_scoring.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/hints/hint_sheet.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hud/catch_chance_meter.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/hud/hint_button.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hud/streak_pill.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
@@ -99,6 +102,10 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   // What the round was worth; set the moment the end-of-round sequence
   // reaches its final stage (the catch is rolled then).
   RoundOutcome? _outcome;
+
+  // Hints bought this round, and the coin balance they're paid from.
+  final Set<Hint> _hints = {};
+  late int _coins = getIt<UserProfileRepository>().getProfile().coins;
 
   // Wrong choice-clue picks plus wrong names; a round with none is "perfect".
   int _wrongPicks = 0;
@@ -409,10 +416,10 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     final giveUpRevealed =
         endPhase == _EndPhase.revealed && !pokemonGuessedCorrectly;
 
-    // The cry is a free, strong hint, so it only plays once the round is over.
+    // The cry is a strong hint: it only plays once bought, or at round's end.
     final reveal = AudioPlayerWidget(
       audioLink: thisPokemon.cry,
-      enabled: endPhase == _EndPhase.revealed,
+      enabled: endPhase == _EndPhase.revealed || _hints.contains(Hint.cry),
       child: TiltCard(
         child: SizedBox(
           height: imageSize,
@@ -435,6 +442,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                   : null,
               resolve: !pokemonGuessedCorrectly &&
                   endPhase.index >= _EndPhase.revealing.index,
+              silhouette: _hints.contains(Hint.silhouette)
+                  ? MorphTarget(id: thisPokemon.id, name: thisPokemon.name)
+                  : null,
             ),
             back: PokemonSpriteImage(
               pokemonId: thisPokemon.id,
@@ -477,6 +487,57 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         clipBehavior: Clip.none,
         children: [
           stagedReveal,
+          if (_hints.contains(Hint.cry) && !_ending)
+            IgnorePointer(
+              child: Transform.translate(
+                offset: const Offset(imageSize / 2 - 14, imageSize / 2 - 14),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Color(0x33000000), offset: Offset(0, 2)),
+                    ],
+                  ),
+                  child: const Icon(Icons.volume_up_rounded,
+                      size: 24, color: GameColors.backgroundDeep),
+                ),
+              ),
+            ),
+          if (_hints.contains(Hint.firstLetter))
+            Positioned(
+              top: constraints.maxHeight / 2 + imageSize / 2 + 8,
+              left: 16,
+              right: 16,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                opacity: _ending ? 0 : 1,
+                child: Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(
+                            color: GameColors.primaryDeep, offset: Offset(0, 3)),
+                      ],
+                    ),
+                    child: Text(
+                      Hint.maskName(thisPokemon.name),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                        color: GameColors.textOnLight,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (_streakBefore > 0)
             Positioned(
               top: 4,
@@ -551,7 +612,6 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Material(
             color: Colors.white,
@@ -571,12 +631,35 @@ class _PlayPageState extends ConsumerState<PlayPage> {
               ),
             ),
           ),
+          const SizedBox(width: 12),
+          HintButton(
+            coins: _coins,
+            onTap: _ending ? null : () => _openHints(),
+          ),
+          const Spacer(),
           CatchChanceMeter(
             chance: RoundScoring.meter(stepsCount),
             steps: stepsCount,
           ),
         ],
       ),
+    );
+  }
+
+  void _openHints() {
+    showHintSheet(
+      context: context,
+      coins: _coins,
+      bought: _hints,
+      onBuy: (hint) {
+        if (!getIt<UserProfileRepository>().spendCoins(hint.cost)) return null;
+        setState(() {
+          _hints.add(hint);
+          _coins -= hint.cost;
+        });
+        _feedback(true);
+        return _coins;
+      },
     );
   }
 
