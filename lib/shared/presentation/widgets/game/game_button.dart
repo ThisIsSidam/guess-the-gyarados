@@ -60,17 +60,13 @@ class _GameButtonState extends State<GameButton> {
           decoration: BoxDecoration(
             color: widget.onPressed == null ? widget.color.withValues(alpha: 0.4) : widget.color,
             borderRadius: BorderRadius.circular(widget.borderRadius),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 2),
+            border: Border.all(
+                color: Colors.white.withValues(alpha: 0.25), width: 2),
             boxShadow: [
               BoxShadow(
                 color: depthColor,
                 offset: Offset(0, currentDepth),
                 blurRadius: 0,
-              ),
-              BoxShadow(
-                color: widget.color.withValues(alpha: 0.35),
-                blurRadius: 24,
-                spreadRadius: 2,
               ),
             ],
           ),
@@ -81,21 +77,25 @@ class _GameButtonState extends State<GameButton> {
   }
 }
 
-/// Small round icon-badge version of [GameButton], used for HUD icons
-/// (profile / achievements / pokedex shortcuts on the home app bar).
+/// Small round icon button used for HUD controls (home shortcuts, back
+/// buttons): a flat white circle with no shadow, like the play page's back
+/// button. It only shrinks while pressed; nothing moves until the player
+/// touches it.
 class GameIconBadge extends StatefulWidget {
   const GameIconBadge({
     super.key,
     required this.child,
     required this.onPressed,
-    this.color = GameColors.surfaceRaised,
+    this.color = GameColors.surface,
     this.size = 52,
+    this.semanticLabel,
   });
 
   final Widget child;
   final VoidCallback onPressed;
   final Color color;
   final double size;
+  final String? semanticLabel;
 
   @override
   State<GameIconBadge> createState() => _GameIconBadgeState();
@@ -106,33 +106,29 @@ class _GameIconBadgeState extends State<GameIconBadge> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onPressed();
-      },
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedScale(
-        scale: _pressed ? 0.88 : 1,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-        child: Container(
-          width: widget.size,
-          height: widget.size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: widget.color,
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
-                offset: Offset(0, _pressed ? 1 : 4),
-                blurRadius: _pressed ? 2 : 8,
-              ),
-            ],
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) {
+          setState(() => _pressed = false);
+          widget.onPressed();
+        },
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedScale(
+          scale: _pressed ? 0.9 : 1,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+          child: Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.color,
+            ),
+            child: Center(child: widget.child),
           ),
-          child: Center(child: widget.child),
         ),
       ),
     );

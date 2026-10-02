@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
+import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 
 class MessageOfGod extends StatelessWidget {
   final String message;
@@ -18,10 +19,17 @@ class MessageOfGod extends StatelessWidget {
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 16),
-          Text(
-            softWrap: true,
-            message,
-            style: Theme.of(context).textTheme.bodySmall
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              softWrap: true,
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: GameColors.textOnLight,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
           ),
         ],
       ),

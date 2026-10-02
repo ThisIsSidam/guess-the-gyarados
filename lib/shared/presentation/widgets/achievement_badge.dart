@@ -24,9 +24,8 @@ class AchievementBadge extends StatelessWidget {
     if (!isReceived) {
       return Container(
         decoration: BoxDecoration(
-          color: GameColors.surface.withValues(alpha: 0.6),
+          color: const Color(0xFFE4E7EF),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white12),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +41,7 @@ class AchievementBadge extends StatelessWidget {
             Text(
               achievement.name,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: GameColors.textMuted),
+              style: const TextStyle(color: GameColors.textMuted, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -74,9 +73,9 @@ class AchievementBadge extends StatelessWidget {
             center: Alignment.topLeft,
           ),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: GameColors.gold.withValues(alpha: 0.7), width: 2),
-          boxShadow: [
-            BoxShadow(color: GameColors.gold.withValues(alpha: 0.4), blurRadius: 16),
+          border: Border.all(color: GameColors.gold, width: 2),
+          boxShadow: const [
+            BoxShadow(color: GameColors.goldDeep, offset: Offset(0, 4)),
           ],
         ),
         child: Column(

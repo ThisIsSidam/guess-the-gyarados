@@ -30,6 +30,14 @@ Dependency direction: `features/*` → `shared`/`core`. `shared` → `core`. Not
 
 Where something lands is decided by **how many features read it**, not by what "layer" it conceptually is: `PokemonRepository`/`PokemonEntity`/`PokemonDto` and the caught-pokemon/achievement data are read by nearly every feature (home, play, pokedex, caught, achievements, profile all touch pokemon or catch-state), so they live in `shared/`, not inside any one feature. `UserProfileRepository`/`UserProfileEntity`/`level_math.dart` are read only by the profile feature, so they live in `features/profile/data` and `features/profile/domain`. Before adding a new file, check whether it's consumed by more than one feature (`grep -rl` its would-be import path once written) — if so, it goes in `shared`, not in the feature you happened to be working on.
 
+## Screen UI conventions
+
+Every screen is a `Scaffold` with **no AppBar**: body = `FoldedBackdrop` (`shared/presentation/widgets/game/`) → `SafeArea` → content. Sub-pages start with `GamePageHeader` (back button + title ribbon), home lays its `GameIconBadge` icons straight onto the backdrop.
+
+- Each screen picks its own `FoldPattern` (all the same family of slanted horizontal bands — play=`diagonal`, home=`rising`, pokedex=`shallow`, caught=`steep`, achievements=`steepRising`, profile=`layered`) and an accent color. The backdrop is a light sheet, so text on it is `GameColors.textOnLight`; use `OutlinedText` for colored titles.
+- **Motion happens only in response to interaction** (press squash via `GameButton`/`GameIconBadge`/`TapBounce`, `TiltCard`, selection changes, one-shot fills). No `repeat()` loops or idle pulses/shimmers/floats on screens.
+- Round icon buttons (`GameIconBadge`) are flat white circles; chunky raised buttons (`GameButton`) use a hard, blur-free offset shadow, never a glow.
+
 ## State management: get_it + riverpod, deliberately not combined
 
 - **get_it** (`core/di/injection.dart`) registers repositories (wherever they now live, `shared/` or a feature's `data/`), `DioClient`, and the `ObjectBoxStore` as singletons/lazy singletons, configured once in `configureDependencies()` before `runApp`.
