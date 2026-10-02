@@ -206,7 +206,7 @@
     },
     {
       "id": "4:3518277617784564902",
-      "lastPropertyId": "6:129024250986088076",
+      "lastPropertyId": "9:7627427754858700612",
       "name": "UserProfileEntity",
       "properties": [
         {
@@ -238,6 +238,21 @@
         {
           "id": "6:129024250986088076",
           "name": "level",
+          "type": 6
+        },
+        {
+          "id": "7:4636342654109376570",
+          "name": "coins",
+          "type": 6
+        },
+        {
+          "id": "8:2704364738317843917",
+          "name": "catchStreak",
+          "type": 6
+        },
+        {
+          "id": "9:7627427754858700612",
+          "name": "bestStreak",
           "type": 6
         }
       ],

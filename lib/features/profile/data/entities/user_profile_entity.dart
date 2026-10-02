@@ -11,6 +11,9 @@ class UserProfileEntity {
     this.userColorString,
     this.points = 0,
     this.level = 0,
+    this.coins = 0,
+    this.catchStreak = 0,
+    this.bestStreak = 0,
   });
 
   /// Always 1 (single-row profile) — self-assigned, never auto-incremented.
@@ -26,4 +29,11 @@ class UserProfileEntity {
 
   int points;
   int level;
+
+  /// Spendable currency for hints; earned alongside points on every round.
+  int coins;
+
+  /// Consecutive catches; a miss or forfeit resets it to 0.
+  int catchStreak;
+  int bestStreak;
 }

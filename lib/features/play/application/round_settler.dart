@@ -7,10 +7,12 @@ import 'package:guessthegyarados/features/profile/data/repositories/user_profile
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
+import 'package:guessthegyarados/shared/domain/models/play_pool.dart';
 
 /// Rolls and records the end of a round: the catch roll, the interaction
-/// history and the points. Runs the moment the end-of-round animation starts,
-/// so leaving mid-animation can't lose the result.
+/// history, the streak, and the points and coins. Runs the moment the
+/// end-of-round animation starts, so leaving mid-animation can't lose the
+/// result.
 class RoundSettler {
   const RoundSettler._();
 
@@ -20,22 +22,30 @@ class RoundSettler {
     required bool isShiny,
     required int steps,
     required int wrongPicks,
+    required PlayPool pool,
   }) {
     final pokemonRepo = getIt<UserPokemonRepository>();
     final profileRepo = getIt<UserProfileRepository>();
 
+    final streakBefore = profileRepo.getProfile().catchStreak;
     final chance = RoundScoring.catchChance(steps: steps, pokemon: pokemon);
     final caught = Random().nextDouble() * 100 < chance;
 
     if (!caught) {
       pokemonRepo.recordInteraction(
           pokemon.id, PokemonInteractionType.catchFailed);
-      final base = RoundScoring.missPoints(steps: steps, pokemon: pokemon);
+      profileRepo.recordStreak(caught: false);
+      final base = RoundScoring.missPoints(
+          steps: steps, pokemon: pokemon, difficulty: pool.difficulty);
+      final coins = RoundScoring.coinsFor(base);
+      profileRepo.addCoins(coins);
       final award = profileRepo.addPoints(base);
       return RoundOutcome(
         caught: false,
         basePoints: base,
         perfectBonus: 0,
+        streakLost: streakBefore > 0,
+        coins: coins,
         isNewCatch: false,
         levelBefore: award.levelBefore,
         levelAfter: award.levelAfter,
@@ -50,15 +60,29 @@ class RoundSettler {
           : PokemonInteractionType.caughtNormal,
     );
     profileRepo.recordFirstCatch(pokemon.id, pokemon.types.first);
+    final streak = profileRepo.recordStreak(caught: true);
 
     final base = RoundScoring.catchPoints(
-        steps: steps, pokemon: pokemon, isShiny: isShiny);
-    final bonus = wrongPicks == 0 ? RoundScoring.perfectBonus(base) : 0;
-    final award = profileRepo.addPoints(base + bonus);
+        steps: steps,
+        pokemon: pokemon,
+        isShiny: isShiny,
+        difficulty: pool.difficulty);
+    final perfect = wrongPicks == 0 ? RoundScoring.perfectBonus(base) : 0;
+    final multiplier = RoundScoring.streakMultiplier(streakBefore);
+    final streakBonus = ((base + perfect) * (multiplier - 1)).round();
+    final total = base + perfect + streakBonus;
+    final coins = max(1, RoundScoring.coinsFor(total));
+
+    profileRepo.addCoins(coins);
+    final award = profileRepo.addPoints(total);
     return RoundOutcome(
       caught: true,
       basePoints: base,
-      perfectBonus: bonus,
+      perfectBonus: perfect,
+      streakBonus: streakBonus,
+      streak: streak,
+      multiplier: multiplier,
+      coins: coins,
       isNewCatch: isNew,
       levelBefore: award.levelBefore,
       levelAfter: award.levelAfter,
@@ -69,15 +93,26 @@ class RoundSettler {
   static RoundOutcome settleForfeit({
     required PokemonEntity pokemon,
     required int steps,
+    required PlayPool pool,
   }) {
+    final profileRepo = getIt<UserProfileRepository>();
     getIt<UserPokemonRepository>()
         .recordInteraction(pokemon.id, PokemonInteractionType.couldNotGuess);
-    final base = RoundScoring.forfeitPoints(steps: steps, pokemon: pokemon);
-    final award = getIt<UserProfileRepository>().addPoints(base);
+
+    final streakBefore = profileRepo.getProfile().catchStreak;
+    profileRepo.recordStreak(caught: false);
+
+    final base = RoundScoring.forfeitPoints(
+        steps: steps, pokemon: pokemon, difficulty: pool.difficulty);
+    final coins = RoundScoring.coinsFor(base);
+    profileRepo.addCoins(coins);
+    final award = profileRepo.addPoints(base);
     return RoundOutcome(
       caught: false,
       basePoints: base,
       perfectBonus: 0,
+      streakLost: streakBefore > 0,
+      coins: coins,
       isNewCatch: false,
       levelBefore: award.levelBefore,
       levelAfter: award.levelAfter,

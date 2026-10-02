@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_scoring.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
+import 'package:guessthegyarados/shared/domain/models/play_pool.dart';
 
 PokemonEntity _pokemon({
   String name = 'eevee',
@@ -66,5 +67,34 @@ void main() {
     expect(fresh, 40);
     expect(spammed, lessThan(fresh));
     expect(spammed, greaterThanOrEqualTo(1));
+  });
+
+  test('streak adds 20% per catch in a row, capped at double', () {
+    expect(RoundScoring.streakMultiplier(0), 1);
+    expect(RoundScoring.streakMultiplier(1), closeTo(1.2, 1e-9));
+    expect(RoundScoring.streakMultiplier(3), closeTo(1.6, 1e-9));
+    expect(RoundScoring.streakMultiplier(50), 2);
+  });
+
+  test('easier pools pay less on every payout', () {
+    final mon = _pokemon();
+    expect(
+        RoundScoring.catchPoints(
+            steps: 0,
+            pokemon: mon,
+            isShiny: false,
+            difficulty: PlayPool.kanto.difficulty),
+        280);
+    expect(
+        RoundScoring.missPoints(
+            steps: 0, pokemon: mon, difficulty: PlayPool.gens1to3.difficulty),
+        170);
+    expect(PlayPool.byName('nonsense'), PlayPool.all);
+    expect(PlayPool.byName('kanto'), PlayPool.kanto);
+  });
+
+  test('coins are a tenth of the points', () {
+    expect(RoundScoring.coinsFor(400), 40);
+    expect(RoundScoring.coinsFor(4), 0);
   });
 }

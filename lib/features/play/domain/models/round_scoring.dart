@@ -48,18 +48,36 @@ class RoundScoring {
     required int steps,
     required PokemonEntity pokemon,
     required bool isShiny,
+    double difficulty = 1,
   }) =>
-      (pokemon.bst * _meterScale(steps) * (isShiny ? 2 : 1)).round();
+      (pokemon.bst * _meterScale(steps) * (isShiny ? 2 : 1) * difficulty)
+          .round();
 
   /// It was guessed but broke free: half of what the catch would have paid.
-  static int missPoints({required int steps, required PokemonEntity pokemon}) =>
-      (pokemon.bst * _meterScale(steps) * 0.5).round();
+  static int missPoints({
+    required int steps,
+    required PokemonEntity pokemon,
+    double difficulty = 1,
+  }) =>
+      (pokemon.bst * _meterScale(steps) * 0.5 * difficulty).round();
 
   /// A consolation for letting it go: small, and shrinking the more steps
   /// were spent (it used to grow, which rewarded spamming clues).
-  static int forfeitPoints({required int steps, required PokemonEntity pokemon}) =>
-      max(1, (pokemon.bst * 0.1 * meter(steps) / 100).round());
+  static int forfeitPoints({
+    required int steps,
+    required PokemonEntity pokemon,
+    double difficulty = 1,
+  }) =>
+      max(1, (pokemon.bst * 0.1 * meter(steps) / 100 * difficulty).round());
 
   /// Extra for a round with no wrong picks at all: thinking over guessing.
   static int perfectBonus(int basePoints) => (basePoints * 0.25).round();
+
+  /// Each catch in a row adds 20% to the next one's points, up to double.
+  /// [streakBefore] is the number of catches in a row going into the round.
+  static double streakMultiplier(int streakBefore) =>
+      min(2.0, 1 + 0.2 * streakBefore);
+
+  /// Coins are a tenth of the round's points.
+  static int coinsFor(int totalPoints) => (totalPoints * 0.1).round();
 }

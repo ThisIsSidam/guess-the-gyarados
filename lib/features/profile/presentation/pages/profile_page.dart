@@ -134,6 +134,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: _statTile('${profile.coins}', 'Coins', context)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: _statTile(
+                            '${profile.bestStreak}', 'Best Streak', context)),
+                  ],
+                ),
+              ),
               Expanded(
                 child: _achievementsSection(receivedAchievements),
               ),

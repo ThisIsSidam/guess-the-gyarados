@@ -261,7 +261,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 3518277617784564902),
     name: 'UserProfileEntity',
-    lastPropertyId: const obx_int.IdUid(6, 129024250986088076),
+    lastPropertyId: const obx_int.IdUid(9, 7627427754858700612),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -297,6 +297,24 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(6, 129024250986088076),
         name: 'level',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 4636342654109376570),
+        name: 'coins',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 2704364738317843917),
+        name: 'catchStreak',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 7627427754858700612),
+        name: 'bestStreak',
         type: 6,
         flags: 0,
       ),
@@ -712,13 +730,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final userColorStringOffset = object.userColorString == null
             ? null
             : fbb.writeString(object.userColorString!);
-        fbb.startTable(7);
+        fbb.startTable(10);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, usernameOffset);
         fbb.addInt64(2, object.firstCatchPokemonId);
         fbb.addOffset(3, userColorStringOffset);
         fbb.addInt64(4, object.points);
         fbb.addInt64(5, object.level);
+        fbb.addInt64(6, object.coins);
+        fbb.addInt64(7, object.catchStreak);
+        fbb.addInt64(8, object.bestStreak);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -751,6 +772,24 @@ obx_int.ModelDefinition getObjectBoxModel() {
           14,
           0,
         );
+        final coinsParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          16,
+          0,
+        );
+        final catchStreakParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          18,
+          0,
+        );
+        final bestStreakParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          20,
+          0,
+        );
         final object = UserProfileEntity(
           id: idParam,
           username: usernameParam,
@@ -758,6 +797,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
           userColorString: userColorStringParam,
           points: pointsParam,
           level: levelParam,
+          coins: coinsParam,
+          catchStreak: catchStreakParam,
+          bestStreak: bestStreakParam,
         );
 
         return object;
@@ -978,5 +1020,20 @@ class UserProfileEntity_ {
   /// See [UserProfileEntity.level].
   static final level = obx.QueryIntegerProperty<UserProfileEntity>(
     _entities[3].properties[5],
+  );
+
+  /// See [UserProfileEntity.coins].
+  static final coins = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[6],
+  );
+
+  /// See [UserProfileEntity.catchStreak].
+  static final catchStreak = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[7],
+  );
+
+  /// See [UserProfileEntity.bestStreak].
+  static final bestStreak = obx.QueryIntegerProperty<UserProfileEntity>(
+    _entities[3].properties[8],
   );
 }

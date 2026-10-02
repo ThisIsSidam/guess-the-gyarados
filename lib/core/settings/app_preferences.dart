@@ -11,6 +11,7 @@ class AppPreferences {
   static const _soundKey = 'settings.sound';
   static const _hapticsKey = 'settings.haptics';
   static const _reduceMotionKey = 'settings.reduceMotion';
+  static const _playPoolKey = 'play.pool';
 
   bool get soundEnabled => _prefs.getBool(_soundKey) ?? true;
   bool get hapticsEnabled => _prefs.getBool(_hapticsKey) ?? true;
@@ -18,6 +19,11 @@ class AppPreferences {
   /// Calms purely decorative motion (shakes, tilts, bounces, confetti, spins).
   /// The OS-level "remove animations" setting counts as on regardless.
   bool get reduceMotion => _prefs.getBool(_reduceMotionKey) ?? false;
+
+  /// The name of the chosen `PlayPool` (null = never chosen, i.e. all).
+  String? get playPool => _prefs.getString(_playPoolKey);
+
+  Future<void> setPlayPool(String name) => _prefs.setString(_playPoolKey, name);
 
   Future<void> setSoundEnabled(bool value) => _prefs.setBool(_soundKey, value);
   Future<void> setHapticsEnabled(bool value) =>

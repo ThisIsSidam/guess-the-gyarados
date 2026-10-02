@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
-import 'package:guessthegyarados/core/constants/game_constants.dart';
+import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/settings/app_preferences.dart';
+import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
+import 'package:guessthegyarados/shared/domain/models/play_pool.dart';
 import 'package:guessthegyarados/core/extensions/string_extensions.dart';
 import 'package:guessthegyarados/core/settings/haptics.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
@@ -14,6 +17,7 @@ import 'package:guessthegyarados/features/play/application/round_settler.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_outcome.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_scoring.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hud/catch_chance_meter.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/hud/streak_pill.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/outlined_text.dart';
@@ -64,7 +68,13 @@ class PlayPage extends ConsumerStatefulWidget {
 }
 
 class _PlayPageState extends ConsumerState<PlayPage> {
-  final randomId = Random().nextInt(totalPokemon) + 1; // Randomly pick a pokemon id
+  // The pool chosen on the home page; points are scaled by its difficulty.
+  final PlayPool _pool = PlayPool.byName(getIt<AppPreferences>().playPool);
+
+  // The catch streak going into this round.
+  final int _streakBefore = getIt<UserProfileRepository>().getProfile().catchStreak;
+
+  late final randomId = Random().nextInt(_pool.maxId) + 1; // Randomly pick a pokemon id
   bool isShiny = false;
 
   @override // Lucky enough for a shiny?
@@ -388,6 +398,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         isShiny: isShiny,
         steps: stepsCount,
         wrongPicks: _wrongPicks,
+        pool: _pool,
       );
       endPhase = _EndPhase.revealed;
     });
@@ -466,6 +477,19 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         clipBehavior: Clip.none,
         children: [
           stagedReveal,
+          if (_streakBefore > 0)
+            Positioned(
+              top: 4,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: _ending ? 0 : 1,
+                  child: StreakPill(streak: _streakBefore),
+                ),
+              ),
+            ),
           if (pokemonGuessedCorrectly && endPhase == _EndPhase.revealed)
             Positioned.fill(
               child: PokeBallCatchAnimation(
@@ -637,6 +661,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       _outcome = RoundSettler.settleForfeit(
         pokemon: pokemon,
         steps: ref.read(stepsCounterProvider),
+        pool: _pool,
       );
       endPhase = _EndPhase.fading;
     });

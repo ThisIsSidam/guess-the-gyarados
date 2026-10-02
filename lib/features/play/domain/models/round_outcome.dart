@@ -4,6 +4,11 @@ class RoundOutcome {
     required this.caught,
     required this.basePoints,
     required this.perfectBonus,
+    this.streakBonus = 0,
+    this.streak = 0,
+    this.multiplier = 1,
+    this.streakLost = false,
+    this.coins = 0,
     required this.isNewCatch,
     required this.levelBefore,
     required this.levelAfter,
@@ -16,11 +21,22 @@ class RoundOutcome {
   /// Zero unless the round had no wrong picks (and was caught).
   final int perfectBonus;
 
+  /// Extra from catching several in a row (zero for the first).
+  final int streakBonus;
+
+  /// The catch streak after this round, and the multiplier this round used.
+  final int streak;
+  final double multiplier;
+
+  /// A streak of one or more was broken by this round.
+  final bool streakLost;
+  final int coins;
+
   /// The first time this Pokemon was ever caught.
   final bool isNewCatch;
   final int levelBefore;
   final int levelAfter;
 
-  int get totalPoints => basePoints + perfectBonus;
+  int get totalPoints => basePoints + perfectBonus + streakBonus;
   bool get leveledUp => levelAfter > levelBefore;
 }

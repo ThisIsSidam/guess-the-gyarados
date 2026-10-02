@@ -68,4 +68,36 @@ class UserProfileRepository {
       levelAfter: currentLevel,
     );
   }
+
+  void addCoins(int amount) {
+    if (amount <= 0) return;
+    final profile = getProfile();
+    profile.coins += amount;
+    _box.put(profile);
+  }
+
+  /// Takes [amount] coins if the player has them; false (and no change) if not.
+  bool spendCoins(int amount) {
+    final profile = getProfile();
+    if (profile.coins < amount) return false;
+    profile.coins -= amount;
+    _box.put(profile);
+    return true;
+  }
+
+  /// A catch extends the streak; anything else (miss, forfeit) resets it.
+  /// Returns the streak after the update.
+  int recordStreak({required bool caught}) {
+    final profile = getProfile();
+    if (caught) {
+      profile.catchStreak++;
+      if (profile.catchStreak > profile.bestStreak) {
+        profile.bestStreak = profile.catchStreak;
+      }
+    } else {
+      profile.catchStreak = 0;
+    }
+    _box.put(profile);
+    return profile.catchStreak;
+  }
 }
