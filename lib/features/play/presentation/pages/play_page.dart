@@ -14,9 +14,11 @@ import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue_attempts.dart';
 import 'package:guessthegyarados/features/play/application/round_settler.dart';
+import 'package:guessthegyarados/features/play/domain/models/guess_feedback.dart';
 import 'package:guessthegyarados/features/play/domain/models/hint.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_outcome.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_scoring.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/guess/guess_log_sheet.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hints/hint_sheet.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hud/catch_chance_meter.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hud/hint_button.dart';
@@ -37,6 +39,7 @@ import 'package:guessthegyarados/shared/application/providers/pokemon_names_prov
 import 'package:guessthegyarados/shared/application/providers/pokemon_provider.dart';
 import 'package:guessthegyarados/shared/application/providers/steps_provider.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
+import 'package:guessthegyarados/shared/data/repositories/pokemon_repository.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/audio_player_widget.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
@@ -106,6 +109,11 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   // Hints bought this round, and the coin balance they're paid from.
   final Set<Hint> _hints = {};
   late int _coins = getIt<UserProfileRepository>().getProfile().coins;
+
+  // Wrong names tried so far (each is answered attribute by attribute), and
+  // whether the round ended because they ran out.
+  final List<GuessEntry> _guesses = [];
+  bool _fled = false;
 
   // Wrong choice-clue picks plus wrong names; a round with none is "perfect".
   int _wrongPicks = 0;
@@ -354,17 +362,24 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     );
   }
 
-  void onSubmitTap(
-      PokemonEntity pokemon, List<String> pokemonNames, Color accentColor) {
-    showAnswerSheet(
+  Future<void> onSubmitTap(
+      PokemonEntity pokemon, List<String> pokemonNames, Color accentColor) async {
+    final idsByName = {
+      for (final entry in (ref.read(pokemonNamesProvider).value ?? {}).entries)
+        entry.value: entry.key,
+    };
+    var missed = false;
+
+    await showAnswerSheet(
       context: context,
       question: "Who's that Pokemon?",
       options: pokemonNames,
       correctAnswer: pokemon.name,
       accentColor: accentColor,
-      // The name search is unlimited and has no success flourish: the
-      // end-of-round sequence takes over straight away.
+      // No success flourish (the end-of-round sequence takes over), and a wrong
+      // name closes the picker so the answer to it can be shown.
       closeDelay: Duration.zero,
+      closeOnWrong: true,
       onAttempt: (correct, value) {
         ref.read(stepsCounterProvider.notifier).increment();
         _feedback(correct);
@@ -372,8 +387,44 @@ class _PlayPageState extends ConsumerState<PlayPage> {
           foundPokemon(pokemon);
         } else {
           _wrongPicks++;
+          missed = true;
+          _recordGuess(value, idsByName[value] ?? 0);
         }
       },
+    );
+
+    if (!missed || !mounted || _ending) return;
+    if (_guesses.length >= maxNameGuesses) {
+      await forfeitRound(pokemon, fled: true);
+      return;
+    }
+    _showGuessLog(pokemon, pokemonNames, accentColor, justMissed: true);
+  }
+
+  // Starts looking the guess up straight away so its comparison is usually
+  // ready by the time the log opens.
+  void _recordGuess(String name, int id) {
+    final data = id == 0
+        ? Future<PokemonEntity>.error(StateError('Unknown Pokemon: $name'))
+        : getIt<PokemonRepository>().getOrFetch(id);
+    data.ignore(); // Errors surface in the log; don't also report them here.
+    setState(() => _guesses.add(GuessEntry(id: id, name: name, data: data)));
+  }
+
+  void _showGuessLog(
+    PokemonEntity pokemon,
+    List<String> pokemonNames,
+    Color accentColor, {
+    required bool justMissed,
+  }) {
+    showGuessLogSheet(
+      context: context,
+      entries: _guesses,
+      answer: pokemon,
+      justMissed: justMissed,
+      onGuessAgain: _ending
+          ? null
+          : () => onSubmitTap(pokemon, pokemonNames, accentColor),
     );
   }
 
@@ -580,9 +631,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                     : const Offset(0, 0.3),
                 child: Column(
                   children: [
-                    const Text(
-                      'IT WAS',
-                      style: TextStyle(
+                    Text(
+                      _fled ? 'IT FLED. IT WAS' : 'IT WAS',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 4,
@@ -688,8 +739,25 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       PokemonEntity pokemon, List<String> pokemonNames, Color accentColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: submitSearchBar(
-          () => onSubmitTap(pokemon, pokemonNames, accentColor), accentColor),
+      child: Row(
+        children: [
+          Expanded(
+            child: submitSearchBar(
+                () => onSubmitTap(pokemon, pokemonNames, accentColor),
+                accentColor),
+          ),
+          if (_guesses.isNotEmpty) ...[
+            const SizedBox(width: 10),
+            GameIconBadge(
+              semanticLabel: 'Your wrong guesses',
+              onPressed: () => _showGuessLog(pokemon, pokemonNames, accentColor,
+                  justMissed: false),
+              child: const Icon(Icons.history_rounded,
+                  color: GameColors.textOnLight, size: 28),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -719,6 +787,17 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                     color: GameColors.textMuted, fontWeight: FontWeight.w600),
               ),
             ),
+            const SizedBox(width: 8),
+            const Icon(Icons.favorite, size: 20, color: GameColors.danger),
+            const SizedBox(width: 3),
+            Text(
+              '${(maxNameGuesses - _guesses.length).clamp(0, maxNameGuesses)}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: GameColors.textOnLight,
+              ),
+            ),
           ],
         ),
       ),
@@ -739,8 +818,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     await forfeitRound(pokemon);
   }
 
-  Future<void> forfeitRound(PokemonEntity pokemon) async {
+  Future<void> forfeitRound(PokemonEntity pokemon, {bool fled = false}) async {
     setState(() {
+      _fled = fled;
       _outcome = RoundSettler.settleForfeit(
         pokemon: pokemon,
         steps: ref.read(stepsCounterProvider),

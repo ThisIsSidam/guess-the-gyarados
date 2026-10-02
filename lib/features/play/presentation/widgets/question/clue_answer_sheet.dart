@@ -22,6 +22,7 @@ Future<void> showAnswerSheet({
   Color accentColor = GameColors.primary,
   ClueAttempts? attempts,
   Duration closeDelay = const Duration(milliseconds: 750),
+  bool closeOnWrong = false,
   required void Function(bool correct, String value) onAttempt,
 }) {
   return showModalBottomSheet(
@@ -43,6 +44,7 @@ Future<void> showAnswerSheet({
           accentColor: accentColor,
           attempts: attempts,
           closeDelay: closeDelay,
+          closeOnWrong: closeOnWrong,
           onSelect: (value) {
             final correct = value.toLowerCase() == correctAnswer.toLowerCase();
             onAttempt(correct, value);

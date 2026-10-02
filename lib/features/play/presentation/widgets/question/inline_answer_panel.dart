@@ -30,6 +30,7 @@ class InlineAnswerPanel extends StatefulWidget {
     this.accentColor = GameColors.primary,
     this.attempts,
     this.closeDelay = const Duration(milliseconds: 750),
+    this.closeOnWrong = false,
   });
 
   final String question;
@@ -42,6 +43,10 @@ class InlineAnswerPanel extends StatefulWidget {
   final VoidCallback onClose;
   final ClueAttempts? attempts;
   final Duration closeDelay;
+
+  /// Closes the panel straight after a wrong pick (the caller shows what the
+  /// pick turned out to be) instead of leaving it open to try again.
+  final bool closeOnWrong;
 
   @override
   State<InlineAnswerPanel> createState() => _InlineAnswerPanelState();
@@ -83,7 +88,10 @@ class _InlineAnswerPanelState extends State<InlineAnswerPanel> {
       return;
     }
 
-    if (!widget.onSelect(option)) return;
+    if (!widget.onSelect(option)) {
+      if (widget.closeOnWrong) widget.onClose();
+      return;
+    }
 
     if (widget.closeDelay == Duration.zero) {
       widget.onClose();
