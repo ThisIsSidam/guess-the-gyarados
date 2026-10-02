@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6582625366291580358",
-      "lastPropertyId": "25:6797638106672661769",
+      "lastPropertyId": "29:425839004455528010",
       "name": "PokemonEntity",
       "properties": [
         {
@@ -133,6 +133,26 @@
           "id": "25:6797638106672661769",
           "name": "variantIDs",
           "type": 27
+        },
+        {
+          "id": "26:7790274919338075070",
+          "name": "height",
+          "type": 6
+        },
+        {
+          "id": "27:7898086983014347209",
+          "name": "weight",
+          "type": 6
+        },
+        {
+          "id": "28:787821788790051482",
+          "name": "color",
+          "type": 9
+        },
+        {
+          "id": "29:425839004455528010",
+          "name": "habitat",
+          "type": 9
         }
       ],
       "relations": []

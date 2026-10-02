@@ -31,6 +31,10 @@ class PokemonEntity {
     required this.isGmax,
     required this.speciesID,
     required this.variantIDs,
+    this.height = 0,
+    this.weight = 0,
+    this.color,
+    this.habitat,
   });
 
   /// Reuses the actual PokeAPI pokemon id as the ObjectBox primary key.
@@ -70,4 +74,16 @@ class PokemonEntity {
 
   int speciesID;
   List<int> variantIDs;
+
+  /// In decimetres, as PokeAPI reports it. 0 means "not fetched yet" (a row
+  /// cached before these fields existed).
+  int height;
+
+  /// In hectograms, as PokeAPI reports it.
+  int weight;
+
+  /// The Pokedex colour ("red", "blue"...) and habitat ("cave"...). The
+  /// habitat is null for Pokemon that have none (mostly newer generations).
+  String? color;
+  String? habitat;
 }

@@ -25,7 +25,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 6582625366291580358),
     name: 'PokemonEntity',
-    lastPropertyId: const obx_int.IdUid(25, 6797638106672661769),
+    lastPropertyId: const obx_int.IdUid(29, 425839004455528010),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -176,6 +176,30 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(25, 6797638106672661769),
         name: 'variantIDs',
         type: 27,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(26, 7790274919338075070),
+        name: 'height',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(27, 7898086983014347209),
+        name: 'weight',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(28, 787821788790051482),
+        name: 'color',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(29, 425839004455528010),
+        name: 'habitat',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -413,7 +437,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final cryOffset = fbb.writeString(object.cry);
         final variantIDsOffset = fbb.writeListInt64(object.variantIDs);
-        fbb.startTable(26);
+        final colorOffset = object.color == null
+            ? null
+            : fbb.writeString(object.color!);
+        final habitatOffset = object.habitat == null
+            ? null
+            : fbb.writeString(object.habitat!);
+        fbb.startTable(30);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.generation);
@@ -439,6 +469,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addBool(22, object.isGmax);
         fbb.addInt64(23, object.speciesID);
         fbb.addOffset(24, variantIDsOffset);
+        fbb.addInt64(25, object.height);
+        fbb.addInt64(26, object.weight);
+        fbb.addOffset(27, colorOffset);
+        fbb.addOffset(28, habitatOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -571,6 +605,24 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fb.Int64Reader(),
           lazy: false,
         ).vTableGet(buffer, rootOffset, 52, []);
+        final heightParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          54,
+          0,
+        );
+        final weightParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          56,
+          0,
+        );
+        final colorParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 58);
+        final habitatParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 60);
         final object = PokemonEntity(
           id: idParam,
           name: nameParam,
@@ -597,6 +649,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
           isGmax: isGmaxParam,
           speciesID: speciesIDParam,
           variantIDs: variantIDsParam,
+          height: heightParam,
+          weight: weightParam,
+          color: colorParam,
+          habitat: habitatParam,
         );
 
         return object;
@@ -934,6 +990,26 @@ class PokemonEntity_ {
   /// See [PokemonEntity.variantIDs].
   static final variantIDs = obx.QueryIntegerVectorProperty<PokemonEntity>(
     _entities[0].properties[24],
+  );
+
+  /// See [PokemonEntity.height].
+  static final height = obx.QueryIntegerProperty<PokemonEntity>(
+    _entities[0].properties[25],
+  );
+
+  /// See [PokemonEntity.weight].
+  static final weight = obx.QueryIntegerProperty<PokemonEntity>(
+    _entities[0].properties[26],
+  );
+
+  /// See [PokemonEntity.color].
+  static final color = obx.QueryStringProperty<PokemonEntity>(
+    _entities[0].properties[27],
+  );
+
+  /// See [PokemonEntity.habitat].
+  static final habitat = obx.QueryStringProperty<PokemonEntity>(
+    _entities[0].properties[28],
   );
 }
 

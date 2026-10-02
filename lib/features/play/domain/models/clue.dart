@@ -79,6 +79,80 @@ const typeOptions = [
 /// generation 1). Generation clues are asked and answered by region name.
 final generationRegions = [for (final r in regions) r.name];
 
+/// Base-stat-total brackets, lowest first.
+const bstBrackets = ['Under 300', '300-399', '400-499', '500-599', '600+'];
+
+String bstBracket(int bst) {
+  if (bst < 300) return bstBrackets[0];
+  if (bst < 400) return bstBrackets[1];
+  if (bst < 500) return bstBrackets[2];
+  if (bst < 600) return bstBrackets[3];
+  return bstBrackets[4];
+}
+
+const heightBrackets = ['Under 0.5 m', '0.5-1 m', '1-2 m', '2-3 m', 'Over 3 m'];
+
+/// [decimetres] is PokeAPI's unit.
+String heightBracket(int decimetres) {
+  final metres = decimetres / 10;
+  if (metres < 0.5) return heightBrackets[0];
+  if (metres < 1) return heightBrackets[1];
+  if (metres < 2) return heightBrackets[2];
+  if (metres < 3) return heightBrackets[3];
+  return heightBrackets[4];
+}
+
+const weightBrackets = [
+  'Under 5 kg',
+  '5-25 kg',
+  '25-100 kg',
+  '100-300 kg',
+  'Over 300 kg',
+];
+
+/// [hectograms] is PokeAPI's unit.
+String weightBracket(int hectograms) {
+  final kg = hectograms / 10;
+  if (kg < 5) return weightBrackets[0];
+  if (kg < 25) return weightBrackets[1];
+  if (kg < 100) return weightBrackets[2];
+  if (kg < 300) return weightBrackets[3];
+  return weightBrackets[4];
+}
+
+const colorOptions = [
+  'Black',
+  'Blue',
+  'Brown',
+  'Gray',
+  'Green',
+  'Pink',
+  'Purple',
+  'Red',
+  'White',
+  'Yellow',
+];
+
+const habitatOptions = [
+  'Cave',
+  'Forest',
+  'Grassland',
+  'Mountain',
+  'Rare',
+  'Rough terrain',
+  'Sea',
+  'Urban',
+  'Waters edge',
+  'None',
+];
+
+/// PokeAPI's "rough-terrain" -> "Rough terrain"; no habitat -> "None".
+String habitatLabel(String? habitat) {
+  if (habitat == null || habitat.isEmpty) return 'None';
+  final spaced = habitat.replaceAll('-', ' ');
+  return '${spaced[0].toUpperCase()}${spaced.substring(1)}';
+}
+
 ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
   final types = pokemon.types;
   final type1 = types.first;
@@ -135,6 +209,51 @@ ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
         kind: ClueKind.choice,
         icon: Icons.account_tree,
         options: List.generate(10, (i) => (i + 1).toString()),
+      ),
+      ClueSpec(
+        id: "bst",
+        label: "Base Stats",
+        dialogLabel: "Base Stat Total",
+        answer: bstBracket(pokemon.bst),
+        kind: ClueKind.choice,
+        icon: Icons.bar_chart,
+        options: bstBrackets,
+      ),
+    ],
+    [
+      ClueSpec(
+        id: "height",
+        label: "Height",
+        answer: heightBracket(pokemon.height),
+        kind: ClueKind.choice,
+        icon: Icons.height,
+        options: heightBrackets,
+      ),
+      ClueSpec(
+        id: "weight",
+        label: "Weight",
+        answer: weightBracket(pokemon.weight),
+        kind: ClueKind.choice,
+        icon: Icons.fitness_center,
+        options: weightBrackets,
+      ),
+      ClueSpec(
+        id: "color",
+        label: "Colour",
+        answer: pokemon.color == null
+            ? 'None'
+            : '${pokemon.color![0].toUpperCase()}${pokemon.color!.substring(1)}',
+        kind: ClueKind.choice,
+        icon: Icons.palette,
+        options: colorOptions,
+      ),
+      ClueSpec(
+        id: "habitat",
+        label: "Habitat",
+        answer: habitatLabel(pokemon.habitat),
+        kind: ClueKind.choice,
+        icon: Icons.landscape,
+        options: habitatOptions,
       ),
     ],
     [
@@ -220,6 +339,7 @@ ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
     cardGroups: cardGroups,
     cardTitles: const [
       "General Info",
+      "Body & Looks",
       "Mega & Gmax",
       "Origin",
       "Evolution Traits"

@@ -18,7 +18,9 @@ class PokemonRepository {
   /// `fetch_data.dart` function.
   Future<PokemonEntity> getOrFetch(int id) async {
     final cached = getCached(id);
-    if (cached != null) return cached;
+    // Rows cached before height/weight/colour/habitat were stored have a
+    // height of 0; fetch those again so the new clues are right.
+    if (cached != null && cached.height > 0) return cached;
 
     final json = await _dio.getJson('$pokemonDataApiLink$id');
     var dto = PokemonDto.fromPokemonJson(json);
@@ -51,6 +53,8 @@ class PokemonRepository {
       isMythical: speciesData['is_mythical'] as bool,
       speciesID: speciesData['id'] as int,
       variantIDs: PokemonUtils.getVarietyIds(varieties),
+      color: speciesData['color']?['name'] as String?,
+      habitat: speciesData['habitat']?['name'] as String?,
     );
     dto = dto.copyWith(generation: PokemonUtils.getGeneration(dto.speciesID));
 

@@ -38,6 +38,10 @@ abstract class PokemonDto with _$PokemonDto {
     required List<int> variantIDs,
     required bool isMega,
     required bool isGmax,
+    @Default(0) int height,
+    @Default(0) int weight,
+    String? color,
+    String? habitat,
   }) = _PokemonDto;
 
   /// Parses the base `/pokemon/{id}` PokeAPI response. Species/evolution
@@ -75,6 +79,8 @@ abstract class PokemonDto with _$PokemonDto {
       variantIDs: const [],
       isMega: name.contains('-mega'),
       isGmax: name.contains('-gmax'),
+      height: json['height'] ?? 0,
+      weight: json['weight'] ?? 0,
     );
   }
 
@@ -105,6 +111,10 @@ abstract class PokemonDto with _$PokemonDto {
       isGmax: isGmax,
       speciesID: speciesID,
       variantIDs: variantIDs,
+      height: height,
+      weight: weight,
+      color: color,
+      habitat: habitat,
     );
   }
 }
