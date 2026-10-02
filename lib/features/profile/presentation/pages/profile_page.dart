@@ -11,7 +11,9 @@ import 'package:guessthegyarados/shared/domain/achievements/achievement.dart';
 import 'package:guessthegyarados/features/achievements/presentation/pages/achievements_page.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/achievement_grid.dart';
 import 'package:guessthegyarados/features/profile/presentation/widgets/level_bar.dart';
-import 'package:guessthegyarados/shared/presentation/widgets/game/animated_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/game_page_header.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/screens/message_of_god.dart';
 
@@ -30,16 +32,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    userNameController.text = getIt<UserProfileRepository>().getProfile().username;
+    userNameController.text =
+        getIt<UserProfileRepository>().getProfile().username;
   }
 
   @override
   Widget build(BuildContext context) {
     final profile = getIt<UserProfileRepository>().getProfile();
-    final userColor = getColorFromString(profile.userColorString ?? "Normal").darken(0.2);
+    final userColor =
+        getColorFromString(profile.userColorString ?? "Normal").darken(0.2);
 
     final interactions = getIt<UserPokemonRepository>().getAll();
-    final receivedAchievements = ref.watch(caughtPokemonProvider).receivedAchievements;
+    final receivedAchievements =
+        ref.watch(caughtPokemonProvider).receivedAchievements;
 
     int totalGuesses = 0;
     int totalAppeared = 0;
@@ -53,33 +58,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
       totalCaught += caughtNormal + caughtShiny;
       totalGuesses += interaction.catchFailed + caughtNormal + caughtShiny;
-      totalAppeared += interaction.couldNotGuess + interaction.catchFailed + caughtNormal + caughtShiny;
+      totalAppeared += interaction.couldNotGuess +
+          interaction.catchFailed +
+          caughtNormal +
+          caughtShiny;
       totalCaughtShiny += caughtShiny;
       if (caughtNormal > 0 || caughtShiny > 0) {
         totalSpeciesCaught++;
       }
     }
 
-    double guessRate = totalGuesses > 0 ? (totalGuesses / totalAppeared) * 100 : 0.0;
-    double catchRate = totalCaught > 0 ? (totalCaught / totalGuesses) * 100 : 0.0;
+    double guessRate =
+        totalGuesses > 0 ? (totalGuesses / totalAppeared) * 100 : 0.0;
+    double catchRate =
+        totalCaught > 0 ? (totalCaught / totalGuesses) * 100 : 0.0;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left),
-          color: Colors.white,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: AnimatedBackdrop(
+      body: FoldedBackdrop(
         accentColor: userColor,
+        pattern: FoldPattern.layered,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const GamePageHeader(title: 'PROFILE'),
               _userNameRowWidget(context),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -95,23 +98,39 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(child: _statTile('${catchRate.toStringAsFixed(0)}%', "Catch Rate", context)),
-                    const SizedBox(width: 20,),
-                    Expanded(child: _statTile('${guessRate.toStringAsFixed(0)}%', "Guess Rate", context))
+                    Expanded(
+                        child: _statTile('${catchRate.toStringAsFixed(0)}%',
+                            "Catch Rate", context)),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                        child: _statTile('${guessRate.toStringAsFixed(0)}%',
+                            "Guess Rate", context))
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(child: _statTile('$totalCaught', 'Pokemon Caught', context)),
-                    const SizedBox(width: 10,),
-                    Expanded(child: _statTile('$totalSpeciesCaught', 'Species Caught', context)),
-                    const SizedBox(width: 10,),
-                    Expanded(child: _statTile('$totalCaughtShiny', 'Shinies Caught', context)),
+                    Expanded(
+                        child: _statTile(
+                            '$totalCaught', 'Pokemon Caught', context)),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        child: _statTile(
+                            '$totalSpeciesCaught', 'Species Caught', context)),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        child: _statTile(
+                            '$totalCaughtShiny', 'Shinies Caught', context)),
                   ],
                 ),
               ),
@@ -127,76 +146,71 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
 
   Widget _userNameRowWidget(BuildContext context) {
+    final nameStyle = Theme.of(context).textTheme.titleLarge!.copyWith(
+          color: GameColors.textOnLight,
+        );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [Text(
-            "Hello,",
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-              color: Colors.white
-            ),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("Hello,", style: nameStyle),
+          const SizedBox(
+            width: 10,
           ),
-          const SizedBox(width: 10,),
-          isEditingUsername
-          ? SizedBox(
-              width: 200,
-              child: TextField(
-                controller: userNameController,
-                autofocus: true,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
-                  decoration: TextDecoration.none
-                ),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 8.0,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                      color: Colors.white,
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                      color: Colors.white,
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                onSubmitted: (value) {
-                  getIt<UserProfileRepository>().updateUsername(value);
+          Flexible(
+            child: isEditingUsername
+                ? SizedBox(
+                    width: 200,
+                    child: TextField(
+                      controller: userNameController,
+                      autofocus: true,
+                      style: nameStyle,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 8.0,
+                        ),
+                        border: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                              color: GameColors.backgroundDeep, width: 2.0),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                              color: GameColors.backgroundDeep, width: 2.0),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onSubmitted: (value) {
+                        getIt<UserProfileRepository>().updateUsername(value);
 
-                  setState(() {
-                    isEditingUsername = false;
-                  });
-                },
-              ),
-            )
-          : Text(
-              userNameController.text,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: Colors.white
-              ),
-            ),
-          const SizedBox(width: 8.0),
+                        setState(() {
+                          isEditingUsername = false;
+                        });
+                      },
+                    ),
+                  )
+                : Text(
+                    userNameController.text,
+                    overflow: TextOverflow.ellipsis,
+                    style: nameStyle,
+                  ),
+          ),
+          const SizedBox(width: 12.0),
           if (!isEditingUsername)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              iconSize: 20,
-              color: Colors.white,
+            GameIconBadge(
+              size: 44,
+              semanticLabel: 'Edit username',
               onPressed: () {
                 setState(() {
                   isEditingUsername = true;
                 });
               },
+              child: const Icon(Icons.edit,
+                  size: 20, color: GameColors.textOnLight),
             ),
         ],
       ),
@@ -208,14 +222,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       maxTilt: 0.2,
       child: Container(
         decoration: BoxDecoration(
-          color: GameColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: GameColors.gold.withValues(alpha: 0.4)),
-          boxShadow: [
-            BoxShadow(color: GameColors.gold.withValues(alpha: 0.2), blurRadius: 10),
+          color: GameColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(color: GameColors.goldDeep, offset: Offset(0, 4)),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -223,16 +236,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             Text(
               value,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: GameColors.gold,
-              ),
+                    color: GameColors.backgroundDeep,
+                  ),
             ),
             Text(
               label,
-              softWrap: false,
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: GameColors.textMuted,
-                fontSize: 8
-              ),
+                    color: GameColors.textMuted,
+                    fontSize: 14,
+                    height: 1.1,
+                  ),
             ),
           ],
         ),
@@ -245,8 +259,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       decoration: const BoxDecoration(
         color: GameColors.surface,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24), topRight: Radius.circular(24)
-        ),
+            topLeft: Radius.circular(24), topRight: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -259,22 +272,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 Text(
                   'My Achievements',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: GameColors.textOnLight),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: GameColors.textOnLight),
                 ),
                 IconButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const AchievementPage()));
-                  },
-                  icon: const Icon(Icons.chevron_right, color: GameColors.textOnLight)
-                )
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AchievementPage()));
+                    },
+                    icon: const Icon(Icons.chevron_right,
+                        color: GameColors.textOnLight))
               ],
             ),
           ),
           Expanded(
             child: receivedAchievements.isNotEmpty
                 ? buildAchievementGrid(receivedAchievements)
-                : const MessageOfGod(message: "No Achievements. Play More. Catch More."),
+                : const MessageOfGod(
+                    message: "No Achievements. Play More. Catch More."),
           ),
         ],
       ),

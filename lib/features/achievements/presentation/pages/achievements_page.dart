@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/achievement_grid.dart';
-import 'package:guessthegyarados/shared/presentation/widgets/game/animated_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/game_page_header.dart';
 
 class AchievementPage extends ConsumerWidget {
   const AchievementPage({super.key});
@@ -15,56 +16,84 @@ class AchievementPage extends ConsumerWidget {
     final upcomingAchievements = state.upcomingAchievements;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
-        title: const Text('ACHIEVEMENTS'),
-      ),
-      body: AnimatedBackdrop(
+      body: FoldedBackdrop(
         accentColor: GameColors.gold,
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 8)),
-            if (receivedAchievements.isNotEmpty) // Show section only when list is not empty.
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    '★ Received',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                      color: GameColors.gold,
-                    ),
-                  ),
+        pattern: FoldPattern.steepRising,
+        child: SafeArea(
+          child: Column(
+            children: [
+              const GamePageHeader(title: 'ACHIEVEMENTS'),
+              Expanded(
+                child: CustomScrollView(
+                  slivers: [
+                    if (receivedAchievements
+                        .isNotEmpty) // Show section only when list is not empty.
+                      const SliverToBoxAdapter(
+                        child: _SectionLabel(
+                          icon: Icons.star,
+                          label: 'Received',
+                          color: GameColors.goldDeep,
+                        ),
+                      ),
+                    if (receivedAchievements.isNotEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        sliver:
+                            buildAchievementGridSliver(receivedAchievements),
+                      ),
+                    if (upcomingAchievements
+                        .isNotEmpty) // Show section only when list is not empty.
+                      const SliverToBoxAdapter(
+                        child: _SectionLabel(
+                          icon: Icons.lock,
+                          label: 'Locked',
+                          color: GameColors.textMuted,
+                        ),
+                      ),
+                    if (upcomingAchievements.isNotEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                        sliver: buildAchievementGridSliver(upcomingAchievements,
+                            isReceived: false),
+                      ),
+                  ],
                 ),
               ),
-            if (receivedAchievements.isNotEmpty)
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                sliver: buildAchievementGridSliver(receivedAchievements),
-              ),
-            if (upcomingAchievements.isNotEmpty) // Show section only when list is not empty.
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Locked',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                      color: GameColors.textMuted,
-                    ),
-                  ),
-                ),
-              ),
-            if (upcomingAchievements.isNotEmpty)
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                sliver: buildAchievementGridSliver(upcomingAchievements, isReceived: false),
-              ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+// Section heading: an icon plus a label, so received vs. locked is carried by
+// shape and text as well as color.
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(
+      {required this.icon, required this.label, required this.color});
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 22, color: color),
+          const SizedBox(width: 8),
+          Text(
+            label.toUpperCase(),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2,
+                ),
+          ),
+        ],
       ),
     );
   }

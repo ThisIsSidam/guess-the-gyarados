@@ -6,7 +6,9 @@ import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/shared/data/repositories/pokemon_repository.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
 import 'package:guessthegyarados/features/pokedex/presentation/widgets/individual_mon_dialog.dart';
-import 'package:guessthegyarados/shared/presentation/widgets/game/animated_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/game_page_header.dart';
+import 'package:guessthegyarados/shared/presentation/widgets/game/tap_bounce.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
 
@@ -52,18 +54,28 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     ref.watch(caughtPokemonProvider);
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
-        title: const Text('POKÉDEX'),
-      ),
-      body: AnimatedBackdrop(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight)),
-            SliverToBoxAdapter(child: regionBar()),
-            pokemonGrid(),
-          ],
+      body: FoldedBackdrop(
+        accentColor: GameColors.primary,
+        pattern: FoldPattern.shallow,
+        child: SafeArea(
+          child: Column(
+            children: [
+              const GamePageHeader(title: 'POKÉDEX'),
+              regionBar(),
+              // Switching region fades the new grid in; keyed so it also
+              // starts back at the top of the list.
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  child: CustomScrollView(
+                    key: ValueKey(_currentRegionIndex),
+                    primary: false,
+                    slivers: [pokemonGrid()],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -72,40 +84,45 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
   // This bar is horizontally scrollable and shows all regions. Tapping them opens their page.
   Widget regionBar() {
     return SizedBox(
-      height: 56,
+      height: 64,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
         scrollDirection: Axis.horizontal,
         itemCount: _regionStartIds.length,
         itemBuilder: (context, index) {
           final isSelected = index == _currentRegionIndex;
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  setState(() {
-                    _currentRegionIndex = index;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isSelected ? GameColors.primary : GameColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: isSelected
-                        ? [BoxShadow(color: GameColors.primary.withValues(alpha: 0.5), blurRadius: 12)]
-                        : null,
-                  ),
-                  child: Text(
-                    _regionNames[index],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? GameColors.backgroundDeep : GameColors.textMuted,
+            child: TapBounce(
+              onTap: () => setState(() => _currentRegionIndex = index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? GameColors.backgroundDeep
+                      : GameColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isSelected
+                          ? Color.lerp(
+                              GameColors.backgroundDeep, Colors.black, 0.4)!
+                          : const Color(0xFFC9CEDB),
+                      offset: const Offset(0, 3),
                     ),
+                  ],
+                ),
+                child: Text(
+                  _regionNames[index],
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected
+                        ? GameColors.textOnDark
+                        : GameColors.textMuted,
                   ),
                 ),
               ),
@@ -126,21 +143,20 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     final userPokemonRepository = getIt<UserPokemonRepository>();
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 5,
           childAspectRatio: 1.0,
-          crossAxisSpacing: 5,
-          mainAxisSpacing: 5,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 8,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final pokemonId = regionStartId + index;
             final pokemon = pokemonRepository.getCached(pokemonId);
 
-            if (pokemon == null)
-            {
+            if (pokemon == null) {
               return gridViewElementWidget(null, null, pokemonId, null, null);
             }
 
@@ -150,24 +166,24 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
 
             for (final variantId in variantIds) {
               final interaction = userPokemonRepository.getForId(variantId);
-              final isCaught = (interaction?.caughtNormal ?? 0) > 0 || (interaction?.caughtShiny ?? 0) > 0;
+              final isCaught = (interaction?.caughtNormal ?? 0) > 0 ||
+                  (interaction?.caughtShiny ?? 0) > 0;
               final isVariantGuessed = (interaction?.catchFailed ?? 0) > 0;
 
-              if (isCaught)
-              {
+              if (isCaught) {
                 firstCaughtVariant = variantId;
                 break;
-              }
-              else if (firstGuessedVariant == null && isVariantGuessed)
-              {
+              } else if (firstGuessedVariant == null && isVariantGuessed) {
                 firstGuessedVariant = variantId;
               }
             }
 
             final imageId = firstCaughtVariant ?? firstGuessedVariant;
-            final imagePokemon = imageId == null ? null : pokemonRepository.getCached(imageId);
+            final imagePokemon =
+                imageId == null ? null : pokemonRepository.getCached(imageId);
 
-            return gridViewElementWidget(firstCaughtVariant, firstGuessedVariant, pokemonId, variantIds, imagePokemon?.name);
+            return gridViewElementWidget(firstCaughtVariant,
+                firstGuessedVariant, pokemonId, variantIds, imagePokemon?.name);
           },
           childCount: regionEndId - regionStartId + 1,
         ),
@@ -175,11 +191,12 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
     );
   }
 
-  Widget? getCenterWidget(int? firstCaughtVariant, int? firstGuessedVariant, int? imageId, String? imageName)
-  {
+  Widget? getCenterWidget(int? firstCaughtVariant, int? firstGuessedVariant,
+      int? imageId, String? imageName) {
     if (imageId == null || imageName == null) return null;
 
-    final image = PokemonSpriteImage(pokemonId: imageId, pokemonName: imageName);
+    final image =
+        PokemonSpriteImage(pokemonId: imageId, pokemonName: imageName);
 
     /// [showPiece] the widget shown in the center of the tile: image/silouhette/id.
     if (firstCaughtVariant != null) return image;
@@ -206,7 +223,8 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
   ) {
 
     final imageId = firstCaughtVariant ?? firstGuessedVariant;
-    final child = getCenterWidget(firstCaughtVariant, firstGuessedVariant, imageId, imageName);
+    final child = getCenterWidget(
+        firstCaughtVariant, firstGuessedVariant, imageId, imageName);
     final isKnown = child != null;
 
     return TiltCard(
@@ -235,23 +253,28 @@ class _PokedexPageState extends ConsumerState<PokedexPage> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: isKnown ? GameColors.surfaceRaised : GameColors.surface.withValues(alpha: 0.5),
+          color: isKnown
+              ? GameColors.surface
+              : GameColors.surface.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isKnown ? GameColors.primary.withValues(alpha: 0.5) : Colors.white12,
-          ),
           boxShadow: isKnown
-              ? [BoxShadow(color: GameColors.primary.withValues(alpha: 0.25), blurRadius: 10)]
+              ? const [
+                  BoxShadow(color: GameColors.primaryDeep, offset: Offset(0, 3))
+                ]
               : null,
         ),
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Center(
-            child: child ?? Text(
-              '$pokemonId',
-              style: Theme.of(context).textTheme.bodySmall,
-            )
-          ),
+              child: child ??
+                  Text(
+                    '$pokemonId',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: GameColors.textMuted,
+                    ),
+                  )),
         ),
       ),
     );

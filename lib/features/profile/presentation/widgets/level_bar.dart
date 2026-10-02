@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/features/profile/domain/level_math.dart';
 
@@ -18,7 +17,8 @@ class LevelProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nextLevelThreshold = calculateLevelThreshold(currentLevel + 1);
-    final double progress = (currentPoints.toDouble() / nextLevelThreshold.toDouble()).clamp(0, 1);
+    final double progress =
+        (currentPoints.toDouble() / nextLevelThreshold.toDouble()).clamp(0, 1);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -26,36 +26,50 @@ class LevelProgressBar extends StatelessWidget {
         _levelChip('$currentLevel'),
         const SizedBox(width: 10),
         Expanded(
-          child: Stack(
-            alignment: Alignment.centerLeft,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                height: 16,
-                decoration: BoxDecoration(
-                  color: Colors.black26,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white24),
-                ),
-              ),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 600),
-                    curve: Curves.easeOutCubic,
-                    height: 16,
-                    width: constraints.maxWidth * progress,
+              Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  Container(
+                    height: 18,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [levelBarColor, GameColors.gold]),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(color: GameColors.gold.withValues(alpha: 0.6), blurRadius: 10),
-                      ],
+                      border:
+                          Border.all(color: const Color(0xFFC9CEDB), width: 2),
                     ),
-                  ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(
-                        duration: const Duration(seconds: 2),
-                        color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                  // Fills once when the page opens; nothing moves after that.
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: progress),
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, _) => Container(
+                          height: 18,
+                          width: constraints.maxWidth * value,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [levelBarColor, GameColors.gold]),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       );
-                },
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$currentPoints / $nextLevelThreshold pts',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: GameColors.textOnLight,
+                ),
               ),
             ],
           ),
@@ -68,20 +82,26 @@ class LevelProgressBar extends StatelessWidget {
 
   Widget _levelChip(String level) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black26,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: GameColors.gold.withValues(alpha: 0.7)),
+        color: GameColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(color: GameColors.goldDeep, offset: Offset(0, 3)),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star, size: 14, color: GameColors.gold),
+          const Icon(Icons.star, size: 16, color: GameColors.goldDeep),
           const SizedBox(width: 4),
           Text(
             level,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 16,
+              color: GameColors.textOnLight,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
