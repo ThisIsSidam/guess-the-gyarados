@@ -4,6 +4,7 @@ import 'package:guessthegyarados/shared/application/providers/caught_pokemon_pro
 import 'package:guessthegyarados/shared/application/providers/pokemon_names_provider.dart';
 import 'package:guessthegyarados/shared/application/providers/steps_provider.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
+import 'package:guessthegyarados/core/constants/game_constants.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/features/achievements/presentation/pages/achievements_page.dart';
 import 'package:guessthegyarados/features/caught/presentation/pages/caught_page.dart';
@@ -131,18 +132,56 @@ class HomePage extends ConsumerWidget {
           ],
         ),
         // Still until touched: poking Arceus squashes and springs it back.
-        TapBounce(
-          pressedScale: 0.9,
-          onTap: () {},
-          child: Image.asset(
-            arceusImagePath,
-            fit: BoxFit.contain,
-            height: 200,
-            width: 200,
-          ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TapBounce(
+              pressedScale: 0.9,
+              onTap: () {},
+              child: Image.asset(
+                arceusImagePath,
+                fit: BoxFit.contain,
+                height: 200,
+                width: 200,
+              ),
+            ),
+            const SizedBox(height: 16),
+            caughtCounter(ref),
+          ],
         ),
         playButton(context, ref),
       ],
+    );
+  }
+
+  // How far through the Pokedex the player is.
+  Widget caughtCounter(WidgetRef ref) {
+    final caught = ref.watch(caughtPokemonProvider).caughtPokemonIds.length;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 6, 18, 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: const [
+          BoxShadow(color: Color(0x33000000), offset: Offset(0, 3)),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(pokeballIcon, width: 28, height: 28),
+          const SizedBox(width: 8),
+          Text(
+            '$caught / $totalPokemon caught',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: GameColors.textOnLight,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

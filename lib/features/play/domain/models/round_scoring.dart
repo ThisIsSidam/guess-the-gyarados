@@ -59,4 +59,7 @@ class RoundScoring {
   /// were spent (it used to grow, which rewarded spamming clues).
   static int forfeitPoints({required int steps, required PokemonEntity pokemon}) =>
       max(1, (pokemon.bst * 0.1 * meter(steps) / 100).round());
+
+  /// Extra for a round with no wrong picks at all: thinking over guessing.
+  static int perfectBonus(int basePoints) => (basePoints * 0.25).round();
 }

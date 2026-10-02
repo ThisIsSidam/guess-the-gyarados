@@ -4,32 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
-import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/constants/game_constants.dart';
 import 'package:guessthegyarados/core/extensions/string_extensions.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue_attempts.dart';
+import 'package:guessthegyarados/features/play/application/round_settler.dart';
+import 'package:guessthegyarados/features/play/domain/models/round_outcome.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_scoring.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/hud/catch_chance_meter.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/outlined_text.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/catching/catch_stage_controller.dart';
-import 'package:guessthegyarados/features/play/presentation/widgets/catching/catching_widget.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/catching/pokeball_animation.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/result/round_result_overlay.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/forfeit/forfeit_dialog.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_answer_sheet.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_carousel.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/question/clue_tile.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/reveal/pokemon_morph_reveal.dart';
-import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
 import 'package:guessthegyarados/shared/application/providers/caught_pokemon_provider.dart';
 import 'package:guessthegyarados/shared/application/providers/pokemon_names_provider.dart';
 import 'package:guessthegyarados/shared/application/providers/pokemon_provider.dart';
 import 'package:guessthegyarados/shared/application/providers/steps_provider.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
-import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
-import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/audio_player_widget.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/tilt_card.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/pokemon_sprite_image.dart';
@@ -64,7 +64,7 @@ class PlayPage extends ConsumerStatefulWidget {
 }
 
 class _PlayPageState extends ConsumerState<PlayPage> {
-  final randomId = Random().nextInt(1025) + 1; // Randomly pick a pokemon id
+  final randomId = Random().nextInt(totalPokemon) + 1; // Randomly pick a pokemon id
   bool isShiny = false;
 
   @override // Lucky enough for a shiny?
@@ -85,6 +85,13 @@ class _PlayPageState extends ConsumerState<PlayPage> {
 
   // True once the round's final animation is done and the player can move on.
   bool showContinue = false;
+
+  // What the round was worth; set the moment the end-of-round sequence
+  // reaches its final stage (the catch is rolled then).
+  RoundOutcome? _outcome;
+
+  // Wrong choice-clue picks plus wrong names; a round with none is "perfect".
+  int _wrongPicks = 0;
 
   // Shrinks/flashes the Pokemon sprite as the ball takes it in; driven by the
   // catch animation.
@@ -210,20 +217,33 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                           opacity: showContinue ? 1 : 0,
                           child: IgnorePointer(
                             ignoring: !showContinue,
-                            child: GameButton(
-                              color: GameColors.primary,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 16, horizontal: 48),
-                              onPressed: () => leavePage(),
-                              child: const Text(
-                                'CONTINUE',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                  color: GameColors.textOnLight,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GameIconBadge(
+                                  semanticLabel: 'Home',
+                                  size: 60,
+                                  onPressed: leavePage,
+                                  child: const Icon(Icons.home_rounded,
+                                      color: GameColors.textOnLight, size: 30),
                                 ),
-                              ),
+                                const SizedBox(width: 16),
+                                GameButton(
+                                  color: GameColors.primary,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16, horizontal: 32),
+                                  onPressed: nextPokemon,
+                                  child: const Text(
+                                    'NEXT POKEMON',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.5,
+                                      color: GameColors.textOnLight,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -310,6 +330,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         if (correct) {
           setState(() => revealedClueIds.add(clue.id));
         } else {
+          _wrongPicks++;
           attempts.recordWrong(value);
           // Refreshes the "out of tries" markers behind the dialog.
           setState(() {});
@@ -332,7 +353,11 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       onAttempt: (correct, value) {
         ref.read(stepsCounterProvider.notifier).increment();
         _feedback(correct);
-        if (correct) foundPokemon();
+        if (correct) {
+          foundPokemon(pokemon);
+        } else {
+          _wrongPicks++;
+        }
       },
     );
   }
@@ -350,14 +375,24 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   // slides to center (500ms) -> it flips to the real thing (600ms) -> the
   // ball is thrown. The catch itself is rolled/recorded by [CatchingWidget]
   // when it appears.
-  Future<void> foundPokemon() async {
+  Future<void> foundPokemon(PokemonEntity pokemon) async {
     setState(() {
       pokemonGuessedCorrectly = true;
       endPhase = _EndPhase.fading;
     });
     if (!await _advanceTo(_EndPhase.moving, 320)) return;
     if (!await _advanceTo(_EndPhase.revealing, 550)) return;
-    await _advanceTo(_EndPhase.revealed, 750);
+    await Future.delayed(const Duration(milliseconds: 750));
+    if (!mounted) return;
+    setState(() {
+      _outcome = RoundSettler.settleGuess(
+        pokemon: pokemon,
+        isShiny: isShiny,
+        steps: stepsCount,
+        wrongPicks: _wrongPicks,
+      );
+      endPhase = _EndPhase.revealed;
+    });
   }
 
   Widget revealArea(PokemonEntity thisPokemon, Map<int, String> pokemonNames) {
@@ -435,9 +470,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
           stagedReveal,
           if (pokemonGuessedCorrectly && endPhase == _EndPhase.revealed)
             Positioned.fill(
-              child: CatchingWidget(
-                steps: stepsCount,
-                pokemon: thisPokemon,
+              child: PokeBallCatchAnimation(
+                isCaught: _outcome!.caught,
+                pokemonName: thisPokemon.name,
                 isShiny: isShiny,
                 stage: _catchStage,
                 onFinished: () {
@@ -445,6 +480,8 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                 },
               ),
             ),
+          if (showContinue && _outcome != null)
+            Positioned.fill(child: RoundResultOverlay(outcome: _outcome!)),
           Positioned(
             top: constraints.maxHeight / 2 + imageSize / 2 + 8,
             left: 16,
@@ -598,13 +635,13 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   }
 
   Future<void> forfeitRound(PokemonEntity pokemon) async {
-    getIt<UserPokemonRepository>()
-        .recordInteraction(randomId, PokemonInteractionType.couldNotGuess);
-    final steps = ref.read(stepsCounterProvider);
-    getIt<UserProfileRepository>()
-        .addPoints(RoundScoring.forfeitPoints(steps: steps, pokemon: pokemon));
-
-    setState(() => endPhase = _EndPhase.fading);
+    setState(() {
+      _outcome = RoundSettler.settleForfeit(
+        pokemon: pokemon,
+        steps: ref.read(stepsCounterProvider),
+      );
+      endPhase = _EndPhase.fading;
+    });
     // Options fade (300ms) -> page collapses so the image slides to center
     // (500ms) -> it morphs into the real Pokemon (900ms) -> caption.
     if (!await _advanceTo(_EndPhase.moving, 320)) return;
@@ -613,7 +650,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     setState(() => showContinue = true);
   }
 
-  void leavePage() {
+  // Shared by every way out of a finished round: pick up the new catches and
+  // achievements, and tell the player about any achievements.
+  void _closeRound() {
     ref.read(caughtPokemonProvider.notifier).refresh();
     final newAchievements =
         ref.read(caughtPokemonProvider).newlyReceivedAchievements;
@@ -629,7 +668,20 @@ class _PlayPageState extends ConsumerState<PlayPage> {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+  }
 
+  void leavePage() {
+    _closeRound();
     Navigator.pop(context);
+  }
+
+  // Straight into the next round instead of back through the home page.
+  void nextPokemon() {
+    _closeRound();
+    ref.read(stepsCounterProvider.notifier).reborn();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const PlayPage()),
+    );
   }
 }

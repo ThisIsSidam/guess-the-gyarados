@@ -2,6 +2,22 @@ import 'package:guessthegyarados/features/profile/domain/level_math.dart';
 import 'package:guessthegyarados/features/profile/data/entities/user_profile_entity.dart';
 import 'package:objectbox/objectbox.dart';
 
+/// What an [UserProfileRepository.addPoints] call did to the player's level.
+class PointsAward {
+  const PointsAward({
+    required this.points,
+    required this.levelBefore,
+    required this.levelAfter,
+  });
+
+  /// Progress into the current level after the award.
+  final int points;
+  final int levelBefore;
+  final int levelAfter;
+
+  bool get leveledUp => levelAfter > levelBefore;
+}
+
 class UserProfileRepository {
   UserProfileRepository(Store store) : _box = store.box<UserProfileEntity>();
 
@@ -29,8 +45,9 @@ class UserProfileRepository {
     _box.put(profile);
   }
 
-  int addPoints(int addition) {
+  PointsAward addPoints(int addition) {
     final profile = getProfile();
+    final levelBefore = profile.level;
     var finalPoints = profile.points + addition;
     var currentLevel = profile.level;
     var nextLevelPointThreshold = calculateLevelThreshold(currentLevel + 1);
@@ -45,6 +62,10 @@ class UserProfileRepository {
     profile.level = currentLevel;
     _box.put(profile);
 
-    return finalPoints;
+    return PointsAward(
+      points: finalPoints,
+      levelBefore: levelBefore,
+      levelAfter: currentLevel,
+    );
   }
 }
