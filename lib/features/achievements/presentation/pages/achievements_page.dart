@@ -14,6 +14,7 @@ class AchievementPage extends ConsumerWidget {
     final state = ref.watch(caughtPokemonProvider);
     final receivedAchievements = state.receivedAchievements;
     final upcomingAchievements = state.upcomingAchievements;
+    final caughtIds = state.caughtPokemonIds.toSet();
 
     return Scaffold(
       body: FoldedBackdrop(
@@ -39,7 +40,8 @@ class AchievementPage extends ConsumerWidget {
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         sliver:
-                            buildAchievementGridSliver(receivedAchievements),
+                            buildAchievementGridSliver(receivedAchievements,
+                                caughtIds: caughtIds),
                       ),
                     if (upcomingAchievements
                         .isNotEmpty) // Show section only when list is not empty.
@@ -54,7 +56,7 @@ class AchievementPage extends ConsumerWidget {
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
                         sliver: buildAchievementGridSliver(upcomingAchievements,
-                            isReceived: false),
+                            isReceived: false, caughtIds: caughtIds),
                       ),
                   ],
                 ),

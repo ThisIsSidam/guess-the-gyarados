@@ -24,6 +24,7 @@ class CaughtPokemon extends _$CaughtPokemon {
     final userProfileRepository = getIt<UserProfileRepository>();
 
     final caughtPokemonIds = userPokemonRepository.getCaughtPokemonIds();
+    final caughtSet = caughtPokemonIds.toSet();
     final receivedAchievementIds = achievementRepository.getReceivedIds();
 
     final received = <Achievement>[];
@@ -38,6 +39,14 @@ class CaughtPokemon extends _$CaughtPokemon {
 
       if (achievement is ExistenceAchievement) {
         if (achievement.pokemonIds.every(caughtPokemonIds.contains)) {
+          received.add(achievement);
+          newlyReceived.add(achievement);
+          userProfileRepository.addPoints(achievement.points);
+        } else {
+          upcoming.add(achievement);
+        }
+      } else if (achievement is RegionAchievement) {
+        if (achievement.isMet(caughtSet)) {
           received.add(achievement);
           newlyReceived.add(achievement);
           userProfileRepository.addPoints(achievement.points);

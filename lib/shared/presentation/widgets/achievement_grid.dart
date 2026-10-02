@@ -9,10 +9,12 @@ const _achievementGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
   crossAxisSpacing: 8.0,
 );
 
-AchievementBadge _badgeAt(List<Achievement> list, int index, bool isReceived) {
+AchievementBadge _badgeAt(
+    List<Achievement> list, int index, bool isReceived, Set<int> caughtIds) {
   return AchievementBadge(
     achievement: list[list.length - index - 1],
     isReceived: isReceived,
+    caughtIds: caughtIds,
   );
 }
 
@@ -20,22 +22,25 @@ AchievementBadge _badgeAt(List<Achievement> list, int index, bool isReceived) {
 // inside an already-bounded (e.g. Expanded) region that owns its own
 // scrolling — this GridView scrolls itself rather than shrink-wrapping,
 // so it never has to eagerly lay out every badge up front.
-Widget buildAchievementGrid(List<Achievement> list, {bool isReceived = true}) {
+Widget buildAchievementGrid(List<Achievement> list,
+    {bool isReceived = true, Set<int> caughtIds = const {}}) {
   return GridView.builder(
     gridDelegate: _achievementGridDelegate,
     itemCount: list.length,
-    itemBuilder: (context, index) => _badgeAt(list, index, isReceived),
+    itemBuilder: (context, index) =>
+        _badgeAt(list, index, isReceived, caughtIds),
   );
 }
 
 // Sliver variant for embedding directly inside a CustomScrollView (e.g.
 // alongside section headers), so the grid shares the page's single scroll
 // position and lazily builds badges instead of being forced to shrink-wrap.
-Widget buildAchievementGridSliver(List<Achievement> list, {bool isReceived = true}) {
+Widget buildAchievementGridSliver(List<Achievement> list,
+    {bool isReceived = true, Set<int> caughtIds = const {}}) {
   return SliverGrid(
     gridDelegate: _achievementGridDelegate,
     delegate: SliverChildBuilderDelegate(
-      (context, index) => _badgeAt(list, index, isReceived),
+      (context, index) => _badgeAt(list, index, isReceived, caughtIds),
       childCount: list.length,
     ),
   );

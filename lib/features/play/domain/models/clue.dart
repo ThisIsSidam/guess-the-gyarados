@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
+import 'package:guessthegyarados/shared/domain/models/region.dart';
 
 /// A boolean clue reveals its answer the instant it's tapped (nothing to
 /// pick). A choice clue opens the shared [InlineAnswerPanel] so the player
@@ -76,17 +77,7 @@ const typeOptions = [
 
 /// The region each generation introduced, in generation order (index 0 =
 /// generation 1). Generation clues are asked and answered by region name.
-const generationRegions = [
-  "Kanto",
-  "Johto",
-  "Hoenn",
-  "Sinnoh",
-  "Unova",
-  "Kalos",
-  "Alola",
-  "Galar",
-  "Paldea",
-];
+final generationRegions = [for (final r in regions) r.name];
 
 ClueCatalog buildClueCatalog(PokemonEntity pokemon) {
   final types = pokemon.types;

@@ -1,6 +1,40 @@
 import 'package:guessthegyarados/shared/domain/achievements/achievement.dart';
+import 'package:guessthegyarados/shared/domain/models/region.dart';
 
 final List<Achievement> achievementCatalog = [
+  ...legendAchievements,
+  ...regionAchievements,
+];
+
+/// Three tiers per region: a first taste, a real collection, and the lot.
+/// Ids start at 100 so they never collide with the legend achievements.
+final List<Achievement> regionAchievements = [
+  for (var i = 0; i < regions.length; i++) ...[
+    RegionAchievement(
+      id: 100 + i * 3,
+      name: '${regions[i].name} Rookie',
+      points: 200,
+      region: regions[i],
+      target: 10,
+    ),
+    RegionAchievement(
+      id: 101 + i * 3,
+      name: '${regions[i].name} Veteran',
+      points: 600,
+      region: regions[i],
+      target: 25,
+    ),
+    RegionAchievement(
+      id: 102 + i * 3,
+      name: '${regions[i].name} Master',
+      points: regions[i].size * 30,
+      region: regions[i],
+      target: regions[i].size,
+    ),
+  ],
+];
+
+final List<Achievement> legendAchievements = [
   ExistenceAchievement(
     id: 0,
     name: "Gen1 Legends",
