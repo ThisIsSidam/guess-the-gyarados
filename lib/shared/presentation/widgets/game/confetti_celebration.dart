@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/core/settings/reduced_motion.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 
 /// Fullscreen-overlaying confetti burst. Play it once via [ConfettiCelebrationController.play]
@@ -17,7 +18,9 @@ class ConfettiCelebration extends StatefulWidget {
 class ConfettiCelebrationController {
   final _confettiController = ConfettiController(duration: const Duration(seconds: 1));
 
-  void play() => _confettiController.play();
+  void play() {
+    if (!ReducedMotion.preferred) _confettiController.play();
+  }
 
   void dispose() => _confettiController.dispose();
 }

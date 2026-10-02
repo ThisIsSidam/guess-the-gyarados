@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/core/settings/reduced_motion.dart';
 
 /// Squash-and-stretch feedback for a tap: the child dips on touch-down and
 /// springs back past full size on release. Nothing animates until the player
@@ -50,10 +51,15 @@ class _TapBounceState extends State<TapBounce>
 
   // Only the dip is held on touch-down; the rebound plays from the dip on
   // release, so a long press stays squashed instead of bouncing early.
-  void _down() =>
-      _controller.animateTo(1 / 6, duration: const Duration(milliseconds: 70));
+  void _down() {
+    if (ReducedMotion.of(context)) return;
+    _controller.animateTo(1 / 6, duration: const Duration(milliseconds: 70));
+  }
 
-  void _release() => _controller.forward();
+  void _release() {
+    if (ReducedMotion.of(context)) return;
+    _controller.forward();
+  }
 
   @override
   Widget build(BuildContext context) {

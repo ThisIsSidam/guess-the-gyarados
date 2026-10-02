@@ -11,6 +11,7 @@ import 'package:guessthegyarados/features/caught/presentation/pages/caught_page.
 import 'package:guessthegyarados/features/play/presentation/pages/play_page.dart';
 import 'package:guessthegyarados/features/pokedex/presentation/pages/pokedex_page.dart';
 import 'package:guessthegyarados/features/profile/presentation/pages/profile_page.dart';
+import 'package:guessthegyarados/features/settings/presentation/pages/settings_page.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/outlined_text.dart';
@@ -83,6 +84,13 @@ class HomePage extends ConsumerWidget {
             semanticLabel: 'Profile',
             onPressed: () => _open(context, const ProfilePage()),
             child: Image.asset(profileIconPath, width: 26, height: 26),
+          ),
+          const SizedBox(width: 12),
+          GameIconBadge(
+            semanticLabel: 'Settings',
+            onPressed: () => _open(context, const SettingsPage()),
+            child: const Icon(Icons.settings_rounded,
+                color: GameColors.textOnLight, size: 28),
           ),
           const Spacer(),
           GameIconBadge(

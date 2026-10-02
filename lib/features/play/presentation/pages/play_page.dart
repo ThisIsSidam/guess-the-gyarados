@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
 import 'package:guessthegyarados/core/constants/game_constants.dart';
 import 'package:guessthegyarados/core/extensions/string_extensions.dart';
+import 'package:guessthegyarados/core/settings/haptics.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
@@ -293,11 +293,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   // double-buzz for a wrong one, so the two are never confused by feel.
   void _feedback(bool success) {
     if (success) {
-      HapticFeedback.lightImpact();
+      Haptics.light();
     } else {
-      HapticFeedback.heavyImpact();
-      Future.delayed(
-          const Duration(milliseconds: 90), HapticFeedback.heavyImpact);
+      Haptics.doubleBuzz();
     }
   }
 

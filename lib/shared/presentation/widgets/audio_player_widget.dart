@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/core/di/injection.dart';
+import 'package:guessthegyarados/core/settings/app_preferences.dart';
 import 'package:just_audio/just_audio.dart';
 
 /// Plays [audioLink] when [child] is tapped. The clip is loaded as soon as the
@@ -62,6 +64,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   }
 
   Future<void> _playAudio() async {
+    if (!getIt<AppPreferences>().soundEnabled) return;
     await _loading;
     if (_player.processingState == ProcessingState.idle) {
       _load();

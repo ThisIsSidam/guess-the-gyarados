@@ -1,4 +1,6 @@
 import 'package:get_it/get_it.dart';
+import 'package:guessthegyarados/core/settings/app_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:guessthegyarados/core/network/dio_client.dart';
 import 'package:guessthegyarados/core/local/objectbox_store.dart';
 import 'package:guessthegyarados/shared/data/repositories/achievement_repository.dart';
@@ -16,6 +18,10 @@ final getIt = GetIt.instance;
 Future<void> configureDependencies() async {
   final objectBoxStore = await ObjectBoxStore.create();
   getIt.registerSingleton<ObjectBoxStore>(objectBoxStore);
+
+  getIt.registerSingleton<AppPreferences>(
+    AppPreferences(await SharedPreferences.getInstance()),
+  );
 
   getIt.registerLazySingleton<DioClient>(() => DioClient());
 

@@ -23,6 +23,9 @@ enum FoldPattern {
 
   /// Three stacked bands instead of two (the profile).
   layered,
+
+  /// Two wide, low bands that push the clear area to the top (settings).
+  broad,
 }
 
 /// A folded-paper backdrop: no glow, no blur, nothing soft — only flat facets
@@ -154,6 +157,13 @@ const _layered = [
   _Facet([Offset(1, 1), Offset(0.62, 1), Offset(1, 0.74)], 0.06, neutral: true),
 ];
 
+const _broad = [
+  _Facet([Offset(0, 0), Offset(1, 0), Offset(1, 0.12), Offset(0, 0.06)], 0.5),
+  _Facet([Offset(1, 0), Offset(0.6, 0), Offset(1, 0.07)], 0.62),
+  _Facet([Offset(0, 0.06), Offset(1, 0.12), Offset(1, 0.26), Offset(0, 0.2)], 0.72),
+  _Facet([Offset(0, 1), Offset(0.4, 1), Offset(0, 0.78)], 0.06, neutral: true),
+];
+
 List<_Facet> _facetsFor(FoldPattern pattern) {
   switch (pattern) {
     case FoldPattern.diagonal:
@@ -168,5 +178,7 @@ List<_Facet> _facetsFor(FoldPattern pattern) {
       return [for (final f in _steep) f.mirrored()];
     case FoldPattern.layered:
       return _layered;
+    case FoldPattern.broad:
+      return _broad;
   }
 }

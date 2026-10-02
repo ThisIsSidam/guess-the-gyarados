@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:guessthegyarados/core/constants/asset_paths.dart';
+import 'package:guessthegyarados/core/settings/haptics.dart';
+import 'package:guessthegyarados/core/settings/reduced_motion.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/catching/catch_stage_controller.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/outlined_text.dart';
@@ -117,18 +118,16 @@ class _PokeBallCatchAnimationState extends State<PokeBallCatchAnimation>
       if (ms >= at && _fired.add(id)) fire();
     }
 
-    once(0, _throwEnd, () => HapticFeedback.lightImpact());
+    once(0, _throwEnd, () => Haptics.light());
     for (var k = 0; k < 3; k++) {
       once(1 + k, _wiggleStart + k * (_wiggleLen + _wiggleGap),
-          () => HapticFeedback.selectionClick());
+          () => Haptics.selection());
     }
     once(10, _resultAt, () {
       if (widget.isCaught) {
-        HapticFeedback.lightImpact();
+        Haptics.light();
       } else {
-        HapticFeedback.heavyImpact();
-        Future.delayed(
-            const Duration(milliseconds: 90), HapticFeedback.heavyImpact);
+        Haptics.doubleBuzz();
       }
     });
   }
@@ -162,7 +161,8 @@ class _PokeBallCatchAnimationState extends State<PokeBallCatchAnimation>
         u,
       );
       scale = lerpDouble(1.3, 0.85, u)!;
-      angle = u * 4 * pi;
+      // The throw's spin is decoration; reduced motion keeps the arc only.
+      angle = ReducedMotion.of(context) ? 0 : u * 4 * pi;
     } else if (ms < _bounce2End) {
       pos = Offset(
         0,

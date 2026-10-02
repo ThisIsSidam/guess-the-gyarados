@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:guessthegyarados/core/settings/app_preferences.dart';
 import 'package:guessthegyarados/core/di/injection.dart';
 import 'package:guessthegyarados/core/network/dio_client.dart';
 import 'package:guessthegyarados/core/local/objectbox_store.dart';
@@ -27,6 +29,10 @@ void main() {
     objectBoxStore = ObjectBoxStore(store);
 
     getIt.registerSingleton<ObjectBoxStore>(objectBoxStore);
+    SharedPreferences.setMockInitialValues({});
+    getIt.registerSingleton<AppPreferences>(
+      AppPreferences(await SharedPreferences.getInstance()),
+    );
     getIt.registerLazySingleton<DioClient>(() => DioClient());
     getIt.registerLazySingleton<PokemonRepository>(
       () => PokemonRepository(getIt<ObjectBoxStore>().store, getIt<DioClient>()),

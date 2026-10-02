@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/core/settings/reduced_motion.dart';
 
 /// Shakes [child] side to side whenever [trigger] changes value (it stays
 /// still on first build, and while the trigger is unchanged). Wrap anything
@@ -37,7 +38,9 @@ class _ShakeState extends State<Shake> with SingleTickerProviderStateMixin {
   @override
   void didUpdateWidget(Shake oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.trigger != oldWidget.trigger) _controller.forward(from: 0);
+    if (widget.trigger != oldWidget.trigger && !ReducedMotion.of(context)) {
+      _controller.forward(from: 0);
+    }
   }
 
   @override

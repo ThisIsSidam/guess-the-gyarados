@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:guessthegyarados/core/settings/reduced_motion.dart';
 
 /// Wraps [child] in a perspective transform that tilts on drag/hover,
 /// simulating a 3D card (à la a physical trading card catching light) with
@@ -30,7 +31,7 @@ class _TiltCardState extends State<TiltCard> {
   double _scale = 1;
 
   void _updateFromLocal(Offset local, Size size) {
-    if (size.width == 0 || size.height == 0) return;
+    if (size.width == 0 || size.height == 0 || ReducedMotion.of(context)) return;
     final px = (local.dx / size.width).clamp(0.0, 1.0) - 0.5;
     final py = (local.dy / size.height).clamp(0.0, 1.0) - 0.5;
     setState(() {

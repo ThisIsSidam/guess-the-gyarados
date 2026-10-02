@@ -1,7 +1,8 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:guessthegyarados/core/settings/haptics.dart';
+import 'package:guessthegyarados/core/settings/reduced_motion.dart';
 import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/features/play/domain/models/round_outcome.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/confetti_celebration.dart';
@@ -42,11 +43,25 @@ class _RoundResultOverlayState extends State<RoundResultOverlay>
 
   RoundOutcome get o => widget.outcome;
 
+  bool _started = false;
+
   @override
   void initState() {
     super.initState();
     _controller.addListener(_haptics);
-    _controller.forward();
+  }
+
+  // Reduced motion shows the finished result at once instead of animating it.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    if (ReducedMotion.of(context)) {
+      _controller.value = 1;
+    } else {
+      _controller.forward();
+    }
   }
 
   @override
@@ -64,14 +79,14 @@ class _RoundResultOverlayState extends State<RoundResultOverlay>
     }
 
     if (o.isNewCatch) {
-      once(0, _stampAt + 220, () => HapticFeedback.mediumImpact());
+      once(0, _stampAt + 220, () => Haptics.medium());
     }
     if (o.perfectBonus > 0) {
-      once(1, _bonusAt, () => HapticFeedback.selectionClick());
+      once(1, _bonusAt, () => Haptics.selection());
     }
     if (o.leveledUp) {
       once(2, _levelAt, () {
-        HapticFeedback.heavyImpact();
+        Haptics.heavy();
         _confetti.play();
       });
     }

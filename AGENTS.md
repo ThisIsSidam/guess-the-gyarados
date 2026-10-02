@@ -34,7 +34,7 @@ Where something lands is decided by **how many features read it**, not by what "
 
 Every screen is a `Scaffold` with **no AppBar**: body = `FoldedBackdrop` (`shared/presentation/widgets/game/`) → `SafeArea` → content. Sub-pages start with `GamePageHeader` (back button + title ribbon), home lays its `GameIconBadge` icons straight onto the backdrop.
 
-- Each screen picks its own `FoldPattern` (all the same family of slanted horizontal bands — play=`diagonal`, home=`rising`, pokedex=`shallow`, caught=`steep`, achievements=`steepRising`, profile=`layered`) and an accent color. The backdrop is a light sheet, so text on it is `GameColors.textOnLight`; use `OutlinedText` for colored titles.
+- Each screen picks its own `FoldPattern` (all the same family of slanted horizontal bands — play=`diagonal`, home=`rising`, pokedex=`shallow`, caught=`steep`, achievements=`steepRising`, profile=`layered`, settings=`broad`) and an accent color. The backdrop is a light sheet, so text on it is `GameColors.textOnLight`; use `OutlinedText` for colored titles.
 - **Motion happens only in response to interaction** (press squash via `GameButton`/`GameIconBadge`/`TapBounce`, `TiltCard`, selection changes, one-shot fills). No `repeat()` loops or idle pulses/shimmers/floats on screens.
 - Round icon buttons (`GameIconBadge`) are flat white circles; chunky raised buttons (`GameButton`) use a hard, blur-free offset shadow, never a glow.
 
@@ -93,5 +93,5 @@ These are pinned to specific ranges for real dependency-resolution reasons, not 
 
 ## Not yet needed, but the pattern to reach for when it is
 
-- **`shared_preferences`**: no app setting exists today (theme is a constant, not user-configurable). All current profile fields (username/points/level/first-catch/color) are game-progress domain data in `UserProfileEntity`, not settings. When a real setting appears (e.g. a sound toggle), add a `shared_preferences`-backed `AppPreferences` class registered in `get_it`, following the same direct-`getIt<T>()` pattern as the repositories.
+- **Settings (`shared_preferences`)**: `core/settings/app_preferences.dart` (`AppPreferences`, registered in get_it, read synchronously) holds sound / haptics / reduce-motion. Fire haptics through `Haptics` (never `HapticFeedback` directly) and gate decorative motion with `ReducedMotion.of(context)` (it also honors the OS "remove animations" flag). Game progress still lives in ObjectBox, not here.
 - **Pokemon-names caching**: `PokemonNamesService` re-parses the bundled `assets/data/pokemon_names.json` on first use and memoizes in memory for the process lifetime — no ObjectBox entity, no persistence. This is deliberate: it's static bundled data, so persisting a copy would just be another cache to keep in sync for no benefit.
