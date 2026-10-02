@@ -3,15 +3,18 @@ import 'package:just_audio/just_audio.dart';
 
 /// Plays [audioLink] when [child] is tapped. The clip is loaded as soon as the
 /// widget appears (and again if the link changes), so a tap only has to seek
-/// to the start and play — no load delay.
+/// to the start and play — no load delay. While [enabled] is false taps do
+/// nothing (the clip is still preloaded).
 class AudioPlayerWidget extends StatefulWidget {
   final Widget child;
   final String audioLink;
+  final bool enabled;
 
   const AudioPlayerWidget({
     super.key,
     required this.child,
     required this.audioLink,
+    this.enabled = true,
   });
 
   @override
@@ -53,7 +56,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _playAudio,
+      onTap: widget.enabled ? _playAudio : null,
       child: widget.child,
     );
   }

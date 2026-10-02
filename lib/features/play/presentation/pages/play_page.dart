@@ -10,6 +10,8 @@ import 'package:guessthegyarados/core/theme/gyarados_theme.dart';
 import 'package:guessthegyarados/core/theme/pokemon_type_colors.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue.dart';
 import 'package:guessthegyarados/features/play/domain/models/clue_attempts.dart';
+import 'package:guessthegyarados/features/play/domain/models/round_scoring.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/hud/catch_chance_meter.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/folded_backdrop.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/game_button.dart';
 import 'package:guessthegyarados/shared/presentation/widgets/game/outlined_text.dart';
@@ -154,7 +156,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                   children: [
                     Column(
                       children: [
-                        topBar(thisPokemon, accentColor),
+                        topBar(thisPokemon),
                         Expanded(
                           child: revealArea(
                               thisPokemon, pokemonsMap ?? const {}),
@@ -363,8 +365,10 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     final giveUpRevealed =
         endPhase == _EndPhase.revealed && !pokemonGuessedCorrectly;
 
+    // The cry is a free, strong hint, so it only plays once the round is over.
     final reveal = AudioPlayerWidget(
       audioLink: thisPokemon.cry,
+      enabled: endPhase == _EndPhase.revealed,
       child: TiltCard(
         child: SizedBox(
           height: imageSize,
@@ -484,7 +488,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
 
   // Replaces the old AppBar — a plain row on the backdrop itself so there's
   // no separate Material surface/shadow between it and the rest of the page.
-  Widget topBar(PokemonEntity thisPokemon, Color accentColor) {
+  Widget topBar(PokemonEntity thisPokemon) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Row(
@@ -508,32 +512,9 @@ class _PlayPageState extends ConsumerState<PlayPage> {
               ),
             ),
           ),
-          stepsHudBadge(accentColor),
-        ],
-      ),
-    );
-  }
-
-  Widget stepsHudBadge(Color accentColor) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 700),
-      curve: Curves.easeInOut,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: GameColors.surfaceRaised,
-        borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: accentColor.withValues(alpha: 0.6), width: 1.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.touch_app, size: 18, color: accentColor),
-          const SizedBox(width: 6),
-          Text(
-            "$stepsCount",
-            style: const TextStyle(
-                color: GameColors.textOnLight, fontWeight: FontWeight.bold),
+          CatchChanceMeter(
+            chance: RoundScoring.meter(stepsCount),
+            steps: stepsCount,
           ),
         ],
       ),
@@ -621,7 +602,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
         .recordInteraction(randomId, PokemonInteractionType.couldNotGuess);
     final steps = ref.read(stepsCounterProvider);
     getIt<UserProfileRepository>()
-        .addPoints(((pokemon.bst / 100) * steps).toInt());
+        .addPoints(RoundScoring.forfeitPoints(steps: steps, pokemon: pokemon));
 
     setState(() => endPhase = _EndPhase.fading);
     // Options fade (300ms) -> page collapses so the image slides to center
