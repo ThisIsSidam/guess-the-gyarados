@@ -5,17 +5,22 @@ import 'package:guessthegyarados/shared/data/entities/pokemon_entity.dart';
 import 'package:guessthegyarados/shared/data/entities/pokemon_interaction_entity.dart';
 import 'package:guessthegyarados/shared/data/repositories/user_pokemon_repository.dart';
 import 'package:guessthegyarados/features/profile/data/repositories/user_profile_repository.dart';
+import 'package:guessthegyarados/features/play/presentation/widgets/catching/catch_stage_controller.dart';
 import 'package:guessthegyarados/features/play/presentation/widgets/catching/pokeball_animation.dart';
 
 class CatchingWidget extends StatefulWidget {
   final int steps;
   final PokemonEntity pokemon;
   final bool isShiny;
+  final CatchStageController stage;
+  final VoidCallback? onFinished;
   const CatchingWidget({
     super.key,
     required this.steps,
     required this.pokemon,
-    required this.isShiny
+    required this.isShiny,
+    required this.stage,
+    this.onFinished,
   });
 
   @override
@@ -23,8 +28,10 @@ class CatchingWidget extends StatefulWidget {
 }
 
 class _CatchingWidgetState extends State<CatchingWidget> {
-  bool caught = false;
+  late final bool caught;
 
+  // The outcome is rolled and recorded the moment the sequence starts; the
+  // animation only plays it out, so leaving mid-animation can't lose it.
   @override
   void initState() {
     super.initState();
@@ -32,9 +39,7 @@ class _CatchingWidgetState extends State<CatchingWidget> {
     final catchRate = getSuccessRate();
 
     final random = Random().nextInt(100);
-    setState(() {
-      caught = random < catchRate;
-    });
+    caught = random < catchRate;
 
     final userPokemonRepository = getIt<UserPokemonRepository>();
     final userProfileRepository = getIt<UserProfileRepository>();
@@ -90,11 +95,12 @@ class _CatchingWidgetState extends State<CatchingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: PokeBallCatchAnimation(isCaught: caught,),
-      ),
+    return PokeBallCatchAnimation(
+      isCaught: caught,
+      pokemonName: widget.pokemon.name,
+      isShiny: widget.isShiny,
+      stage: widget.stage,
+      onFinished: widget.onFinished,
     );
   }
 }
